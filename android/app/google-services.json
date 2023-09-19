@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "951810322846",
+    "project_id": "ultralevel-pro",
+    "storage_bucket": "ultralevel-pro.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:951810322846:android:a5ae3a9f8314179792e68f",
+        "android_client_info": {
+          "package_name": "com.example.ultra_level_pro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "951810322846-165bl6ed8a7vs8cujbv7636ruio18q7c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhTtwm8RfxeyEM8Fz8J1kTn0XYTN1MnlA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "951810322846-165bl6ed8a7vs8cujbv7636ruio18q7c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
