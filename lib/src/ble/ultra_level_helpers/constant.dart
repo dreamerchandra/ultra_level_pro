@@ -24,6 +24,27 @@ enum WriteParameter {
   TankHeight,
   TankWidth,
   TankLength,
+  TankDiameter,
   SlaveId,
   BaudRate,
 }
+
+Map<WriteParameter, String> ParameterToAddress = {
+  WriteParameter.Settings: '0F',
+  WriteParameter.LowLevelRelayInMm: '10',
+  WriteParameter.HighLevelRelayInPercent: '11',
+  WriteParameter.Lph: '12',
+  WriteParameter.ZeroPercentTrimmingPoint: '13',
+  WriteParameter.HundredPercentTrimmingPoint: '14',
+  WriteParameter.Damping: '15',
+  WriteParameter.LevelCalibrationOffset: '16',
+  WriteParameter.SensorOffset: '17',
+  WriteParameter.TankOffset: '18',
+  WriteParameter.TankType: '19',
+  WriteParameter.TankHeight: '1A',
+  WriteParameter.TankWidth: '1B',
+  WriteParameter.TankLength: '1C',
+  WriteParameter.TankDiameter: '1D',
+  WriteParameter.SlaveId: '1E',
+  WriteParameter.BaudRate: '1F',
+};

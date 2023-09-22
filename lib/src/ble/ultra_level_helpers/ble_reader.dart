@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/alarm.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/baud_rate.dart';
+import 'package:ultra_level_pro/src/ble/ultra_level_helpers/constant.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/helper.dart';
+import 'package:ultra_level_pro/src/ble/ultra_level_helpers/settings.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/tank_type.dart';
 
 class BleState {
@@ -19,7 +21,7 @@ class BleState {
   late double powerSupplyVoltage;
   late double temperature1;
   late double temperature2;
-  late String settings;
+  late Settings settings;
   late int lowLevelRelayInMm;
   late double highLevelRelayInPercent;
   late int lph;
@@ -33,12 +35,52 @@ class BleState {
   late int tankHeight;
   late int tankWidth;
   late int tankLength;
+  late int tankDiameter;
   late String slaveId;
   late int baudRate;
 
   BleState({required this.data}) {
     if (!isCRCSame()) throw Exception("CRC is not same");
     computeValues();
+  }
+
+  dynamic getValueByWrite(WriteParameter parameter) {
+    switch (parameter) {
+      case WriteParameter.BaudRate:
+        return baudRate;
+      case WriteParameter.Damping:
+        return damping;
+      case WriteParameter.HighLevelRelayInPercent:
+        return highLevelRelayInPercent;
+      case WriteParameter.LevelCalibrationOffset:
+        return levelCalibrationOffset;
+      case WriteParameter.LowLevelRelayInMm:
+        return lowLevelRelayInMm;
+      case WriteParameter.Lph:
+        return lph;
+      case WriteParameter.SensorOffset:
+        return sensorOffset;
+      case WriteParameter.TankOffset:
+        return tankOffset;
+      case WriteParameter.TankType:
+        return tankType;
+      case WriteParameter.TankHeight:
+        return tankHeight;
+      case WriteParameter.TankWidth:
+        return tankWidth;
+      case WriteParameter.TankLength:
+        return tankLength;
+      case WriteParameter.TankDiameter:
+        return tankDiameter;
+      case WriteParameter.ZeroPercentTrimmingPoint:
+        return zeroPercentTrimmingPoint;
+      case WriteParameter.HundredPercentTrimmingPoint:
+        return hundredPercentTrimmingPoint;
+      case WriteParameter.Settings:
+        return settings;
+      case WriteParameter.SlaveId:
+        return slaveId;
+    }
   }
 
   bool isCRCSame() {
@@ -65,7 +107,7 @@ class BleState {
     powerSupplyVoltage = hexToInt(data.substring(i, i += 4)) / 100;
     temperature1 = hexToInt(data.substring(i, i += 4)) / 100;
     temperature2 = hexToInt(data.substring(i, i += 4)) / 100;
-    settings = data.substring(i, i += 4);
+    settings = Settings.getSettings(data.substring(i, i += 4));
     lowLevelRelayInMm = hexToInt(data.substring(i, i += 4));
     highLevelRelayInPercent = hexToInt(data.substring(i, i += 4)) / 100;
     lph = hexToInt(data.substring(i, i += 4));
@@ -79,6 +121,7 @@ class BleState {
     tankHeight = hexToInt(data.substring(i, i += 4));
     tankWidth = hexToInt(data.substring(i, i += 4));
     tankLength = hexToInt(data.substring(i, i += 4));
+    tankDiameter = hexToInt(data.substring(i, i += 4));
     slaveId = data.substring(i, i += 4);
     baudRate = getBaudRate(data.substring(i, i += 4));
   }

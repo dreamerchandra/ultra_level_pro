@@ -1,5 +1,6 @@
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ultra_level_pro/src/ble/ble_connected_device.dart';
 import 'package:ultra_level_pro/src/ble/ble_device_connector.dart';
 import 'package:ultra_level_pro/src/ble/ble_device_interactor.dart';
 import 'package:ultra_level_pro/src/ble/ble_logger.dart';
@@ -14,6 +15,7 @@ final _connector = BleDeviceConnector(
   ble: _ble,
   logMessage: _bleLogger.addToLog,
 );
+
 final _serviceDiscoverer = BleDeviceInteractor(
   bleDiscoverServices: (deviceId) async {
     await _ble.discoverAllServices(deviceId);
@@ -33,3 +35,6 @@ final bleScannerStateProvider = StreamProvider<BleScannerState?>((ref) async* {
     yield message;
   }
 });
+final bleConnectedDeviceProvider =
+    StateNotifierProvider<BleConnectedDeviceNotifier, BleConnectedDevice?>(
+        (ref) => BleConnectedDeviceNotifier());

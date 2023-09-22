@@ -2,7 +2,11 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:ultra_level_pro/src/ble/ultra_level_helpers/baud_rate.dart';
+import 'package:ultra_level_pro/src/ble/ultra_level_helpers/ble_reader.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/constant.dart';
+import 'package:ultra_level_pro/src/ble/ultra_level_helpers/helper.dart';
+import 'package:ultra_level_pro/src/ble/ultra_level_helpers/settings.dart';
 
 class BleWriter {
   final FlutterReactiveBle ble;
@@ -30,57 +34,94 @@ class BleWriter {
     return completer.future;
   }
 
-  bool checkWriteIsOk(
-      {required String desiredValue, required String actualValue}) {
-    return true;
+  bool checkWriteIsOk({
+    required String desiredValue,
+    required String actualValue,
+  }) {
+    return desiredValue == actualValue;
   }
 
-  String getValueToWrite(WriteParameter parameter, String value) {
+  String getValueToWrite({
+    required String deviceId,
+    required WriteParameter parameter,
+    required String value,
+    required Settings settings,
+    required String slaveId,
+    SettingsValueToChange? settingsValueToChange,
+  }) {
+    final writeAddress = ParameterToAddress[parameter];
+    String result =
+        '${slaveId}06$writeAddress'; // slaveId funCode writeAddress data crc
+    String data = '';
     switch (parameter) {
       case WriteParameter.BaudRate:
-        return 'AT+BAUD4';
+        data = getBitByBaudRate(int.parse(value));
+        break;
       case WriteParameter.Damping:
-        return 'AT+DAMP0';
+        data = intToHex(int.parse(value));
+        break;
       case WriteParameter.Settings:
-        return 'AT+SET0';
+        if (settingsValueToChange == null) {
+          break;
+        }
+        data = Settings.settingsToHexString(
+            Settings.updateNewSettings(settings, settingsValueToChange));
+        break;
       case WriteParameter.LowLevelRelayInMm:
-        return 'AT+LLR$value';
+        data = intToHex(int.parse(value));
+        break;
       case WriteParameter.HighLevelRelayInPercent:
-        return 'AT+HLR$value';
+        data = intToHex(int.parse(value) * 100);
+        break;
       case WriteParameter.Lph:
-        return 'AT+LPH$value';
+        data = intToHex(int.parse(value));
       case WriteParameter.ZeroPercentTrimmingPoint:
-        return 'AT+ZPT$value';
+        data = intToHex(int.parse(value) * 1000);
       case WriteParameter.HundredPercentTrimmingPoint:
-        return 'AT+HPT$value';
+        data = intToHex(int.parse(value) * 1000);
       case WriteParameter.LevelCalibrationOffset:
-        return 'AT+LCO$value';
+        data = intToHex(int.parse(value));
       case WriteParameter.SensorOffset:
-        return 'AT+SO$value';
+        data = intToHex(int.parse(value));
       case WriteParameter.TankOffset:
-        return 'AT+TO$value';
+        data = intToHex(int.parse(value));
       case WriteParameter.TankType:
-        return 'AT+TT$value';
+        data = value;
       case WriteParameter.TankHeight:
-        return 'AT+TH$value';
+        data = intToHex(int.parse(value));
       case WriteParameter.TankWidth:
-        return 'AT+TW$value';
+        data = intToHex(int.parse(value));
       case WriteParameter.TankLength:
-        return 'AT+TL$value';
+        data = intToHex(int.parse(value));
       case WriteParameter.SlaveId:
-        return 'AT+SID$value';
+        break;
+      case WriteParameter.TankDiameter:
+        data = intToHex(int.parse(value));
     }
+    return result + data + computeCRC(result + data);
   }
 
-  Future<bool> writeToDevice(
-      {required String deviceId,
-      required WriteParameter parameter,
-      required String value}) async {
-    final valueToWrite = getValueToWrite(parameter, value);
+  Future<bool> writeToDevice({
+    required String deviceId,
+    required WriteParameter parameter,
+    required String value,
+    required Settings settings,
+    required String slaveId,
+  }) async {
+    final valueToWrite = getValueToWrite(
+        deviceId: deviceId,
+        parameter: parameter,
+        settings: settings,
+        slaveId: slaveId,
+        value: value); // voltage, 251
 
     Completer<bool> completer = Completer<bool>();
-    verifyEcho(value) {
-      if (checkWriteIsOk(actualValue: value, desiredValue: valueToWrite)) {
+    verifyEcho(echoValue) {
+      BleState state = BleState(data: echoValue);
+      if (checkWriteIsOk(
+        actualValue: state.getValueByWrite(parameter).toString(),
+        desiredValue: value,
+      )) {
         completer.complete(true);
       } else {
         throw Exception('Write failed');

@@ -18,6 +18,7 @@ class HomeWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scannerState = ref.watch(bleScannerStateProvider);
     final scanner = ref.watch(bleScannerProvider);
+    final connectedDevice = ref.read(bleConnectedDeviceProvider.notifier);
     return Scaffold(
       appBar: AppBar(
         title: Text('Nearby Devices'),
@@ -38,6 +39,8 @@ class HomeWidget extends ConsumerWidget {
           onTap: (device) async {
             scanner.stopScan();
             await ref.read(bleConnectorProvider).connect(device.id);
+            if (!context.mounted) return;
+            connectedDevice.setDevice(device);
             GoRouter.of(context).push(getDeviceDetailsRoute(device.id));
           },
         ),

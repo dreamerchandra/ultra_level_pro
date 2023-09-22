@@ -19,6 +19,7 @@ class Input extends StatefulWidget {
 class _InputState extends State<Input> {
   final textController = TextEditingController();
   bool loading = false;
+  bool isError = false;
   @override
   void initState() {
     super.initState();
@@ -46,27 +47,44 @@ class _InputState extends State<Input> {
             decoration: InputDecoration(
               hintText: widget.hintText,
             ),
-            style: const TextStyle(fontSize: 12),
+            style: TextStyle(
+              fontSize: 12,
+              color: isError ? Colors.red : Colors.black,
+            ),
             controller: textController,
           ),
         ),
         IconButton(
           onPressed: () async {
-            setState(() {
-              loading = true;
-            });
-            await widget.onDone(
-              widget.parameter,
-              textController.text,
-            );
-            setState(() {
-              loading = false;
-            });
-            textController.clear();
+            try {
+              setState(() {
+                loading = true;
+                isError = false;
+              });
+              await widget.onDone(
+                widget.parameter,
+                textController.text,
+              );
+              setState(() {
+                loading = false;
+                isError = false;
+              });
+              textController.clear();
+            } catch (e) {
+              debugPrint("error: $e");
+              setState(() {
+                loading = false;
+                isError = true;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text("Failed to sent message"),
+              ));
+            }
           },
           icon: loading
               ? const Icon(Icons.circle_outlined)
               : const Icon(Icons.check),
+          color: isError ? Colors.red : Colors.black,
           iconSize: 15,
         )
       ],

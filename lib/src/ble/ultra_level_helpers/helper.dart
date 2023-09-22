@@ -300,3 +300,7 @@ String computeCRC(String str) {
 int hexToInt(String hex) {
   return int.parse(hex, radix: 16);
 }
+
+String intToHex(int value) {
+  return value.toRadixString(16).toUpperCase();
+}
