@@ -25,7 +25,7 @@ class DetailWidget extends ConsumerStatefulWidget {
 class DetailViewState extends ConsumerState<DetailWidget> {
   late Timer timer;
   late BleState? state;
-  late bool loading;
+  late bool loading = true;
   late bool isRunning;
   late String error;
 
@@ -50,7 +50,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   void setPaused() async {
     debugPrint("disconnect");
     // await ref.read(bleProvider).clearGattCache(widget.deviceId);
-    await ref.read(bleConnectorProvider).disconnect(widget.deviceId);
+    // await ref.read(bleConnectorProvider).disconnect(widget.deviceId);
     timer.cancel();
     setState(() {
       state = null;
@@ -61,7 +61,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   }
 
   void pollData() {
-    // readFromBLE(widget.deviceId, ref.read(bleProvider));
+    readFromBLE(widget.deviceId, ref.read(bleProvider));
     timer = Timer.periodic(POLLING_DURATION, (timer) {
       debugPrint("timer");
       readFromBLE(widget.deviceId, ref.read(bleProvider));
@@ -69,16 +69,11 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   }
 
   void setResume() async {
-    setState(() {
-      loading = true;
-    });
     // await ref.read(bleConnectorProvider).connect(widget.deviceId);
     pollData();
     setState(() {
-      state = null;
       isRunning = true;
       error = '';
-      loading = false;
     });
   }
 
@@ -134,11 +129,13 @@ class DetailViewState extends ConsumerState<DetailWidget> {
       final res = String.fromCharCodes(data);
       debugPrint("data: $data");
       debugPrint("res: $res");
+      if (res.length < 20) return;
       setBleState(BleState(data: res));
       debugPrint("data: $res");
     }, onError: (dynamic error) {
       debugPrint("error: $error");
     });
+    debugPrint("Reading from ble");
     await ble.writeCharacteristicWithResponse(rxCh, value: REQ_CODE);
     // setBleState(BleState(
     //     data:
@@ -146,18 +143,20 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   }
 
   Future<bool> onDone(WriteParameter parameter, String value) {
-    subscriber.pause();
+    timer.cancel();
     return BleWriter(ble: ref.read(bleProvider))
         .writeToDevice(
-          deviceId: widget.deviceId,
-          parameter: parameter,
-          value: value,
-          settings: state!.settings,
-          slaveId: state!.slaveId,
-        )
+      deviceId: widget.deviceId,
+      parameter: parameter,
+      value: value,
+      settings: state!.settings,
+      slaveId: state!.slaveId,
+    )
         .whenComplete(
-          () => subscriber.resume(),
-        );
+      () {
+        setResume();
+      },
+    );
   }
 
   BleConnectedDevice? getConnectedDevice() {
@@ -215,7 +214,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
     final width = getDeviceType() == DeviceType.phone
         ? MediaQuery.of(context).size.width
         : MediaQuery.of(context).size.width / 2;
-    if (state == null) return const Center(child: CircularProgressIndicator());
+    if (loading) return const Center(child: CircularProgressIndicator());
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(

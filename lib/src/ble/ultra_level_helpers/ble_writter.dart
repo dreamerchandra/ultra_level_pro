@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:math';
-import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/baud_rate.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/ble_reader.dart';
@@ -98,7 +96,9 @@ class BleWriter {
       case WriteParameter.TankDiameter:
         data = intToHex(int.parse(value));
     }
-    return result + data + computeCRC(result + data);
+    final crc = calculateModbusCRC((result + data));
+    final valueToWrite = result + data + crc;
+    return valueToWrite;
   }
 
   Future<bool> writeToDevice({
@@ -116,11 +116,10 @@ class BleWriter {
         value: value); // voltage, 251
 
     Completer<bool> completer = Completer<bool>();
-    verifyEcho(echoValue) {
-      BleState state = BleState(data: echoValue);
+    verifyEcho(String echoValue) {
       if (checkWriteIsOk(
-        actualValue: state.getValueByWrite(parameter).toString(),
-        desiredValue: value,
+        actualValue: echoValue.substring(0, valueToWrite.length),
+        desiredValue: valueToWrite,
       )) {
         completer.complete(true);
       } else {

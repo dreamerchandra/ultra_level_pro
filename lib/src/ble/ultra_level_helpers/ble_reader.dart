@@ -84,11 +84,11 @@ class BleState {
   }
 
   bool isCRCSame() {
-    final crc = data.substring(data.length - 4);
-    final crcData = data.substring(0, data.length - 4);
-    debugPrint('crc: $crc');
-    debugPrint('crcData: $crcData');
-    // return crc == computeCRC(crcData);
+    final crcFromDevice = data.substring(data.length - 4);
+    final dataToBeComputed = data.substring(0, data.length - 4);
+    debugPrint('crc: $crcFromDevice');
+    debugPrint('crcData: $dataToBeComputed');
+    // return crcFromDevice == calculateModbusCRC(dataToBeComputed);
     return true;
   }
 
@@ -122,7 +122,7 @@ class BleState {
     tankWidth = hexToInt(data.substring(i, i += 4));
     tankLength = hexToInt(data.substring(i, i += 4));
     tankDiameter = hexToInt(data.substring(i, i += 4));
-    slaveId = data.substring(i, i += 4);
+    slaveId = data.substring(i, i += 4).substring(2, 4);
     baudRate = getBaudRate(data.substring(i, i += 4));
   }
 }

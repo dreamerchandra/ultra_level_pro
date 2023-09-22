@@ -20,8 +20,14 @@ class _InputState extends State<Input> {
   final textController = TextEditingController();
   bool loading = false;
   bool isError = false;
+  String value = '';
   @override
   void initState() {
+    textController.addListener(() {
+      setState(() {
+        value = textController.value.text;
+      });
+    });
     super.initState();
   }
 
@@ -54,39 +60,41 @@ class _InputState extends State<Input> {
             controller: textController,
           ),
         ),
-        IconButton(
-          onPressed: () async {
-            try {
-              setState(() {
-                loading = true;
-                isError = false;
-              });
-              await widget.onDone(
-                widget.parameter,
-                textController.text,
-              );
-              setState(() {
-                loading = false;
-                isError = false;
-              });
-              textController.clear();
-            } catch (e) {
-              debugPrint("error: $e");
-              setState(() {
-                loading = false;
-                isError = true;
-              });
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text("Failed to sent message"),
-              ));
-            }
-          },
-          icon: loading
-              ? const Icon(Icons.circle_outlined)
-              : const Icon(Icons.check),
-          color: isError ? Colors.red : Colors.black,
-          iconSize: 15,
-        )
+        value.isNotEmpty
+            ? IconButton(
+                onPressed: () async {
+                  try {
+                    setState(() {
+                      loading = true;
+                      isError = false;
+                    });
+                    await widget.onDone(
+                      widget.parameter,
+                      textController.text,
+                    );
+                    setState(() {
+                      loading = false;
+                      isError = false;
+                    });
+                    textController.clear();
+                  } catch (e) {
+                    debugPrint("error: $e");
+                    setState(() {
+                      loading = false;
+                      isError = true;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text("Failed to sent message"),
+                    ));
+                  }
+                },
+                icon: loading
+                    ? const Icon(Icons.circle_outlined)
+                    : const Icon(Icons.check),
+                color: isError ? Colors.red : Colors.black,
+                iconSize: 15,
+              )
+            : SizedBox()
       ],
     );
   }
