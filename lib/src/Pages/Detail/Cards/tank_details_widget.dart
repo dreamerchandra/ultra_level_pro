@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/common.dart';
-import 'package:ultra_level_pro/src/Pages/Detail/shapes.dart';
+import 'package:ultra_level_pro/src/Pages/Detail/shapes_widget.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/ble_reader.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/constant.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/tank_type.dart';
@@ -193,7 +193,7 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        horizontalCylinder(),
+        shape(widget.state?.tankType),
         Table(
           defaultColumnWidth: FlexColumnWidth(2),
           children: [

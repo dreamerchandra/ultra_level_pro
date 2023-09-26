@@ -8,6 +8,7 @@ class CardDetails extends StatefulWidget {
   final Widget body;
   final bool initialExpanded;
   final MyExpansionTileController controller;
+  final double width;
 
   const CardDetails({
     Key? key,
@@ -16,6 +17,7 @@ class CardDetails extends StatefulWidget {
     required this.body,
     required this.initialExpanded,
     required this.controller,
+    required this.width,
   }) : super(key: key);
 
   @override
@@ -33,52 +35,58 @@ class _CardDetailsState extends State<CardDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return MyExpansionTile(
-      initiallyExpanded: widget.initialExpanded,
-      controller: widget.controller,
-      title: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
+    return SizedBox(
+      width: widget.width,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: MyExpansionTile(
+          initiallyExpanded: widget.initialExpanded,
+          controller: widget.controller,
+          title: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                Expanded(child: widget.header),
+                isExpanded
+                    ? const Icon(
+                        Icons.expand_less,
+                        color: Colors.white,
+                      )
+                    : const Icon(
+                        Icons.expand_more,
+                        color: Colors.white,
+                      ),
+              ],
+            ),
+          ),
+          controlAffinity: ListTileControlAffinity.leading,
+          leading: const SizedBox(),
+          onExpansionChanged: (value) => {
+            setState(() {
+              isExpanded = value;
+            })
+          },
           children: [
-            Expanded(child: widget.header),
-            isExpanded
-                ? const Icon(
-                    Icons.expand_less,
+            Column(
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
                     color: Colors.white,
-                  )
-                : const Icon(
-                    Icons.expand_more,
-                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    ), //BorderRadius.all
                   ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: widget.body,
+                  ),
+                ),
+              ],
+            )
           ],
         ),
       ),
-      controlAffinity: ListTileControlAffinity.leading,
-      leading: const SizedBox(),
-      onExpansionChanged: (value) => {
-        setState(() {
-          isExpanded = value;
-        })
-      },
-      children: [
-        Column(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
-                ), //BorderRadius.all
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: widget.body,
-              ),
-            ),
-          ],
-        )
-      ],
     );
   }
 }

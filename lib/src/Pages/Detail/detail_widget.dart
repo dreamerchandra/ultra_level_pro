@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ultra_level_pro/src/Pages/Detail/Cards/device_settings_widget.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/read_values_widget.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/settings_widget.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/tank_details_widget.dart';
@@ -83,6 +84,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
     MyExpansionTileController(),
     MyExpansionTileController(),
     MyExpansionTileController(),
+    MyExpansionTileController(),
   ];
   @override
   void initState() {
@@ -126,21 +128,21 @@ class DetailViewState extends ConsumerState<DetailWidget> {
       deviceId: widget.deviceId,
     );
 
-    subscriber = ble.subscribeToCharacteristic(txCh).listen((data) {
-      final res = String.fromCharCodes(data);
-      debugPrint("data: $data");
-      debugPrint("res: $res");
-      if (res.length < 20) return;
-      setBleState(BleState(data: res));
-      debugPrint("data: $res");
-    }, onError: (dynamic error) {
-      debugPrint("error: $error");
-    });
-    debugPrint("Reading from ble");
-    await ble.writeCharacteristicWithResponse(rxCh, value: REQ_CODE);
-    // setBleState(BleState(
-    //     data:
-    //         '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E8000100087900'));
+    // subscriber = ble.subscribeToCharacteristic(txCh).listen((data) {
+    //   final res = String.fromCharCodes(data);
+    //   debugPrint("data: $data");
+    //   debugPrint("res: $res");
+    //   if (res.length < 20) return;
+    //   setBleState(BleState(data: res));
+    //   debugPrint("data: $res");
+    // }, onError: (dynamic error) {
+    //   debugPrint("error: $error");
+    // });
+    // debugPrint("Reading from ble");
+    // await ble.writeCharacteristicWithResponse(rxCh, value: REQ_CODE);
+    setBleState(BleState(
+        data:
+            '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E8000100087900'));
   }
 
   Future<bool> onDone(WriteParameter parameter, String value) {
@@ -260,62 +262,63 @@ class DetailViewState extends ConsumerState<DetailWidget> {
       body: SingleChildScrollView(
         child: Wrap(
           children: [
-            SizedBox(
+            CardDetails(
               width: width,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CardDetails(
-                  controller: controllers[0],
-                  state: state,
-                  header: buildReadHeaders(),
-                  body: ReadValues(state: state),
-                  initialExpanded: true,
-                ),
-              ),
+              controller: controllers[0],
+              state: state,
+              header: buildReadHeaders(),
+              body: ReadValues(state: state),
+              initialExpanded: true,
             ),
-            SizedBox(
+            CardDetails(
               width: width,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CardDetails(
-                  controller: controllers[1],
-                  state: state,
-                  header: const Text(
-                    "Tank Details",
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  body: TankDetailsWidget(
-                    onDone: onDone,
-                    state: state,
-                    ble: ref.read(bleProvider),
-                    onTankTypeChange: onTankTypeChange,
-                  ),
-                  initialExpanded: getDeviceType() == DeviceType.tablet,
+              controller: controllers[1],
+              state: state,
+              header: const Text(
+                "Tank Details",
+                style: TextStyle(
+                  color: Colors.white,
                 ),
               ),
+              body: TankDetailsWidget(
+                onDone: onDone,
+                state: state,
+                ble: ref.read(bleProvider),
+                onTankTypeChange: onTankTypeChange,
+              ),
+              initialExpanded: getDeviceType() == DeviceType.tablet,
             ),
-            SizedBox(
+            CardDetails(
               width: width,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CardDetails(
-                  controller: controllers[2],
-                  state: state,
-                  header: const Text(
-                    "Settings",
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  body: SettingsWidget(
-                    onDone: onDone,
-                    state: state,
-                  ),
-                  initialExpanded: getDeviceType() == DeviceType.tablet,
+              controller: controllers[2],
+              state: state,
+              header: const Text(
+                "Settings",
+                style: TextStyle(
+                  color: Colors.white,
                 ),
               ),
+              body: SettingsWidget(
+                onDone: onDone,
+                state: state,
+              ),
+              initialExpanded: getDeviceType() == DeviceType.tablet,
+            ),
+            CardDetails(
+              width: width,
+              controller: controllers[3],
+              state: state,
+              header: const Text(
+                "Device Settings",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              body: DeviceSettingsWidget(
+                onDone: onDone,
+                state: state,
+              ),
+              initialExpanded: getDeviceType() == DeviceType.tablet,
             ),
           ],
         ),
