@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-import 'package:ultra_level_pro/src/ble/ultra_level_helpers/baud_rate.dart';
-import 'package:ultra_level_pro/src/ble/ultra_level_helpers/ble_reader.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/constant.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/helper.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/settings.dart';
@@ -39,7 +37,7 @@ class BleWriter {
     return desiredValue == actualValue;
   }
 
-  String getValueToWrite({
+  String constructWrite({
     required String deviceId,
     required WriteParameter parameter,
     required String value,
@@ -48,73 +46,20 @@ class BleWriter {
     SettingsValueToChange? settingsValueToChange,
   }) {
     final writeAddress = ParameterToAddress[parameter];
-    String result =
+    String header =
         '${slaveId}06$writeAddress'; // slaveId funCode writeAddress data crc
-    String data = '';
-    switch (parameter) {
-      case WriteParameter.BaudRate:
-        data = getBitByBaudRate(int.parse(value));
-        break;
-      case WriteParameter.Damping:
-        data = intToHex(int.parse(value));
-        break;
-      case WriteParameter.Settings:
-        if (settingsValueToChange == null) {
-          break;
-        }
-        data = Settings.settingsToHexString(
-            Settings.updateNewSettings(settings, settingsValueToChange));
-        break;
-      case WriteParameter.LowLevelRelayInMm:
-        data = intToHex(int.parse(value));
-        break;
-      case WriteParameter.HighLevelRelayInPercent:
-        data = intToHex(int.parse(value) * 100);
-        break;
-      case WriteParameter.Lph:
-        data = intToHex(int.parse(value));
-      case WriteParameter.ZeroPercentTrimmingPoint:
-        data = intToHex(int.parse(value) * 1000);
-      case WriteParameter.HundredPercentTrimmingPoint:
-        data = intToHex(int.parse(value) * 1000);
-      case WriteParameter.LevelCalibrationOffset:
-        data = intToHex(int.parse(value));
-      case WriteParameter.SensorOffset:
-        data = intToHex(int.parse(value));
-      case WriteParameter.TankOffset:
-        data = intToHex(int.parse(value));
-      case WriteParameter.TankType:
-        data = value;
-      case WriteParameter.TankHeight:
-        data = intToHex(int.parse(value));
-      case WriteParameter.TankWidth:
-        data = intToHex(int.parse(value));
-      case WriteParameter.TankLength:
-        data = intToHex(int.parse(value));
-      case WriteParameter.SlaveId:
-        break;
-      case WriteParameter.TankDiameter:
-        data = intToHex(int.parse(value));
-    }
-    final crc = calculateModbusCRC((result + data));
-    final valueToWrite = result + data + crc;
+    final data = constructData(
+      value: value,
+      parameter: parameter,
+      settingsValueToChange: settingsValueToChange,
+      settings: settings,
+    );
+    final crc = calculateModbusCRC((header + data));
+    final valueToWrite = header + data + crc;
     return valueToWrite;
   }
 
-  Future<bool> writeToDevice({
-    required String deviceId,
-    required WriteParameter parameter,
-    required String value,
-    required Settings settings,
-    required String slaveId,
-  }) async {
-    final valueToWrite = getValueToWrite(
-        deviceId: deviceId,
-        parameter: parameter,
-        settings: settings,
-        slaveId: slaveId,
-        value: value); // voltage, 251
-
+  Future<bool> commitHelper(String valueToWrite, String deviceId) {
     Completer<bool> completer = Completer<bool>();
     verifyEcho(String echoValue) {
       if (checkWriteIsOk(
@@ -140,5 +85,22 @@ class BleWriter {
     );
     ble.writeCharacteristicWithResponse(rxCh, value: valueToWrite.codeUnits);
     return completer.future;
+  }
+
+  Future<bool> writeToDevice({
+    required String deviceId,
+    required WriteParameter parameter,
+    required String value,
+    required Settings settings,
+    required String slaveId,
+  }) async {
+    final valueToWrite = constructWrite(
+        deviceId: deviceId,
+        parameter: parameter,
+        settings: settings,
+        slaveId: slaveId,
+        value: value); // voltage, 251
+
+    return commitHelper(valueToWrite, deviceId);
   }
 }

@@ -11,6 +11,7 @@ import 'package:ultra_level_pro/src/ble/state.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/ble_reader.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/ble_writter.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/constant.dart';
+import 'package:ultra_level_pro/src/ble/ultra_level_helpers/tank_type_changer.dart';
 import 'package:ultra_level_pro/src/common.dart';
 import 'package:ultra_level_pro/src/component/card_details.dart';
 import 'package:ultra_level_pro/src/component/expansion_title.dart';
@@ -125,21 +126,21 @@ class DetailViewState extends ConsumerState<DetailWidget> {
       deviceId: widget.deviceId,
     );
 
-    subscriber = ble.subscribeToCharacteristic(txCh).listen((data) {
-      final res = String.fromCharCodes(data);
-      debugPrint("data: $data");
-      debugPrint("res: $res");
-      if (res.length < 20) return;
-      setBleState(BleState(data: res));
-      debugPrint("data: $res");
-    }, onError: (dynamic error) {
-      debugPrint("error: $error");
-    });
+    // subscriber = ble.subscribeToCharacteristic(txCh).listen((data) {
+    //   final res = String.fromCharCodes(data);
+    //   debugPrint("data: $data");
+    //   debugPrint("res: $res");
+    //   if (res.length < 20) return;
+    //   setBleState(BleState(data: res));
+    //   debugPrint("data: $res");
+    // }, onError: (dynamic error) {
+    //   debugPrint("error: $error");
+    // });
     debugPrint("Reading from ble");
-    await ble.writeCharacteristicWithResponse(rxCh, value: REQ_CODE);
-    // setBleState(BleState(
-    //     data:
-    //         '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E8000100087900'));
+    // await ble.writeCharacteristicWithResponse(rxCh, value: REQ_CODE);
+    setBleState(BleState(
+        data:
+            '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E8000100087900'));
   }
 
   Future<bool> onDone(WriteParameter parameter, String value) {
@@ -149,6 +150,21 @@ class DetailViewState extends ConsumerState<DetailWidget> {
       deviceId: widget.deviceId,
       parameter: parameter,
       value: value,
+      settings: state!.settings,
+      slaveId: state!.slaveId,
+    )
+        .whenComplete(
+      () {
+        setResume();
+      },
+    );
+  }
+
+  Future<bool> onTankTypeChange(TankTypeChanger changer) {
+    timer.cancel();
+    return changer
+        .commitTankType(
+      deviceId: widget.deviceId,
       settings: state!.settings,
       slaveId: state!.slaveId,
     )
@@ -273,6 +289,8 @@ class DetailViewState extends ConsumerState<DetailWidget> {
                   body: TankDetailsWidget(
                     onDone: onDone,
                     state: state,
+                    ble: ref.read(bleProvider),
+                    onTankTypeChange: onTankTypeChange,
                   ),
                   initialExpanded: getDeviceType() == DeviceType.tablet,
                 ),

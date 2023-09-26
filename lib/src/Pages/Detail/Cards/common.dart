@@ -11,14 +11,23 @@ TableRow tableGap() {
   return const TableRow(
     children: [
       SizedBox(
-        height: 12,
+        height: 24,
       ),
       SizedBox(
-        height: 12,
+        height: 24,
       ),
       SizedBox(
-        height: 12,
+        height: 24,
       ),
     ],
   );
 }
+
+const rowSpacer = TableRow(children: [
+  SizedBox(
+    height: 12,
+  ),
+  SizedBox(
+    height: 12,
+  )
+]);

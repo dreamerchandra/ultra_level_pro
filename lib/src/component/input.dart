@@ -7,10 +7,12 @@ class Input extends StatefulWidget {
     required this.hintText,
     required this.onDone,
     required this.parameter,
+    this.textInputAction,
   });
   final String hintText;
   final Future<void> Function(WriteParameter, String) onDone;
   final WriteParameter parameter;
+  final TextInputAction? textInputAction;
 
   @override
   State<Input> createState() => _InputState();
@@ -44,12 +46,13 @@ class _InputState extends State<Input> {
     return Row(
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Expanded(
           child: TextField(
             autocorrect: false,
             keyboardType: TextInputType.number,
+            textInputAction: widget.textInputAction,
             decoration: InputDecoration(
               hintText: widget.hintText,
             ),

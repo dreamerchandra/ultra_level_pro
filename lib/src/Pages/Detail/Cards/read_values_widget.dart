@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ultra_level_pro/src/Pages/Detail/Cards/common.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/ble_reader.dart';
 
 class ReadValues extends StatelessWidget {
@@ -19,6 +20,7 @@ class ReadValues extends StatelessWidget {
             Text(': ${state?.levelInLiter} L')
           ],
         ),
+        rowSpacer,
         TableRow(
           children: [
             Text("Level in mm"),
@@ -26,12 +28,14 @@ class ReadValues extends StatelessWidget {
                 ': ${state?.levelInMm} ${state!.settings.isInMM ? 'mm' : 'cm'}')
           ],
         ),
+        rowSpacer,
         TableRow(
           children: [
             Text("Level in Perc%"),
             Text(': ${state?.levelInPercent} %')
           ],
         ),
+        rowSpacer,
         TableRow(
           children: [
             Text("Alarm"),
@@ -56,15 +60,18 @@ class ReadValues extends StatelessWidget {
             )
           ],
         ),
+        rowSpacer,
         TableRow(
           children: [Text("Version"), Text(": ${state?.version}")],
         ),
+        rowSpacer,
         TableRow(
           children: [
             Text("Pover supply V"),
             Text(": ${state?.powerSupplyVoltage} V")
           ],
         ),
+        rowSpacer,
       ],
     );
   }

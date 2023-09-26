@@ -10,6 +10,29 @@ enum TankType {
   nonLinear,
 }
 
+String getTankLabel(TankType tankType) {
+  switch (tankType) {
+    case TankType.lookup:
+      return 'Lookup';
+    case TankType.rectangle:
+      return 'Rectangle';
+    case TankType.horizontalOval:
+      return 'Horizontal Oval';
+    case TankType.horizontalCylinder:
+      return 'Horizontal Cylinder';
+    case TankType.verticalCylinder:
+      return 'Vertical Cylinder';
+    case TankType.verticalCapsule:
+      return 'Vertical Capsule';
+    case TankType.horizontalCapsule:
+      return 'Horizontal Capsule';
+    case TankType.elliptical:
+      return 'Elliptical';
+    case TankType.nonLinear:
+      return 'Non Linear';
+  }
+}
+
 TankType getTankType(String hex) {
   TankType tankType = TankType.lookup;
   final binary =
