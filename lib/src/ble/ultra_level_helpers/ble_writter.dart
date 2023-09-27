@@ -103,4 +103,23 @@ class BleWriter {
 
     return commitHelper(valueToWrite, deviceId);
   }
+
+  Future<bool> writeSettingsToDevice({
+    required String deviceId,
+    required Settings oldSettings,
+    required String slaveId,
+    required SettingsValueToChange settingsParam,
+    required String value,
+  }) async {
+    final valueToWrite = constructWrite(
+      deviceId: deviceId,
+      parameter: WriteParameter.Settings,
+      settings: oldSettings,
+      slaveId: slaveId,
+      settingsValueToChange: settingsParam,
+      value: value,
+    );
+
+    return commitHelper(valueToWrite, deviceId);
+  }
 }

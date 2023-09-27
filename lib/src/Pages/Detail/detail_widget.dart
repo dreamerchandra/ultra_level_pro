@@ -12,6 +12,7 @@ import 'package:ultra_level_pro/src/ble/state.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/ble_reader.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/ble_writter.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/constant.dart';
+import 'package:ultra_level_pro/src/ble/ultra_level_helpers/settings.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/tank_type_changer.dart';
 import 'package:ultra_level_pro/src/common.dart';
 import 'package:ultra_level_pro/src/component/card_details.dart';
@@ -177,6 +178,26 @@ class DetailViewState extends ConsumerState<DetailWidget> {
     );
   }
 
+  Future<bool> onSettingsChange({
+    required String value,
+    required SettingsValueToChange settingsParam,
+  }) {
+    timer.cancel();
+    return BleWriter(ble: ref.read(bleProvider))
+        .writeSettingsToDevice(
+      deviceId: widget.deviceId,
+      oldSettings: state!.settings,
+      slaveId: state!.slaveId,
+      settingsParam: settingsParam,
+      value: value,
+    )
+        .whenComplete(
+      () {
+        setResume();
+      },
+    );
+  }
+
   BleConnectedDevice? getConnectedDevice() {
     final connectedDevice = ref.watch(bleConnectedDeviceProvider);
     return connectedDevice;
@@ -315,7 +336,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
                 ),
               ),
               body: DeviceSettingsWidget(
-                onDone: onDone,
+                onDone: onSettingsChange,
                 state: state,
               ),
               initialExpanded: getDeviceType() == DeviceType.tablet,
