@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ultra_level_pro/error_widget.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/detail_widget.dart';
 import 'package:ultra_level_pro/src/Pages/Home/home_wdiget.dart';
 import 'package:ultra_level_pro/src/Pages/Login/login_widget.dart';
@@ -44,6 +46,9 @@ class AppRouter {
           return null;
         }
       },
+      errorBuilder: (context, state) => CustomError(
+        errorDetails: FlutterErrorDetails(exception: state.error!),
+      ),
     );
     return router;
   }

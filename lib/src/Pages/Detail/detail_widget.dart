@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/device_settings_widget.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/read_values_widget.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/settings_widget.dart';
@@ -117,33 +119,40 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   }
 
   void readFromBLE(String foundDeviceId, FlutterReactiveBle ble) async {
-    final txCh = QualifiedCharacteristic(
-      serviceId: UART_UUID,
-      characteristicId: UART_TX,
-      deviceId: widget.deviceId,
-    );
+    try {
+      final txCh = QualifiedCharacteristic(
+        serviceId: UART_UUID,
+        characteristicId: UART_TX,
+        deviceId: widget.deviceId,
+      );
 
-    final rxCh = QualifiedCharacteristic(
-      serviceId: UART_UUID,
-      characteristicId: UART_RX,
-      deviceId: widget.deviceId,
-    );
+      final rxCh = QualifiedCharacteristic(
+        serviceId: UART_UUID,
+        characteristicId: UART_RX,
+        deviceId: widget.deviceId,
+      );
 
-    // subscriber = ble.subscribeToCharacteristic(txCh).listen((data) {
-    //   final res = String.fromCharCodes(data);
-    //   debugPrint("data: $data");
-    //   debugPrint("res: $res");
-    //   if (res.length < 20) return;
-    //   setBleState(BleState(data: res));
-    //   debugPrint("data: $res");
-    // }, onError: (dynamic error) {
-    //   debugPrint("error: $error");
-    // });
-    // debugPrint("Reading from ble");
-    // await ble.writeCharacteristicWithResponse(rxCh, value: REQ_CODE);
-    setBleState(BleState(
-        data:
-            '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E8000100087900'));
+      subscriber = ble.subscribeToCharacteristic(txCh).listen((data) {
+        final res = String.fromCharCodes(data);
+        debugPrint("data: $data");
+        debugPrint("res: $res");
+        if (res.length < 20) return;
+        setBleState(BleState(data: res));
+        debugPrint("data: $res");
+      }, onError: (dynamic error) {
+        debugPrint("error: $error");
+      });
+      debugPrint("Reading from ble");
+      await ble.writeCharacteristicWithResponse(rxCh, value: REQ_CODE);
+    } catch (err) {
+      if (context.mounted) {
+        GoRouter.of(context).go('/home');
+      }
+    }
+
+    // setBleState(BleState(
+    //     data:
+    //         '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E8000100087900'));
   }
 
   Future<bool> onDone(WriteParameter parameter, String value) {
@@ -199,8 +208,12 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   }
 
   BleConnectedDevice? getConnectedDevice() {
-    final connectedDevice = ref.watch(bleConnectedDeviceProvider);
-    return connectedDevice;
+    try {
+      final connectedDevice = ref.watch(bleConnectedDeviceProvider);
+      return connectedDevice;
+    } catch (err) {
+      if (context.mounted) GoRouter.of(context).go('/home');
+    }
   }
 
   Widget buildReadHeaders() {
@@ -281,7 +294,8 @@ class DetailViewState extends ConsumerState<DetailWidget> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Wrap(
+        child: StaggeredGrid.count(
+          crossAxisCount: getDeviceType() == DeviceType.phone ? 1 : 2,
           children: [
             CardDetails(
               width: width,
