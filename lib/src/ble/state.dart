@@ -27,7 +27,9 @@ final _serviceDiscoverer = BleDeviceInteractor(
 final bleProvider = Provider((ref) => _ble);
 final bleLoggerProvider = Provider((ref) => _bleLogger);
 final bleScannerProvider = Provider((ref) => _scanner);
-final bleMonitorProvider = Provider((ref) => _monitor);
+final bleMonitorProvider = StreamProvider<BleStatus?>((ref) {
+  return _monitor.state;
+});
 final bleConnectorProvider = Provider((ref) => _connector);
 final bleServiceDiscovererProvider = Provider((ref) => _serviceDiscoverer);
 final bleScannerStateProvider = StreamProvider<BleScannerState?>((ref) async* {

@@ -19,16 +19,16 @@ class AppRouter {
             return const LoginWidget();
           },
         ),
-        // GoRoute(
-        //   name: AppRouteConstants.getRouteDetails(RouterName.home).name,
-        //   path: AppRouteConstants.getRouteDetails(RouterName.home).path,
-        //   builder: (context, state) {
-        //     return const HomeWidget();
-        //   },
-        // ),
         GoRoute(
           name: AppRouteConstants.getRouteDetails(RouterName.home).name,
           path: AppRouteConstants.getRouteDetails(RouterName.home).path,
+          builder: (context, state) {
+            return const HomeWidget();
+          },
+        ),
+        GoRoute(
+          name: AppRouteConstants.getRouteDetails(RouterName.details).name,
+          path: AppRouteConstants.getRouteDetails(RouterName.details).path,
           builder: (context, state) {
             return DetailWidget(
               deviceId: state.pathParameters['deviceId'] ?? '',
@@ -36,16 +36,6 @@ class AppRouter {
           },
         ),
       ],
-      redirect: (context, state) {
-        final isLoggedIn = appService.loginState;
-        if (!isLoggedIn) {
-          return '/login';
-          // If not onboard and not going to onboard redirect to OnBoarding
-        } else {
-          // Else Don't do anything
-          return null;
-        }
-      },
       errorBuilder: (context, state) => CustomError(
         errorDetails: FlutterErrorDetails(exception: state.error!),
       ),

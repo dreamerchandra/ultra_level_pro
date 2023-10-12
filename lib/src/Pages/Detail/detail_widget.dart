@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +13,7 @@ import 'package:ultra_level_pro/src/ble/state.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/ble_reader.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/ble_writter.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/constant.dart';
+import 'package:ultra_level_pro/src/ble/ultra_level_helpers/helper.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/settings.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/tank_type_changer.dart';
 import 'package:ultra_level_pro/src/common.dart';
@@ -33,6 +33,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   late bool loading = true;
   late bool isRunning;
   late String error;
+  late String slaveId = '01';
 
   void setBleState(BleState s) {
     setState(() {
@@ -92,7 +93,9 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   @override
   void initState() {
     state = null;
+    // findSlaveId();
     setResume();
+
     controllers.forEach((parentController) {
       parentController.addEventListener((isOpen) {
         if (!isOpen) {
@@ -109,6 +112,55 @@ class DetailViewState extends ConsumerState<DetailWidget> {
       });
     });
     super.initState();
+  }
+
+  Future<bool> checkSlaveId(String slaveId, FlutterReactiveBle ble) async {
+    Completer<bool> completer = Completer<bool>();
+    final txCh = QualifiedCharacteristic(
+      serviceId: UART_UUID,
+      characteristicId: UART_TX,
+      deviceId: widget.deviceId,
+    );
+
+    final rxCh = QualifiedCharacteristic(
+      serviceId: UART_UUID,
+      characteristicId: UART_RX,
+      deviceId: widget.deviceId,
+    );
+
+    subscriber = ble.subscribeToCharacteristic(txCh).listen((data) {
+      final res = String.fromCharCodes(data);
+      debugPrint("data: $data");
+      debugPrint("res: $res");
+      if (res.length < 20) return;
+      setBleState(BleState(data: res));
+      debugPrint("data: $res");
+      completer.complete(true);
+      subscriber.cancel();
+    }, onError: (dynamic error) {
+      debugPrint("error: $error");
+    });
+    debugPrint("Reading from ble");
+    await ble.writeCharacteristicWithResponse(rxCh, value: getReqCode(slaveId));
+    Future.delayed(const Duration(seconds: 2), () {
+      completer.complete(false);
+      subscriber.cancel();
+    });
+    return completer.future;
+  }
+
+  void findSlaveId() async {
+    for (int i = 255; i < 256; i++) {
+      final _slaveId = intToHex(i).substring(2, 4);
+      final res = await checkSlaveId(_slaveId, ref.read(bleProvider));
+      debugPrint("checking slave id $_slaveId: $res");
+      if (res) {
+        setState(() {
+          slaveId = _slaveId;
+        });
+        setResume();
+      }
+    }
   }
 
   @override
@@ -143,7 +195,8 @@ class DetailViewState extends ConsumerState<DetailWidget> {
         debugPrint("error: $error");
       });
       debugPrint("Reading from ble");
-      await ble.writeCharacteristicWithResponse(rxCh, value: REQ_CODE);
+      await ble.writeCharacteristicWithResponse(rxCh,
+          value: getReqCode(slaveId));
     } catch (err) {
       if (context.mounted) {
         GoRouter.of(context).go('/home');
