@@ -9,6 +9,7 @@ class DeviceListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (devices.isEmpty) return const Center(child: Text("No device found"));
     return ListView.builder(
       itemCount: devices.length,
       itemBuilder: (context, index) {

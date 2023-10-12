@@ -87,8 +87,6 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   final List<MyExpansionTileController> controllers = [
     MyExpansionTileController(),
     MyExpansionTileController(),
-    MyExpansionTileController(),
-    MyExpansionTileController(),
   ];
   @override
   void initState() {
@@ -171,41 +169,44 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   }
 
   void readFromBLE(String foundDeviceId, FlutterReactiveBle ble) async {
-    try {
-      final txCh = QualifiedCharacteristic(
-        serviceId: UART_UUID,
-        characteristicId: UART_TX,
-        deviceId: widget.deviceId,
-      );
+    // try {
+    //   final txCh = QualifiedCharacteristic(
+    //     serviceId: UART_UUID,
+    //     characteristicId: UART_TX,
+    //     deviceId: widget.deviceId,
+    //   );
 
-      final rxCh = QualifiedCharacteristic(
-        serviceId: UART_UUID,
-        characteristicId: UART_RX,
-        deviceId: widget.deviceId,
-      );
+    //   final rxCh = QualifiedCharacteristic(
+    //     serviceId: UART_UUID,
+    //     characteristicId: UART_RX,
+    //     deviceId: widget.deviceId,
+    //   );
 
-      subscriber = ble.subscribeToCharacteristic(txCh).listen((data) {
-        final res = String.fromCharCodes(data);
-        debugPrint("data: $data");
-        debugPrint("res: $res");
-        if (res.length < 20) return;
-        setBleState(BleState(data: res));
-        debugPrint("data: $res");
-      }, onError: (dynamic error) {
-        debugPrint("error: $error");
-      });
-      debugPrint("Reading from ble");
-      await ble.writeCharacteristicWithResponse(rxCh,
-          value: getReqCode(slaveId));
-    } catch (err) {
-      if (context.mounted) {
-        GoRouter.of(context).go('/home');
-      }
-    }
+    //   subscriber = ble.subscribeToCharacteristic(txCh).listen((data) {
+    //     final res = String.fromCharCodes(data);
+    //     debugPrint("data: $data");
+    //     debugPrint("res: $res");
+    //     if (res.length < 20) return;
+    //     setBleState(BleState(data: res));
+    //     debugPrint("data: $res");
+    //   }, onError: (dynamic error) {
+    //     debugPrint("error: $error");
+    //   });
+    //   debugPrint("Reading from ble");
+    //   await ble.writeCharacteristicWithResponse(rxCh,
+    //       value: getReqCode(slaveId));
+    // } catch (err) {
+    //   if (context.mounted) {
+    //     GoRouter.of(context).go('/home');
+    //   }
+    // }
 
-    // setBleState(BleState(
-    //     data:
-    //         '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E8000100087900'));
+    setBleState(
+      BleState(
+        data:
+            '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E8000100087900',
+      ),
+    );
   }
 
   Future<bool> onDone(WriteParameter parameter, String value) {
@@ -320,94 +321,117 @@ class DetailViewState extends ConsumerState<DetailWidget> {
         ? MediaQuery.of(context).size.width
         : MediaQuery.of(context).size.width / 2;
     if (loading) return const Center(child: CircularProgressIndicator());
-    return Scaffold(
-      backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        centerTitle: true,
-        leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.arrow_back)),
-        title: Text(connectedDevice?.name ?? 'Loading...'),
-        actions: [
-          TextButton.icon(
-            onPressed: () async {
-              if (isRunning) {
-                setPaused();
-              } else {
-                setResume();
-              }
-            },
-            icon: isRunning
-                ? const Icon(Icons.pause)
-                : const Icon(Icons.play_arrow),
-            label: const Text(''),
-          )
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: StaggeredGrid.count(
-          crossAxisCount: getDeviceType() == DeviceType.phone ? 1 : 2,
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        backgroundColor: Colors.grey[200],
+        appBar: AppBar(
+          bottom: TabBar(
+            tabs: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: const Text("Basic"),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: const Text("Tanks"),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: const Text("Settings"),
+              ),
+            ],
+          ),
+          centerTitle: true,
+          leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back)),
+          title: Text(connectedDevice?.name ?? 'Loading...'),
+          actions: [
+            TextButton.icon(
+              onPressed: () async {
+                if (isRunning) {
+                  setPaused();
+                } else {
+                  setResume();
+                }
+              },
+              icon: isRunning
+                  ? const Icon(Icons.pause)
+                  : const Icon(Icons.play_arrow),
+              label: const Text(''),
+            )
+          ],
+        ),
+        body: TabBarView(
           children: [
             CardDetails(
               width: width,
-              controller: controllers[0],
               state: state,
               header: buildReadHeaders(),
               body: ReadValues(state: state),
               initialExpanded: true,
             ),
-            CardDetails(
-              width: width,
-              controller: controllers[1],
-              state: state,
-              header: const Text(
-                "Tank Details",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              body: TankDetailsWidget(
-                onDone: onDone,
+            SingleChildScrollView(
+              child: CardDetails(
+                width: width,
                 state: state,
-                ble: ref.read(bleProvider),
-                onTankTypeChange: onTankTypeChange,
-              ),
-              initialExpanded: getDeviceType() == DeviceType.tablet,
-            ),
-            CardDetails(
-              width: width,
-              controller: controllers[2],
-              state: state,
-              header: const Text(
-                "Settings",
-                style: TextStyle(
-                  color: Colors.white,
+                header: const Text(
+                  "Tank Details",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              body: SettingsWidget(
-                onDone: onDone,
-                state: state,
-              ),
-              initialExpanded: getDeviceType() == DeviceType.tablet,
-            ),
-            CardDetails(
-              width: width,
-              controller: controllers[3],
-              state: state,
-              header: const Text(
-                "Device Settings",
-                style: TextStyle(
-                  color: Colors.white,
+                body: TankDetailsWidget(
+                  onDone: onDone,
+                  state: state,
+                  ble: ref.read(bleProvider),
+                  onTankTypeChange: onTankTypeChange,
                 ),
+                initialExpanded: true,
               ),
-              body: DeviceSettingsWidget(
-                onDone: onSettingsChange,
-                state: state,
-              ),
-              initialExpanded: getDeviceType() == DeviceType.tablet,
             ),
+            SingleChildScrollView(
+              child: StaggeredGrid.count(
+                crossAxisCount: getDeviceType() == DeviceType.phone ? 1 : 2,
+                children: [
+                  CardDetails(
+                    width: width,
+                    controller: controllers[0],
+                    state: state,
+                    header: const Text(
+                      "Settings",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    body: SettingsWidget(
+                      onDone: onDone,
+                      state: state,
+                    ),
+                    initialExpanded: true,
+                  ),
+                  CardDetails(
+                    width: width,
+                    controller: controllers[1],
+                    state: state,
+                    header: const Text(
+                      "Device Settings",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    body: DeviceSettingsWidget(
+                      onDone: onSettingsChange,
+                      state: state,
+                    ),
+                    initialExpanded: getDeviceType() == DeviceType.tablet,
+                  )
+                ],
+              ),
+            )
           ],
         ),
       ),

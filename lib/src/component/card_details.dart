@@ -7,7 +7,7 @@ class CardDetails extends StatefulWidget {
   final Widget header;
   final Widget body;
   final bool initialExpanded;
-  final MyExpansionTileController controller;
+  final MyExpansionTileController? controller;
   final double width;
 
   const CardDetails({
@@ -16,7 +16,7 @@ class CardDetails extends StatefulWidget {
     required this.header,
     required this.body,
     required this.initialExpanded,
-    required this.controller,
+    this.controller,
     required this.width,
   }) : super(key: key);
 
