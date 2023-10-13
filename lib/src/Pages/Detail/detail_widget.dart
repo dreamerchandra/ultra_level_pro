@@ -4,6 +4,7 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:otp/otp.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/device_settings_widget.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/read_values_widget.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/settings_widget.dart';
@@ -19,6 +20,7 @@ import 'package:ultra_level_pro/src/ble/ultra_level_helpers/tank_type_changer.da
 import 'package:ultra_level_pro/src/common.dart';
 import 'package:ultra_level_pro/src/component/card_details.dart';
 import 'package:ultra_level_pro/src/component/expansion_title.dart';
+import 'package:ultra_level_pro/src/component/topt.dart';
 
 class DetailWidget extends ConsumerStatefulWidget {
   const DetailWidget({super.key, required this.deviceId});
@@ -34,6 +36,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   late bool isRunning;
   late String error;
   late String slaveId = '01';
+  bool isAdmin = false;
 
   void setBleState(BleState s) {
     setState(() {
@@ -324,21 +327,28 @@ class DetailViewState extends ConsumerState<DetailWidget> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        floatingActionButton: AdminWidget(
+            isAdmin: isAdmin,
+            setIsAdmin: (bool _isAdmin) {
+              setState(() {
+                isAdmin = _isAdmin;
+              });
+            }),
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
-          bottom: TabBar(
+          bottom: const TabBar(
             tabs: [
               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: const Text("Basic"),
+                padding: EdgeInsets.all(8.0),
+                child: Text("Basic"),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: const Text("Tanks"),
+                padding: EdgeInsets.all(8.0),
+                child: Text("Tanks"),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: const Text("Settings"),
+                padding: EdgeInsets.all(8.0),
+                child: Text("Settings"),
               ),
             ],
           ),
