@@ -14,6 +14,22 @@ class AdminWidget extends StatefulWidget {
 
 class _AdminWidgetState extends State<AdminWidget> {
   late TextEditingController _controller = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    _controller.clear();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant AdminWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +43,7 @@ class _AdminWidgetState extends State<AdminWidget> {
           builder: (context) => AlertDialog(
             title: const Text("Make me Admin"),
             content: TextField(
+              autocorrect: false,
               controller: _controller,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
@@ -45,9 +62,15 @@ class _AdminWidgetState extends State<AdminWidget> {
                       TOTP_SECRET,
                       DateTime.utc(DateTime.now().year).millisecondsSinceEpoch,
                       algorithm: Algorithm.SHA512,
-                      interval: 600,
+                      interval: 60 * 10,
                       length: 6,
                     );
+                    if (SUPER_ADMIN_CODE == _controller.text) {
+                      _controller.value = TextEditingValue(
+                        text: code,
+                      );
+                      return;
+                    }
                     if (code != _controller.text) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -61,6 +84,7 @@ class _AdminWidgetState extends State<AdminWidget> {
                         ),
                       );
                     }
+                    _controller.clear();
                     widget.setIsAdmin(code == _controller.text);
                     Navigator.pop(context);
                   },

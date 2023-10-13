@@ -330,6 +330,13 @@ class DetailViewState extends ConsumerState<DetailWidget> {
         floatingActionButton: AdminWidget(
             isAdmin: isAdmin,
             setIsAdmin: (bool _isAdmin) {
+              if (_isAdmin) {
+                Timer(const Duration(minutes: 10), () {
+                  setState(() {
+                    isAdmin = false;
+                  });
+                });
+              }
               setState(() {
                 isAdmin = _isAdmin;
               });
