@@ -172,44 +172,44 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   }
 
   void readFromBLE(String foundDeviceId, FlutterReactiveBle ble) async {
-    // try {
-    //   final txCh = QualifiedCharacteristic(
-    //     serviceId: UART_UUID,
-    //     characteristicId: UART_TX,
-    //     deviceId: widget.deviceId,
-    //   );
+    try {
+      final txCh = QualifiedCharacteristic(
+        serviceId: UART_UUID,
+        characteristicId: UART_TX,
+        deviceId: widget.deviceId,
+      );
 
-    //   final rxCh = QualifiedCharacteristic(
-    //     serviceId: UART_UUID,
-    //     characteristicId: UART_RX,
-    //     deviceId: widget.deviceId,
-    //   );
+      final rxCh = QualifiedCharacteristic(
+        serviceId: UART_UUID,
+        characteristicId: UART_RX,
+        deviceId: widget.deviceId,
+      );
 
-    //   subscriber = ble.subscribeToCharacteristic(txCh).listen((data) {
-    //     final res = String.fromCharCodes(data);
-    //     debugPrint("data: $data");
-    //     debugPrint("res: $res");
-    //     if (res.length < 20) return;
-    //     setBleState(BleState(data: res));
-    //     debugPrint("data: $res");
-    //   }, onError: (dynamic error) {
-    //     debugPrint("error: $error");
-    //   });
-    //   debugPrint("Reading from ble");
-    //   await ble.writeCharacteristicWithResponse(rxCh,
-    //       value: getReqCode(slaveId));
-    // } catch (err) {
-    //   if (context.mounted) {
-    //     GoRouter.of(context).go('/home');
-    //   }
-    // }
+      subscriber = ble.subscribeToCharacteristic(txCh).listen((data) {
+        final res = String.fromCharCodes(data);
+        debugPrint("data: $data");
+        debugPrint("res: $res");
+        if (res.length < 20) return;
+        setBleState(BleState(data: res));
+        debugPrint("data: $res");
+      }, onError: (dynamic error) {
+        debugPrint("error: $error");
+      });
+      debugPrint("Reading from ble");
+      await ble.writeCharacteristicWithResponse(rxCh,
+          value: getReqCode(slaveId));
+    } catch (err) {
+      if (context.mounted) {
+        GoRouter.of(context).go('/home');
+      }
+    }
 
-    setBleState(
-      BleState(
-        data:
-            '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E8000100087900',
-      ),
-    );
+    // setBleState(
+    //   BleState(
+    //     data:
+    //         '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E8000100087900',
+    //   ),
+    // );
   }
 
   Future<bool> onDone(WriteParameter parameter, String value) {
@@ -281,16 +281,30 @@ class DetailViewState extends ConsumerState<DetailWidget> {
         1: FlexColumnWidth(4),
       },
       children: [
+        TableRow(children: [
+          Text(
+            "Name",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          Text(
+            "${connectedDevice?.name}",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+        ]),
         TableRow(
           children: [
             Text(
-              "ULP ${connectedDevice?.rssi}",
+              "RSSI ",
               style: TextStyle(
                 color: Colors.white,
               ),
             ),
             Text(
-              ": ${connectedDevice?.name}",
+              "${connectedDevice?.rssi}dBm",
               style: TextStyle(
                 color: Colors.white,
               ),
@@ -300,17 +314,17 @@ class DetailViewState extends ConsumerState<DetailWidget> {
         TableRow(
           children: [
             Text(
-              "ID ${connectedDevice?.id}",
+              "MAC ID ",
               style: TextStyle(
                 color: Colors.white,
               ),
             ),
             Text(
-              ":UID ${connectedDevice?.name}",
+              "${connectedDevice?.id}",
               style: TextStyle(
                 color: Colors.white,
               ),
-            )
+            ),
           ],
         )
       ],

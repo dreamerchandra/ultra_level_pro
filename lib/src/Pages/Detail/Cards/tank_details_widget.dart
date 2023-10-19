@@ -8,6 +8,30 @@ import 'package:ultra_level_pro/src/ble/ultra_level_helpers/tank_type.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/tank_type_changer.dart';
 import 'package:ultra_level_pro/src/component/input.dart';
 
+const headerStyle = TextStyle(
+  fontSize: 16,
+  fontWeight: FontWeight.w900,
+);
+
+const bodyStyle = TextStyle(
+  fontSize: 18,
+  fontWeight: FontWeight.w900,
+);
+
+Widget headerText(String text) {
+  return Text(
+    text,
+    style: headerStyle,
+  );
+}
+
+Widget bodyText(String text) {
+  return Text(
+    text,
+    style: bodyStyle,
+  );
+}
+
 class TankDetailsWidget extends StatefulWidget {
   TankDetailsWidget({
     super.key,
@@ -104,6 +128,11 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             {
+                              "labelText": "Tank Offset",
+                              "hintText": "mm",
+                              "parameter": WriteParameter.TankOffset
+                            },
+                            {
                               "labelText": "Tank height",
                               "hintText": "mm",
                               "parameter": WriteParameter.TankHeight
@@ -158,23 +187,23 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                           if (isValid == null || !isValid) {
                             return;
                           }
-                          // try {
-                          //   await widget.onTankTypeChange(changer);
-                          //   if (context.mounted) {
-                          //     Navigator.pop(context);
-                          //   }
-                          // } catch (e) {
-                          //   if (!context.mounted) {
-                          //     return;
-                          //   }
-                          //   ScaffoldMessenger.of(context).showMaterialBanner(
-                          //     const MaterialBanner(
-                          //       content: Text(
-                          //           "Changing failed try again after some time"),
-                          //       actions: [],
-                          //     ),
-                          //   );
-                          // }
+                          try {
+                            await widget.onTankTypeChange(changer);
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                            }
+                          } catch (e) {
+                            if (!context.mounted) {
+                              return;
+                            }
+                            ScaffoldMessenger.of(context).showMaterialBanner(
+                              const MaterialBanner(
+                                content: Text(
+                                    "Changing failed try again after some time"),
+                                actions: [],
+                              ),
+                            );
+                          }
                         },
                         child: const Text("Save"),
                       ),
@@ -199,13 +228,17 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
           children: [
             TableRow(
               children: [
-                Text("Tank type"),
-                Text(': ${widget.state?.tankType.name}'),
+                headerText("Tank type"),
+                bodyText(': ${widget.state?.tankType.name}'),
                 formItem(
                   DropdownButton<String>(
                     isExpanded: true,
                     focusColor: Colors.green,
-                    style: TextStyle(color: Colors.black87),
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                     underline: Container(),
                     value: widget.state?.tankType.name ?? tankTypes[0],
                     icon: const Icon(Icons.keyboard_arrow_down),
@@ -229,8 +262,22 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
             tableGap(),
             TableRow(
               children: [
-                Text("Tank height"),
-                Text(': ${widget.state?.tankHeight} mm'),
+                headerText("Tank offset mm"),
+                bodyText(': ${widget.state?.tankOffset}'),
+                formItem(
+                  Input(
+                    hintText: "Tank offset",
+                    onDone: widget.onDone,
+                    parameter: WriteParameter.TankOffset,
+                  ),
+                )
+              ],
+            ),
+            tableGap(),
+            TableRow(
+              children: [
+                headerText("Tank height mm"),
+                bodyText(': ${widget.state?.tankHeight}'),
                 formItem(
                   Input(
                     hintText: "Tank height",
@@ -243,8 +290,8 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
             tableGap(),
             TableRow(
               children: [
-                Text("Tank Lenght"),
-                Text(': ${widget.state?.tankLength} mm'),
+                headerText("Tank Length mm"),
+                bodyText(': ${widget.state?.tankLength}'),
                 formItem(
                   Input(
                     hintText: "Tank Length",
@@ -254,25 +301,43 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                 )
               ],
             ),
+            if (widget.state?.tankType == TankType.rectangle ||
+                widget.state?.tankType == TankType.horizontalOval) ...[
+              tableGap(),
+              TableRow(
+                children: [
+                  headerText("Tank Width mm"),
+                  bodyText(': ${widget.state?.tankWidth}'),
+                  formItem(
+                    Input(
+                      hintText: "Tank Length",
+                      onDone: widget.onDone,
+                      parameter: WriteParameter.TankLength,
+                    ),
+                  )
+                ],
+              ),
+            ] else ...[
+              tableGap(),
+              TableRow(
+                children: [
+                  headerText("Tank Diameter mm"),
+                  bodyText(': ${widget.state?.tankDiameter}'),
+                  formItem(
+                    Input(
+                      hintText: "Tank Diameter",
+                      onDone: widget.onDone,
+                      parameter: WriteParameter.TankLength,
+                    ),
+                  )
+                ],
+              ),
+            ],
             tableGap(),
             TableRow(
               children: [
-                Text("Tank Diameter"),
-                Text(": ${widget.state?.tankWidth} mm"),
-                formItem(
-                  Input(
-                    hintText: "Tank diameter",
-                    onDone: widget.onDone,
-                    parameter: WriteParameter.TankWidth,
-                  ),
-                )
-              ],
-            ),
-            tableGap(),
-            TableRow(
-              children: [
-                Text("Low level Relay"),
-                Text(": ${widget.state?.lowLevelRelayInMm} mm"),
+                headerText("Low level Relay mm"),
+                bodyText(": ${widget.state?.lowLevelRelayInMm} "),
                 formItem(
                   Input(
                     hintText: "Low level relay",
@@ -285,13 +350,27 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
             tableGap(),
             TableRow(
               children: [
-                Text("High level Relay"),
-                Text(": ${widget.state?.highLevelRelayInPercent} %"),
+                headerText("High level Relay mm"),
+                bodyText(": ${widget.state?.highLevelRelayInPercent}"),
                 formItem(
                   Input(
                     hintText: "High level relay",
                     onDone: widget.onDone,
                     parameter: WriteParameter.HighLevelRelayInPercent,
+                  ),
+                )
+              ],
+            ),
+            tableGap(),
+            TableRow(
+              children: [
+                headerText("LPH"),
+                bodyText(": ${widget.state?.lph}"),
+                formItem(
+                  Input(
+                    hintText: "Liters per hour",
+                    onDone: widget.onDone,
+                    parameter: WriteParameter.Lph,
                   ),
                 )
               ],

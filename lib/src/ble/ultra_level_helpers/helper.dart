@@ -81,9 +81,9 @@ String constructData({
     case WriteParameter.Lph:
       data = intToHex(int.parse(value));
     case WriteParameter.ZeroPercentTrimmingPoint:
-      data = intToHex(int.parse(value) * 1000);
+      data = intToHex((double.parse(value) * 1000).round());
     case WriteParameter.HundredPercentTrimmingPoint:
-      data = intToHex(int.parse(value) * 1000);
+      data = intToHex((double.parse(value) * 1000).round());
     case WriteParameter.LevelCalibrationOffset:
       data = intToHex(int.parse(value));
     case WriteParameter.SensorOffset:

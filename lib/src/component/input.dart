@@ -55,47 +55,57 @@ class _InputState extends State<Input> {
             textInputAction: widget.textInputAction,
             decoration: InputDecoration(
               hintText: widget.hintText,
+              hintStyle: MaterialStateTextStyle.resolveWith(
+                (states) => TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
             ),
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
               color: isError ? Colors.red : Colors.black,
             ),
             controller: textController,
           ),
         ),
         value.isNotEmpty
-            ? IconButton(
-                onPressed: () async {
-                  try {
-                    setState(() {
-                      loading = true;
-                      isError = false;
-                    });
-                    await widget.onDone(
-                      widget.parameter,
-                      textController.text,
-                    );
-                    setState(() {
-                      loading = false;
-                      isError = false;
-                    });
-                    textController.clear();
-                  } catch (e) {
-                    debugPrint("error: $e");
-                    setState(() {
-                      loading = false;
-                      isError = true;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text("Failed to sent message"),
-                    ));
-                  }
-                },
-                icon: loading
-                    ? const Icon(Icons.circle_outlined)
-                    : const Icon(Icons.check),
-                color: isError ? Colors.red : Colors.black,
-                iconSize: 15,
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: IconButton(
+                  onPressed: () async {
+                    try {
+                      setState(() {
+                        loading = true;
+                        isError = false;
+                      });
+                      await widget.onDone(
+                        widget.parameter,
+                        textController.text,
+                      );
+                      setState(() {
+                        loading = false;
+                        isError = false;
+                      });
+                      textController.clear();
+                    } catch (e) {
+                      debugPrint("error: $e");
+                      setState(() {
+                        loading = false;
+                        isError = true;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text("Failed to sent message"),
+                      ));
+                    }
+                  },
+                  icon: loading
+                      ? const Icon(Icons.circle_outlined)
+                      : const Icon(Icons.check),
+                  color: isError ? Colors.red : Colors.black,
+                  iconSize: 15,
+                ),
               )
             : SizedBox()
       ],

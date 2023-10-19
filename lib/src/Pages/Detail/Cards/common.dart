@@ -11,13 +11,13 @@ TableRow tableGap() {
   return const TableRow(
     children: [
       SizedBox(
-        height: 24,
+        height: 36,
       ),
       SizedBox(
-        height: 24,
+        height: 36,
       ),
       SizedBox(
-        height: 24,
+        height: 36,
       ),
     ],
   );

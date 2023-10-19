@@ -28,13 +28,13 @@ class SettingsWidget extends StatelessWidget {
           children: [
             TableRow(
               children: [
-                Text("Dammping"),
-                Text(': ${state?.damping}'),
+                Text("Zero % Voltage Trimming"),
+                Text(': ${state?.zeroPercentTrimmingPoint}'),
                 formItem(
                   Input(
-                    hintText: "Dammping",
+                    hintText: "0.100",
                     onDone: onDone,
-                    parameter: WriteParameter.Damping,
+                    parameter: WriteParameter.ZeroPercentTrimmingPoint,
                   ),
                 )
               ],
@@ -42,13 +42,13 @@ class SettingsWidget extends StatelessWidget {
             tableGap(),
             TableRow(
               children: [
-                Text("Calibirate"),
-                Text(': ${state?.levelCalibrationOffset}'),
+                Text("100% Voltage Trimming"),
+                Text(': ${state?.hundredPercentTrimmingPoint}'),
                 formItem(
                   Input(
-                      hintText: "Calibirate",
+                      hintText: "4.000",
                       onDone: onDone,
-                      parameter: WriteParameter.LevelCalibrationOffset),
+                      parameter: WriteParameter.HundredPercentTrimmingPoint),
                 )
               ],
             ),

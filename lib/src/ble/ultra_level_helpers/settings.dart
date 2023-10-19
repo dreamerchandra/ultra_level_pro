@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum SettingsValueToChange {
   isInMM,
   isTemperatureSensorEnabled,
@@ -24,13 +26,14 @@ class Settings {
   static Settings getSettings(String hex) {
     final binary =
         int.parse(hex, radix: 16).toRadixString(2).split('').reversed.join();
+    debugPrint("binary" + binary.toString());
     try {
       return Settings(
         isInMM: binary[0] == '1',
         isTemperatureSensorEnabled: binary[1] == '1',
         dac: binary[2] == '1',
         switchHighLowLevel: binary[3] == '1',
-        rs465: binary[4] == '1',
+        rs465: binary.length > 4 ? binary[4] == '1' : false,
       );
     } catch (e) {
       return Settings(

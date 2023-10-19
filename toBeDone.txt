@@ -1,0 +1,10 @@
+timer with color change for ping pong
+
+
+admin panel
+calibration 
+damping
+Voltage trimming point (0.999 low) (2.5 and above 100) 
+
+startup screen
+write should be of two bite instead of single byte
