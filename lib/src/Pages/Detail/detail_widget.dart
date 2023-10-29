@@ -122,58 +122,6 @@ class DetailViewState extends ConsumerState<DetailWidget> {
     super.initState();
   }
 
-  Future<bool> checkSlaveId(String slaveId, FlutterReactiveBle ble) async {
-    Completer<bool> completer = Completer<bool>();
-    final txCh = QualifiedCharacteristic(
-      serviceId: UART_UUID,
-      characteristicId: UART_TX,
-      deviceId: widget.deviceId,
-    );
-
-    final rxCh = QualifiedCharacteristic(
-      serviceId: UART_UUID,
-      characteristicId: UART_RX,
-      deviceId: widget.deviceId,
-    );
-
-    subscriber = ble.subscribeToCharacteristic(txCh).listen((data) {
-      final res = String.fromCharCodes(data);
-      debugPrint("data: $data");
-      debugPrint("res: $res");
-      if (res.length < 20) return;
-      setBleState(BleState(data: res));
-      debugPrint("data: $res");
-      completer.complete(true);
-      subscriber.cancel();
-    }, onError: (dynamic error) {
-      debugPrint("error: $error");
-    });
-    debugPrint("Reading from ble");
-    await ble.writeCharacteristicWithResponse(rxCh, value: getReqCode(slaveId));
-    Future.delayed(const Duration(seconds: 2), () {
-      completer.complete(false);
-      subscriber.cancel();
-    });
-    return completer.future;
-  }
-
-  void findSlaveId() async {
-    for (int i = 255; i < 256; i++) {
-      final _slaveId = intToHex(i).substring(2, 4);
-      final res = await checkSlaveId(_slaveId, ref.read(bleProvider));
-      if (!context.mounted) {
-        return;
-      }
-      debugPrint("checking slave id $_slaveId: $res");
-      if (res) {
-        setState(() {
-          slaveId = _slaveId;
-        });
-        setResume();
-      }
-    }
-  }
-
   @override
   Future<void> dispose() async {
     subscriber.cancel();
@@ -186,6 +134,8 @@ class DetailViewState extends ConsumerState<DetailWidget> {
     });
     super.dispose();
   }
+
+  int elapsedSince = 0;
 
   void readFromBLE(String foundDeviceId, FlutterReactiveBle ble) async {
     try {
@@ -462,6 +412,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
               icon: const Icon(Icons.arrow_back)),
           title: Text(connectedDevice?.name ?? 'Loading...'),
           actions: [
+            PingPongStatus(timer: timer),
             TextButton.icon(
               onPressed: () async {
                 if (isRunning) {
@@ -552,6 +503,43 @@ class DetailViewState extends ConsumerState<DetailWidget> {
                 ],
               ),
       ),
+    );
+  }
+}
+
+class PingPongStatus extends StatefulWidget {
+  const PingPongStatus({
+    super.key,
+    required this.timer,
+  });
+
+  final Timer timer;
+
+  @override
+  State<PingPongStatus> createState() => _PingPongStatusState();
+}
+
+class _PingPongStatusState extends State<PingPongStatus> {
+  int oldTick = 0;
+  @override
+  void initState() {
+    super.initState();
+    Timer.periodic(POLLING_DURATION, (t) {
+      setState(() {
+        oldTick = widget.timer.tick;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.black),
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(100)),
+      padding: EdgeInsets.all(4),
+      child: Text('${widget.timer.tick}'),
     );
   }
 }
