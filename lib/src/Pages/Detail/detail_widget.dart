@@ -4,7 +4,6 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
-import 'package:otp/otp.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/device_settings_widget.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/read_values_widget.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/settings_widget.dart';
@@ -39,21 +38,25 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   bool isAdmin = false;
 
   void setBleState(BleState s) {
-    setState(() {
-      state = s;
-      isRunning = true;
-      error = '';
-      loading = false;
-    });
+    if (context.mounted) {
+      setState(() {
+        state = s;
+        isRunning = true;
+        error = '';
+        loading = false;
+      });
+    }
   }
 
   void setErrorState(String err) {
-    setState(() {
-      state = null;
-      isRunning = false;
-      error = err;
-      loading = false;
-    });
+    if (context.mounted) {
+      setState(() {
+        state = null;
+        isRunning = false;
+        error = err;
+        loading = false;
+      });
+    }
   }
 
   void setPaused() async {
@@ -61,12 +64,14 @@ class DetailViewState extends ConsumerState<DetailWidget> {
     // await ref.read(bleProvider).clearGattCache(widget.deviceId);
     // await ref.read(bleConnectorProvider).disconnect(widget.deviceId);
     timer.cancel();
-    setState(() {
-      state = null;
-      isRunning = false;
-      error = '';
-      loading = false;
-    });
+    if (context.mounted) {
+      setState(() {
+        state = null;
+        isRunning = false;
+        error = '';
+        loading = false;
+      });
+    }
   }
 
   void pollData() {
@@ -79,11 +84,13 @@ class DetailViewState extends ConsumerState<DetailWidget> {
 
   void setResume() async {
     // await ref.read(bleConnectorProvider).connect(widget.deviceId);
-    pollData();
-    setState(() {
-      isRunning = true;
-      error = '';
-    });
+    if (context.mounted) {
+      pollData();
+      setState(() {
+        isRunning = true;
+        error = '';
+      });
+    }
   }
 
   late StreamSubscription<List<int>> subscriber;
@@ -154,6 +161,9 @@ class DetailViewState extends ConsumerState<DetailWidget> {
     for (int i = 255; i < 256; i++) {
       final _slaveId = intToHex(i).substring(2, 4);
       final res = await checkSlaveId(_slaveId, ref.read(bleProvider));
+      if (!context.mounted) {
+        return;
+      }
       debugPrint("checking slave id $_slaveId: $res");
       if (res) {
         setState(() {
@@ -165,9 +175,15 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   }
 
   @override
-  dispose() {
+  Future<void> dispose() async {
     subscriber.cancel();
     timer.cancel();
+    final connector = ref.read(bleConnectorProvider);
+    final ble = ref.read(bleProvider);
+    Future.delayed(Duration.zero, () async {
+      await connector.disconnect(widget.deviceId);
+      await ble.clearGattCache(widget.deviceId);
+    });
     super.dispose();
   }
 
@@ -199,8 +215,9 @@ class DetailViewState extends ConsumerState<DetailWidget> {
       await ble.writeCharacteristicWithResponse(rxCh,
           value: getReqCode(slaveId));
     } catch (err) {
+      debugPrint("read from ble error $err");
       if (context.mounted) {
-        GoRouter.of(context).go('/home');
+        GoRouter.of(context).go('/');
       }
     }
 
@@ -269,8 +286,20 @@ class DetailViewState extends ConsumerState<DetailWidget> {
       final connectedDevice = ref.watch(bleConnectedDeviceProvider);
       return connectedDevice;
     } catch (err) {
-      if (context.mounted) GoRouter.of(context).go('/home');
+      debugPrint("get connected device error $err");
+      if (context.mounted) GoRouter.of(context).go('/');
     }
+  }
+
+  int getRSSI() {
+    final connectedDevice = this.getConnectedDevice();
+    final scannerState = ref.watch(bleScannerStateProvider).asData;
+    if (connectedDevice != null && scannerState != null) {
+      final scannedDevice = scannerState.value?.discoveredDevices
+          .firstWhere((element) => element.id == connectedDevice?.id);
+      return scannedDevice?.rssi ?? -110;
+    }
+    return connectedDevice?.rssi ?? -110;
   }
 
   Widget buildReadHeaders() {
@@ -282,7 +311,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
       },
       children: [
         TableRow(children: [
-          Text(
+          const Text(
             "Name",
             style: TextStyle(
               color: Colors.white,
@@ -290,30 +319,82 @@ class DetailViewState extends ConsumerState<DetailWidget> {
           ),
           Text(
             "${connectedDevice?.name}",
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
             ),
           ),
         ]),
         TableRow(
           children: [
-            Text(
+            const Text(
               "RSSI ",
               style: TextStyle(
                 color: Colors.white,
               ),
             ),
-            Text(
-              "${connectedDevice?.rssi}dBm",
-              style: TextStyle(
-                color: Colors.white,
-              ),
+            Row(
+              children: [
+                Text(
+                  "${getRSSI()}dBm",
+                  style: const TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.black,
+                            ),
+                            shape: BoxShape.rectangle,
+                            color:
+                                getRSSI() < -100 ? Colors.white : Colors.amber,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 2),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.black,
+                            ),
+                            shape: BoxShape.rectangle,
+                            color: getRSSI() < -86 && getRSSI() < -100
+                                ? Colors.white
+                                : Colors.amber,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 4),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.black,
+                            ),
+                            shape: BoxShape.rectangle,
+                            color:
+                                getRSSI() < -85 ? Colors.white : Colors.amber,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 6),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              ],
             )
           ],
         ),
         TableRow(
           children: [
-            Text(
+            const Text(
               "MAC ID ",
               style: TextStyle(
                 color: Colors.white,
@@ -321,7 +402,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
             ),
             Text(
               "${connectedDevice?.id}",
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
               ),
             ),
@@ -396,75 +477,80 @@ class DetailViewState extends ConsumerState<DetailWidget> {
             )
           ],
         ),
-        body: TabBarView(
-          children: [
-            CardDetails(
-              width: width,
-              state: state,
-              header: buildReadHeaders(),
-              body: ReadValues(state: state),
-              initialExpanded: true,
-            ),
-            SingleChildScrollView(
-              child: CardDetails(
-                width: width,
-                state: state,
-                header: const Text(
-                  "Tank Details",
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-                body: TankDetailsWidget(
-                  onDone: onDone,
-                  state: state,
-                  ble: ref.read(bleProvider),
-                  onTankTypeChange: onTankTypeChange,
-                ),
-                initialExpanded: true,
-              ),
-            ),
-            SingleChildScrollView(
-              child: StaggeredGrid.count(
-                crossAxisCount: getDeviceType() == DeviceType.phone ? 1 : 2,
+        body: state == null
+            ? const Center(
+                child: Text("Device is paused"),
+              )
+            : TabBarView(
                 children: [
                   CardDetails(
                     width: width,
-                    controller: controllers[0],
                     state: state,
-                    header: const Text(
-                      "Settings",
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    body: SettingsWidget(
-                      onDone: onDone,
-                      state: state,
-                    ),
+                    header: buildReadHeaders(),
+                    body: ReadValues(state: state),
                     initialExpanded: true,
                   ),
-                  CardDetails(
-                    width: width,
-                    controller: controllers[1],
-                    state: state,
-                    header: const Text(
-                      "Device Settings",
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    body: DeviceSettingsWidget(
-                      onDone: onSettingsChange,
+                  SingleChildScrollView(
+                    child: CardDetails(
+                      width: width,
                       state: state,
+                      header: const Text(
+                        "Tank Details",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      body: TankDetailsWidget(
+                        onDone: onDone,
+                        state: state,
+                        ble: ref.read(bleProvider),
+                        onTankTypeChange: onTankTypeChange,
+                      ),
+                      initialExpanded: true,
                     ),
-                    initialExpanded: getDeviceType() == DeviceType.tablet,
+                  ),
+                  SingleChildScrollView(
+                    child: StaggeredGrid.count(
+                      crossAxisCount:
+                          getDeviceType() == DeviceType.phone ? 1 : 2,
+                      children: [
+                        CardDetails(
+                          width: width,
+                          controller: controllers[0],
+                          state: state,
+                          header: const Text(
+                            "Settings",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                          body: SettingsWidget(
+                            onDone: onDone,
+                            state: state,
+                          ),
+                          initialExpanded: true,
+                        ),
+                        CardDetails(
+                          width: width,
+                          controller: controllers[1],
+                          state: state,
+                          header: const Text(
+                            "Device Settings",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                          body: DeviceSettingsWidget(
+                            onDone: onSettingsChange,
+                            state: state,
+                          ),
+                          initialExpanded: getDeviceType() == DeviceType.tablet,
+                        )
+                      ],
+                    ),
                   )
                 ],
               ),
-            )
-          ],
-        ),
       ),
     );
   }

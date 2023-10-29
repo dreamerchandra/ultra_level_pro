@@ -18,7 +18,7 @@ class CustomError extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/error_illustration.png'),
+            Image.asset('assets/images/error.png'),
             Text(
               kDebugMode
                   ? errorDetails.summary.toString()
