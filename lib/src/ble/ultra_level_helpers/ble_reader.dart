@@ -1,7 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ultra_level_pro/src/ble/ble_device_connector.dart';
+import 'package:ultra_level_pro/src/ble/state.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/alarm.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/baud_rate.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/constant.dart';
@@ -141,8 +146,13 @@ class BleReader extends ChangeNotifier {
   String deviceId;
   StreamSubscription<List<int>>? subscriber;
   FlutterReactiveBle ble;
+  BleDeviceConnector connector;
 
-  BleReader({required this.context, required this.deviceId, required this.ble});
+  BleReader(
+      {required this.context,
+      required this.deviceId,
+      required this.ble,
+      required this.connector});
 
   void _setBleState(BleState s) {
     if (context.mounted) {
@@ -154,11 +164,23 @@ class BleReader extends ChangeNotifier {
     }
   }
 
-  void _setErrorState(String err) {
+  void _setErrorState(dynamic err) {
+    debugPrint("setting error ${err.toString()}");
+
+    String str = '';
+    if (err is String) {
+      str = err;
+    }
+    if (err is ErrorDescription) {
+      str = err.toDescription();
+    }
+    if (err is PlatformException) {
+      str = err.message is String ? err.message! : err.toString();
+    }
     if (context.mounted) {
       state = null;
       isRunning = false;
-      error = err;
+      error = str;
       loading = false;
       notifyListeners();
     }
@@ -166,6 +188,7 @@ class BleReader extends ChangeNotifier {
 
   void setPaused() {
     timer.cancel();
+    debugPrint("paused");
     if (context.mounted) {
       state = null;
       isRunning = false;
@@ -176,21 +199,34 @@ class BleReader extends ChangeNotifier {
   }
 
   void _pollData() {
-    Timer.periodic(const Duration(seconds: 1), (t) {
+    debugPrint("started to poll");
+    Timer(const Duration(seconds: 1), () {
       readFromBLE(deviceId, ble);
     });
     timer = Timer.periodic(POLLING_DURATION, (timer) {
-      debugPrint("timer");
       readFromBLE(deviceId, ble);
     });
   }
 
   void setResume() {
+    debugPrint("resuming polling ");
     _pollData();
     if (context.mounted) {
       isRunning = true;
       error = '';
       notifyListeners();
+    }
+  }
+
+  Future<bool> disconnect() async {
+    try {
+      timer.cancel();
+      await subscriber?.cancel();
+      await connector.disconnect(deviceId);
+      return Future.value(true);
+    } catch (err) {
+      debugPrint("error in disconnecting device $err");
+      return Future.value(false);
     }
   }
 
@@ -201,21 +237,25 @@ class BleReader extends ChangeNotifier {
       throw Error();
     }
     Completer<List<int>> completer = Completer<List<int>>();
-    bool dataReceived = false;
+    var timer = Timer(Duration(seconds: waitSeconds), () {
+      if (completer.isCompleted) {
+        return;
+      }
+      debugPrint("data failed to  receive data");
+      completer
+          .completeError(ErrorDescription("Device failed to receive data"));
+    });
     subscriber!.onData((data) {
-      dataReceived = true;
+      timer.cancel();
+      debugPrint("data relived");
       completer.complete(data);
     });
     subscriber!.onError((dynamic error) {
-      dataReceived = true;
+      timer.cancel();
+      debugPrint("data not found");
       completer.completeError(error);
     });
-    Timer(Duration(seconds: waitSeconds), () {
-      if (!dataReceived) {
-        completer
-            .completeError(ErrorDescription("Device failed to receive data"));
-      }
-    });
+
     return completer.future;
   }
 
@@ -241,15 +281,22 @@ class BleReader extends ChangeNotifier {
         characteristicId: UART_RX,
         deviceId: deviceId,
       );
-      _subscribeToCharacteristic(txCh)
-          .then(_onDataReceived)
-          .catchError((err) => {_setErrorState(err)});
+      final status =
+          ble.writeCharacteristicWithResponse(rxCh, value: getReqCode(slaveId));
+      _subscribeToCharacteristic(txCh).then(_onDataReceived).catchError((err) {
+        _setErrorState(err);
+      });
+      await status;
       debugPrint("Reading from ble");
-      await ble.writeCharacteristicWithResponse(rxCh,
-          value: getReqCode(slaveId));
     } catch (err) {
       debugPrint("read from ble error $err");
-      _setErrorState(err.toString());
+      _setErrorState(err);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Something went wrong"),
+        ));
+        GoRouter.of(context).go('/');
+      }
     }
 
     // setBleState(
@@ -304,3 +351,20 @@ class BleReader extends ChangeNotifier {
     }
   }
 }
+
+class NotifierFamily {
+  String deviceId;
+  BuildContext context;
+  NotifierFamily({required this.context, required this.deviceId});
+}
+
+final bleReaderService =
+    ChangeNotifierProvider.family<BleReader, NotifierFamily>((ref, params) {
+  final provider = ref.read(bleProvider);
+  final connector = ref.read(bleConnectorProvider);
+  return BleReader(
+      context: params.context,
+      deviceId: params.deviceId,
+      ble: provider,
+      connector: connector);
+});

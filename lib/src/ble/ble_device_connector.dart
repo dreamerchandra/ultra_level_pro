@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:ultra_level_pro/src/ble/reactive_state.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/constant.dart';
@@ -24,13 +25,13 @@ class BleDeviceConnector extends ReactiveState<ConnectionStateUpdate> {
 
   Future<void> connect(String deviceId) async {
     _logMessage('Start connecting to $deviceId');
-    _connection = _ble.connectToAdvertisingDevice(
+    _connection = _ble
+        .connectToDevice(
       id: deviceId,
-      prescanDuration: Duration(seconds: 1),
-      withServices: [UART_UUID, UART_RX, UART_TX],
-    ).listen(
+    )
+        .listen(
       (update) {
-        _logMessage(
+        debugPrint(
             'ConnectionState for device $deviceId : ${update.connectionState}');
         _deviceConnectionController.add(update);
       },
@@ -41,7 +42,7 @@ class BleDeviceConnector extends ReactiveState<ConnectionStateUpdate> {
 
   Future<void> disconnect(String deviceId) async {
     try {
-      _logMessage('disconnecting to device: $deviceId');
+      debugPrint('disconnecting to device: $deviceId');
       await _connection.cancel();
     } on Exception catch (e, _) {
       _logMessage("Error disconnecting from a device: $e");

@@ -1,6 +1,6 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +13,6 @@ import 'package:ultra_level_pro/src/ble/state.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/ble_reader.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/ble_writter.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/constant.dart';
-import 'package:ultra_level_pro/src/ble/ultra_level_helpers/helper.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/settings.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/tank_type_changer.dart';
 import 'package:ultra_level_pro/src/common.dart';
@@ -29,80 +28,21 @@ class DetailWidget extends ConsumerStatefulWidget {
 }
 
 class DetailViewState extends ConsumerState<DetailWidget> {
-  late Timer timer;
-  late BleState? state;
-  late bool loading = true;
-  late bool isRunning;
-  late String error;
-  late String slaveId = '01';
   bool isAdmin = false;
+  BleReader? _reader;
+  late NotifierFamily notifierFamily =
+      NotifierFamily(context: context, deviceId: widget.deviceId);
 
-  void setBleState(BleState s) {
-    if (context.mounted) {
-      setState(() {
-        state = s;
-        isRunning = true;
-        error = '';
-        loading = false;
-      });
-    }
-  }
-
-  void setErrorState(String err) {
-    if (context.mounted) {
-      setState(() {
-        state = null;
-        isRunning = false;
-        error = err;
-        loading = false;
-      });
-    }
-  }
-
-  void setPaused() async {
-    debugPrint("disconnect");
-    // await ref.read(bleProvider).clearGattCache(widget.deviceId);
-    // await ref.read(bleConnectorProvider).disconnect(widget.deviceId);
-    timer.cancel();
-    if (context.mounted) {
-      setState(() {
-        state = null;
-        isRunning = false;
-        error = '';
-        loading = false;
-      });
-    }
-  }
-
-  void pollData() {
-    readFromBLE(widget.deviceId, ref.read(bleProvider));
-    timer = Timer.periodic(POLLING_DURATION, (timer) {
-      debugPrint("timer");
-      readFromBLE(widget.deviceId, ref.read(bleProvider));
-    });
-  }
-
-  void setResume() async {
-    // await ref.read(bleConnectorProvider).connect(widget.deviceId);
-    if (context.mounted) {
-      pollData();
-      setState(() {
-        isRunning = true;
-        error = '';
-      });
-    }
-  }
-
-  late StreamSubscription<List<int>> subscriber;
   final List<MyExpansionTileController> controllers = [
     MyExpansionTileController(),
     MyExpansionTileController(),
   ];
   @override
   void initState() {
-    state = null;
-    // findSlaveId();
-    setResume();
+    Timer(Duration.zero, () {
+      _reader = ref.watch(bleReaderService(notifierFamily));
+      _reader?.setResume();
+    });
 
     controllers.forEach((parentController) {
       parentController.addEventListener((isOpen) {
@@ -122,91 +62,36 @@ class DetailViewState extends ConsumerState<DetailWidget> {
     super.initState();
   }
 
-  @override
-  Future<void> dispose() async {
-    subscriber.cancel();
-    timer.cancel();
-    final connector = ref.read(bleConnectorProvider);
-    final ble = ref.read(bleProvider);
-    Future.delayed(Duration.zero, () async {
-      await connector.disconnect(widget.deviceId);
-      await ble.clearGattCache(widget.deviceId);
-    });
-    super.dispose();
-  }
-
-  int elapsedSince = 0;
-
-  void readFromBLE(String foundDeviceId, FlutterReactiveBle ble) async {
-    try {
-      final txCh = QualifiedCharacteristic(
-        serviceId: UART_UUID,
-        characteristicId: UART_TX,
-        deviceId: widget.deviceId,
-      );
-
-      final rxCh = QualifiedCharacteristic(
-        serviceId: UART_UUID,
-        characteristicId: UART_RX,
-        deviceId: widget.deviceId,
-      );
-
-      subscriber = ble.subscribeToCharacteristic(txCh).listen((data) {
-        final res = String.fromCharCodes(data);
-        debugPrint("data: $data");
-        debugPrint("res: $res");
-        if (res.length < 20) return;
-        setBleState(BleState(data: res));
-        debugPrint("data: $res");
-      }, onError: (dynamic error) {
-        debugPrint("error: $error");
-      });
-      debugPrint("Reading from ble");
-      await ble.writeCharacteristicWithResponse(rxCh,
-          value: getReqCode(slaveId));
-    } catch (err) {
-      debugPrint("read from ble error $err");
-      if (context.mounted) {
-        GoRouter.of(context).go('/');
-      }
-    }
-
-    // setBleState(
-    //   BleState(
-    //     data:
-    //         '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E8000100087900',
-    //   ),
-    // );
-  }
-
-  Future<bool> onDone(WriteParameter parameter, String value) {
-    timer.cancel();
+  Future<bool> writeToDevice(WriteParameter parameter, String value) {
+    final reader = ref.read(bleReaderService(notifierFamily));
+    reader.timer.cancel();
     return BleWriter(ble: ref.read(bleProvider))
         .writeToDevice(
       deviceId: widget.deviceId,
       parameter: parameter,
       value: value,
-      settings: state!.settings,
-      slaveId: state!.slaveId,
+      settings: reader.state!.settings,
+      slaveId: reader.state!.slaveId,
     )
         .whenComplete(
       () {
-        setResume();
+        reader.setResume();
       },
     );
   }
 
   Future<bool> onTankTypeChange(TankTypeChanger changer) {
-    timer.cancel();
+    final reader = ref.read(bleReaderService(notifierFamily));
+    reader.timer.cancel();
     return changer
         .commitTankType(
       deviceId: widget.deviceId,
-      settings: state!.settings,
-      slaveId: state!.slaveId,
+      settings: reader.state!.settings,
+      slaveId: reader.state!.slaveId,
     )
         .whenComplete(
       () {
-        setResume();
+        reader.setResume();
       },
     );
   }
@@ -215,18 +100,19 @@ class DetailViewState extends ConsumerState<DetailWidget> {
     required String value,
     required SettingsValueToChange settingsParam,
   }) {
-    timer.cancel();
+    final reader = ref.read(bleReaderService(notifierFamily));
+    reader.timer.cancel();
     return BleWriter(ble: ref.read(bleProvider))
         .writeSettingsToDevice(
       deviceId: widget.deviceId,
-      oldSettings: state!.settings,
-      slaveId: state!.slaveId,
+      oldSettings: reader.state!.settings,
+      slaveId: reader.state!.slaveId,
       settingsParam: settingsParam,
       value: value,
     )
         .whenComplete(
       () {
-        setResume();
+        reader.setResume();
       },
     );
   }
@@ -238,11 +124,12 @@ class DetailViewState extends ConsumerState<DetailWidget> {
     } catch (err) {
       debugPrint("get connected device error $err");
       if (context.mounted) GoRouter.of(context).go('/');
+      return null;
     }
   }
 
   int getRSSI() {
-    final connectedDevice = this.getConnectedDevice();
+    final connectedDevice = getConnectedDevice();
     final scannerState = ref.watch(bleScannerStateProvider).asData;
     if (connectedDevice != null && scannerState != null) {
       final scannedDevice = scannerState.value?.discoveredDevices
@@ -292,50 +179,46 @@ class DetailViewState extends ConsumerState<DetailWidget> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0),
-                  child: Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.black,
-                            ),
-                            shape: BoxShape.rectangle,
-                            color:
-                                getRSSI() < -100 ? Colors.white : Colors.amber,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.black,
                           ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4, vertical: 2),
+                          shape: BoxShape.rectangle,
+                          color: getRSSI() < -100 ? Colors.white : Colors.amber,
                         ),
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.black,
-                            ),
-                            shape: BoxShape.rectangle,
-                            color: getRSSI() < -86 && getRSSI() < -100
-                                ? Colors.white
-                                : Colors.amber,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 2),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.black,
                           ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4, vertical: 4),
+                          shape: BoxShape.rectangle,
+                          color: getRSSI() < -86 && getRSSI() < -100
+                              ? Colors.white
+                              : Colors.amber,
                         ),
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.black,
-                            ),
-                            shape: BoxShape.rectangle,
-                            color:
-                                getRSSI() < -85 ? Colors.white : Colors.amber,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 4),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.black,
                           ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4, vertical: 6),
+                          shape: BoxShape.rectangle,
+                          color: getRSSI() < -85 ? Colors.white : Colors.amber,
                         ),
-                      ],
-                    ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 6),
+                      ),
+                    ],
                   ),
                 )
               ],
@@ -364,144 +247,185 @@ class DetailViewState extends ConsumerState<DetailWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final reader = ref.watch(bleReaderService(notifierFamily));
     final connectedDevice = getConnectedDevice();
     final width = getDeviceType() == DeviceType.phone
         ? MediaQuery.of(context).size.width
         : MediaQuery.of(context).size.width / 2;
-    if (loading) return const Center(child: CircularProgressIndicator());
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        floatingActionButton: AdminWidget(
-            isAdmin: isAdmin,
-            setIsAdmin: (bool _isAdmin) {
-              if (_isAdmin) {
-                Timer(const Duration(minutes: 10), () {
-                  setState(() {
-                    isAdmin = false;
-                  });
-                });
-              }
-              setState(() {
-                isAdmin = _isAdmin;
-              });
-            }),
-        backgroundColor: Colors.grey[200],
-        appBar: AppBar(
-          bottom: const TabBar(
-            tabs: [
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text("Basic"),
-              ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text("Tanks"),
-              ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text("Settings"),
-              ),
-            ],
-          ),
-          centerTitle: true,
-          leading: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.arrow_back)),
-          title: Text(connectedDevice?.name ?? 'Loading...'),
-          actions: [
-            PingPongStatus(timer: timer),
-            TextButton.icon(
-              onPressed: () async {
-                if (isRunning) {
-                  setPaused();
-                } else {
-                  setResume();
-                }
-              },
-              icon: isRunning
-                  ? const Icon(Icons.pause)
-                  : const Icon(Icons.play_arrow),
-              label: const Text(''),
-            )
-          ],
-        ),
-        body: state == null
-            ? const Center(
-                child: Text("Device is paused"),
-              )
-            : TabBarView(
-                children: [
-                  CardDetails(
-                    width: width,
-                    state: state,
-                    header: buildReadHeaders(),
-                    body: ReadValues(state: state),
-                    initialExpanded: true,
+    if (reader.loading) return const Center(child: CircularProgressIndicator());
+    return WillPopScope(
+      onWillPop: () {
+        Completer<bool> completer = Completer();
+        showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return WillPopScope(
+              onWillPop: () async =>
+                  false, // False will prevent and true will allow to dismiss
+              child: AlertDialog(
+                title: Text('Going Back?'),
+                content: Text('Would you like to go back'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      completer.complete(false);
+                    },
+                    child: Text('Cancel'),
                   ),
-                  SingleChildScrollView(
-                    child: CardDetails(
-                      width: width,
-                      state: state,
-                      header: const Text(
-                        "Tank Details",
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                      body: TankDetailsWidget(
-                        onDone: onDone,
-                        state: state,
-                        ble: ref.read(bleProvider),
-                        onTankTypeChange: onTankTypeChange,
-                      ),
-                      initialExpanded: true,
-                    ),
+                  TextButton(
+                    onPressed: () async {
+                      await reader.disconnect();
+                      Navigator.pop(context);
+                      completer.complete(true);
+                    },
+                    child: Text('Go Back'),
                   ),
-                  SingleChildScrollView(
-                    child: StaggeredGrid.count(
-                      crossAxisCount:
-                          getDeviceType() == DeviceType.phone ? 1 : 2,
-                      children: [
-                        CardDetails(
-                          width: width,
-                          controller: controllers[0],
-                          state: state,
-                          header: const Text(
-                            "Settings",
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          body: SettingsWidget(
-                            onDone: onDone,
-                            state: state,
-                          ),
-                          initialExpanded: true,
-                        ),
-                        CardDetails(
-                          width: width,
-                          controller: controllers[1],
-                          state: state,
-                          header: const Text(
-                            "Device Settings",
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          body: DeviceSettingsWidget(
-                            onDone: onSettingsChange,
-                            state: state,
-                          ),
-                          initialExpanded: getDeviceType() == DeviceType.tablet,
-                        )
-                      ],
-                    ),
-                  )
                 ],
               ),
+            );
+          },
+        ) as Future<bool>;
+        return completer.future;
+      },
+      child: DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          floatingActionButton: AdminWidget(
+              isAdmin: isAdmin,
+              setIsAdmin: (bool _isAdmin) {
+                if (_isAdmin) {
+                  Timer(const Duration(minutes: 10), () {
+                    setState(() {
+                      isAdmin = false;
+                    });
+                  });
+                }
+                setState(() {
+                  isAdmin = _isAdmin;
+                });
+              }),
+          backgroundColor: Colors.grey[200],
+          appBar: AppBar(
+            bottom: const TabBar(
+              tabs: [
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text("Basic"),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text("Tanks"),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text("Settings"),
+                ),
+              ],
+            ),
+            centerTitle: true,
+            leading: IconButton(
+                onPressed: () async {
+                  debugPrint("Going back");
+                  await reader.disconnect();
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.arrow_back)),
+            title: Text(connectedDevice?.name ?? 'Loading...'),
+            actions: [
+              PingPongStatus(timer: reader.timer),
+              TextButton.icon(
+                onPressed: () async {
+                  if (reader.isRunning) {
+                    reader.setPaused();
+                  } else {
+                    reader.setResume();
+                  }
+                },
+                icon: reader.isRunning
+                    ? const Icon(Icons.pause)
+                    : const Icon(Icons.play_arrow),
+                label: const Text(''),
+              )
+            ],
+          ),
+          body: reader.state == null
+              ? const Center(
+                  child: Text("Device is paused"),
+                )
+              : TabBarView(
+                  children: [
+                    CardDetails(
+                      width: width,
+                      state: reader.state,
+                      header: buildReadHeaders(),
+                      body: ReadValues(state: reader.state),
+                      initialExpanded: true,
+                    ),
+                    SingleChildScrollView(
+                      child: CardDetails(
+                        width: width,
+                        state: reader.state,
+                        header: const Text(
+                          "Tank Details",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                        body: TankDetailsWidget(
+                          onDone: writeToDevice,
+                          state: reader.state,
+                          ble: ref.read(bleProvider),
+                          onTankTypeChange: onTankTypeChange,
+                        ),
+                        initialExpanded: true,
+                      ),
+                    ),
+                    SingleChildScrollView(
+                      child: StaggeredGrid.count(
+                        crossAxisCount:
+                            getDeviceType() == DeviceType.phone ? 1 : 2,
+                        children: [
+                          CardDetails(
+                            width: width,
+                            controller: controllers[0],
+                            state: reader.state,
+                            header: const Text(
+                              "Settings",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            body: SettingsWidget(
+                              onDone: writeToDevice,
+                              state: reader.state,
+                            ),
+                            initialExpanded: true,
+                          ),
+                          CardDetails(
+                            width: width,
+                            controller: controllers[1],
+                            state: reader.state,
+                            header: const Text(
+                              "Device Settings",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            body: DeviceSettingsWidget(
+                              onDone: onSettingsChange,
+                              state: reader.state,
+                            ),
+                            initialExpanded:
+                                getDeviceType() == DeviceType.tablet,
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+        ),
       ),
     );
   }
@@ -521,14 +445,21 @@ class PingPongStatus extends StatefulWidget {
 
 class _PingPongStatusState extends State<PingPongStatus> {
   int oldTick = 0;
+  late Timer timer;
   @override
   void initState() {
     super.initState();
-    Timer.periodic(POLLING_DURATION, (t) {
+    timer = Timer.periodic(POLLING_DURATION, (t) {
       setState(() {
         oldTick = widget.timer.tick;
       });
     });
+  }
+
+  @override
+  void dispose() async {
+    super.dispose();
+    timer.cancel();
   }
 
   @override
@@ -538,7 +469,7 @@ class _PingPongStatusState extends State<PingPongStatus> {
           border: Border.all(color: Colors.black),
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(100)),
-      padding: EdgeInsets.all(4),
+      padding: const EdgeInsets.all(4),
       child: Text('${widget.timer.tick}'),
     );
   }
