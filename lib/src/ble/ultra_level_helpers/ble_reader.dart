@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +14,7 @@ import 'package:ultra_level_pro/src/ble/ultra_level_helpers/constant.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/helper.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/settings.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/tank_type.dart';
+import 'package:ultra_level_pro/src/helper/lru_array.dart';
 
 class BleState {
   String data;
@@ -147,6 +149,7 @@ class BleReader extends ChangeNotifier {
   StreamSubscription<List<int>>? subscriber;
   FlutterReactiveBle ble;
   BleDeviceConnector connector;
+  LastNPingPong lastNPingPong = LastNPingPong(max: 5);
 
   BleReader(
       {required this.context,
@@ -178,8 +181,6 @@ class BleReader extends ChangeNotifier {
       str = err.message is String ? err.message! : err.toString();
     }
     if (context.mounted) {
-      state = null;
-      isRunning = false;
       error = str;
       loading = false;
       notifyListeners();
@@ -230,8 +231,16 @@ class BleReader extends ChangeNotifier {
     }
   }
 
-  Future<List<int>> _subscribeToCharacteristic(QualifiedCharacteristic txCh,
+  Future<List<int>> _subscribeToCharacteristic(
+      QualifiedCharacteristic txCh, PingPong pingPong,
       [int waitSeconds = 4]) {
+    void updateStatus(PingPongStatus status) {
+      lastNPingPong.update(pingPong.request, status);
+      notifyListeners();
+    }
+
+    debugPrint("subscriber present ${subscriber != null}");
+
     subscriber ??= ble.subscribeToCharacteristic(txCh).listen((event) {});
     if (subscriber == null) {
       throw Error();
@@ -241,16 +250,19 @@ class BleReader extends ChangeNotifier {
       if (completer.isCompleted) {
         return;
       }
+      updateStatus(PingPongStatus.failed);
       debugPrint("data failed to  receive data");
       completer
           .completeError(ErrorDescription("Device failed to receive data"));
     });
     subscriber!.onData((data) {
+      updateStatus(PingPongStatus.received);
       timer.cancel();
       debugPrint("data relived");
       completer.complete(data);
     });
     subscriber!.onError((dynamic error) {
+      updateStatus(PingPongStatus.failed);
       timer.cancel();
       debugPrint("data not found");
       completer.completeError(error);
@@ -281,12 +293,20 @@ class BleReader extends ChangeNotifier {
         characteristicId: UART_RX,
         deviceId: deviceId,
       );
-      final status =
+      final writePromise =
           ble.writeCharacteristicWithResponse(rxCh, value: getReqCode(slaveId));
-      _subscribeToCharacteristic(txCh).then(_onDataReceived).catchError((err) {
+      PingPong pingPong = PingPong(
+        status: PingPongStatus.requested,
+        request: Random().nextInt(1000),
+      );
+
+      _subscribeToCharacteristic(txCh, pingPong)
+          .then(_onDataReceived)
+          .catchError((err) {
         _setErrorState(err);
       });
-      await status;
+
+      await writePromise;
       debugPrint("Reading from ble");
     } catch (err) {
       debugPrint("read from ble error $err");
@@ -324,8 +344,12 @@ class BleReader extends ChangeNotifier {
       characteristicId: UART_RX,
       deviceId: deviceId,
     );
+    PingPong pingPong = PingPong(
+      status: PingPongStatus.requested,
+      request: Random().nextInt(1000),
+    );
 
-    _subscribeToCharacteristic(txCh, 4).then((d) {
+    _subscribeToCharacteristic(txCh, pingPong).then((d) {
       _onDataReceived(d);
       completer.complete(true);
     }).catchError((error) {
@@ -363,8 +387,9 @@ final bleReaderService =
   final provider = ref.read(bleProvider);
   final connector = ref.read(bleConnectorProvider);
   return BleReader(
-      context: params.context,
-      deviceId: params.deviceId,
-      ble: provider,
-      connector: connector);
+    context: params.context,
+    deviceId: params.deviceId,
+    ble: provider,
+    connector: connector,
+  );
 });

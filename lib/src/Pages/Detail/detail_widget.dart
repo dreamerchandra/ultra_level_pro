@@ -18,7 +18,9 @@ import 'package:ultra_level_pro/src/ble/ultra_level_helpers/tank_type_changer.da
 import 'package:ultra_level_pro/src/common.dart';
 import 'package:ultra_level_pro/src/component/card_details.dart';
 import 'package:ultra_level_pro/src/component/expansion_title.dart';
+import 'package:ultra_level_pro/src/component/ping_pong_status.dart';
 import 'package:ultra_level_pro/src/component/topt.dart';
+import 'package:ultra_level_pro/src/helper/lru_array.dart';
 
 class DetailWidget extends ConsumerStatefulWidget {
   const DetailWidget({super.key, required this.deviceId});
@@ -334,7 +336,10 @@ class DetailViewState extends ConsumerState<DetailWidget> {
                 icon: const Icon(Icons.arrow_back)),
             title: Text(connectedDevice?.name ?? 'Loading...'),
             actions: [
-              PingPongStatus(timer: reader.timer),
+              PingPongStatusWidget(
+                timer: reader.timer,
+                lastNPingPong: reader.lastNPingPong,
+              ),
               TextButton.icon(
                 onPressed: () async {
                   if (reader.isRunning) {
@@ -427,50 +432,6 @@ class DetailViewState extends ConsumerState<DetailWidget> {
                 ),
         ),
       ),
-    );
-  }
-}
-
-class PingPongStatus extends StatefulWidget {
-  const PingPongStatus({
-    super.key,
-    required this.timer,
-  });
-
-  final Timer timer;
-
-  @override
-  State<PingPongStatus> createState() => _PingPongStatusState();
-}
-
-class _PingPongStatusState extends State<PingPongStatus> {
-  int oldTick = 0;
-  late Timer timer;
-  @override
-  void initState() {
-    super.initState();
-    timer = Timer.periodic(POLLING_DURATION, (t) {
-      setState(() {
-        oldTick = widget.timer.tick;
-      });
-    });
-  }
-
-  @override
-  void dispose() async {
-    super.dispose();
-    timer.cancel();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          border: Border.all(color: Colors.black),
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(100)),
-      padding: const EdgeInsets.all(4),
-      child: Text('${widget.timer.tick}'),
     );
   }
 }

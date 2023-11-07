@@ -47,6 +47,7 @@ dependencies:
   permission_handler: ^11.0.1
   android_intent_plus: ^4.0.3
   otp: ^3.1.4
+  simple_circular_progress_bar: ^1.0.2
 
 dev_dependencies:
   flutter_test:
