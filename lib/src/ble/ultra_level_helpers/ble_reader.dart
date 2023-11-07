@@ -38,7 +38,7 @@ class BleState {
   late double zeroPercentTrimmingPoint;
   late double hundredPercentTrimmingPoint;
   late int damping;
-  late int levelCalibrationOffset;
+  late double levelCalibrationOffset;
   late int sensorOffset;
   late int tankOffset;
   late TankType tankType;
@@ -124,7 +124,7 @@ class BleState {
     zeroPercentTrimmingPoint = hexToInt(data.substring(i, i += 4)) / 1000;
     hundredPercentTrimmingPoint = hexToInt(data.substring(i, i += 4)) / 1000;
     damping = hexToInt(data.substring(i, i += 4));
-    levelCalibrationOffset = hexToInt(data.substring(i, i += 4));
+    levelCalibrationOffset = hexToInt(data.substring(i, i += 4)) / 1000;
     sensorOffset = hexToInt(data.substring(i, i += 4));
     tankOffset = hexToInt(data.substring(i, i += 4));
     tankType = getTankType(data.substring(i, i += 4));

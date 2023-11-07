@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/common.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/ble_reader.dart';
-import 'package:ultra_level_pro/src/ble/ultra_level_helpers/constant.dart';
 import 'package:ultra_level_pro/src/ble/ultra_level_helpers/settings.dart';
 
 class DeviceSettingsWidget extends StatefulWidget {
@@ -76,17 +75,6 @@ class _DeviceSettingsWidgetState extends State<DeviceSettingsWidget> {
             2: FlexColumnWidth(2),
           },
           children: [
-            TableRow(
-              children: [
-                const Text("In mm/cm"),
-                Text(
-                    ': ${widget.state?.settings.isInMM == true ? 'In mm' : 'In cm'}'),
-                commonSwitch(
-                  value: widget.state?.settings.isInMM ?? false,
-                )
-              ],
-            ),
-            tableGap(),
             TableRow(
               children: [
                 const Text("Temperature Sensor Enable"),

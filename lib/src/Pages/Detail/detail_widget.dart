@@ -1,9 +1,9 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ultra_level_pro/src/Pages/Detail/Cards/admin_settings_widget.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/device_settings_widget.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/read_values_widget.dart';
 import 'package:ultra_level_pro/src/Pages/Detail/Cards/settings_widget.dart';
@@ -19,8 +19,7 @@ import 'package:ultra_level_pro/src/common.dart';
 import 'package:ultra_level_pro/src/component/card_details.dart';
 import 'package:ultra_level_pro/src/component/expansion_title.dart';
 import 'package:ultra_level_pro/src/component/ping_pong_status.dart';
-import 'package:ultra_level_pro/src/component/topt.dart';
-import 'package:ultra_level_pro/src/helper/lru_array.dart';
+import 'package:ultra_level_pro/src/component/admin_widget.dart';
 
 class DetailWidget extends ConsumerStatefulWidget {
   const DetailWidget({super.key, required this.deviceId});
@@ -135,7 +134,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
     final scannerState = ref.watch(bleScannerStateProvider).asData;
     if (connectedDevice != null && scannerState != null) {
       final scannedDevice = scannerState.value?.discoveredDevices
-          .firstWhere((element) => element.id == connectedDevice?.id);
+          .firstWhere((element) => element.id == connectedDevice.id);
       return scannedDevice?.rssi ?? -110;
     }
     return connectedDevice?.rssi ?? -110;
@@ -424,7 +423,27 @@ class DetailViewState extends ConsumerState<DetailWidget> {
                             ),
                             initialExpanded:
                                 getDeviceType() == DeviceType.tablet,
-                          )
+                          ),
+                          if (isAdmin) ...[
+                            CardDetails(
+                              width: width,
+                              controller: controllers[1],
+                              state: reader.state,
+                              header: const Text(
+                                "Admin Panel",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                              body: AdminSettingsWidget(
+                                onSettingsChange: onSettingsChange,
+                                onChange: writeToDevice,
+                                state: reader.state,
+                              ),
+                              initialExpanded:
+                                  getDeviceType() == DeviceType.tablet,
+                            )
+                          ]
                         ],
                       ),
                     )
