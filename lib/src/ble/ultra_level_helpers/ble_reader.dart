@@ -138,24 +138,26 @@ class BleState {
 }
 
 class BleReader extends ChangeNotifier {
-  late Timer timer;
-  late BleState? state;
-  late bool loading = true;
-  late bool isRunning = false;
-  late String error;
-  late String slaveId = '01';
+  Timer? timer;
+  BleState? state;
+  bool loading = true;
+  bool isRunning = false;
+  String? error = null;
+  String slaveId = '01';
   BuildContext context;
   String deviceId;
   StreamSubscription<List<int>>? subscriber;
   FlutterReactiveBle ble;
   BleDeviceConnector connector;
-  LastNPingPong lastNPingPong = LastNPingPong(max: 5);
+  LastNPingPong lastNPingPong;
 
-  BleReader(
-      {required this.context,
-      required this.deviceId,
-      required this.ble,
-      required this.connector});
+  BleReader({
+    required this.context,
+    required this.deviceId,
+    required this.ble,
+    required this.connector,
+    required this.lastNPingPong,
+  });
 
   void _setBleState(BleState s) {
     if (context.mounted) {
@@ -188,7 +190,7 @@ class BleReader extends ChangeNotifier {
   }
 
   void setPaused() {
-    timer.cancel();
+    timer?.cancel();
     debugPrint("paused");
     if (context.mounted) {
       state = null;
@@ -221,7 +223,7 @@ class BleReader extends ChangeNotifier {
 
   Future<bool> disconnect() async {
     try {
-      timer.cancel();
+      timer?.cancel();
       await subscriber?.cancel();
       await connector.disconnect(deviceId);
       return Future.value(true);
@@ -258,7 +260,7 @@ class BleReader extends ChangeNotifier {
     subscriber!.onData((data) {
       updateStatus(PingPongStatus.received);
       timer.cancel();
-      debugPrint("data relived");
+      debugPrint("data retrieved");
       completer.complete(data);
     });
     subscriber!.onError((dynamic error) {
@@ -305,6 +307,7 @@ class BleReader extends ChangeNotifier {
           .catchError((err) {
         _setErrorState(err);
       });
+      lastNPingPong.newRequest(pingPong);
 
       await writePromise;
       debugPrint("Reading from ble");
@@ -312,6 +315,7 @@ class BleReader extends ChangeNotifier {
       debugPrint("read from ble error $err");
       _setErrorState(err);
       if (context.mounted) {
+        await disconnect();
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Something went wrong"),
         ));
@@ -328,7 +332,7 @@ class BleReader extends ChangeNotifier {
   }
 
   void pausePolling() {
-    timer.cancel();
+    timer?.cancel();
   }
 
   Future<bool> _checkSlaveId(String slaveId, FlutterReactiveBle ble) async {
@@ -382,14 +386,20 @@ class NotifierFamily {
   NotifierFamily({required this.context, required this.deviceId});
 }
 
+final lastNPingPongProvider =
+    StateNotifierProvider<LastNPingPong, List<PingPong>>(
+        (ref) => LastNPingPong(max: 5));
+
 final bleReaderService =
     ChangeNotifierProvider.family<BleReader, NotifierFamily>((ref, params) {
   final provider = ref.read(bleProvider);
   final connector = ref.read(bleConnectorProvider);
+  final lastNPingPong = ref.read(lastNPingPongProvider.notifier);
   return BleReader(
     context: params.context,
     deviceId: params.deviceId,
     ble: provider,
     connector: connector,
+    lastNPingPong: lastNPingPong,
   );
 });

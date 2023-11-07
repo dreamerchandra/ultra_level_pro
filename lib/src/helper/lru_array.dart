@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 enum PingPongStatus {
   requested,
   received,
@@ -14,17 +17,25 @@ class PingPong {
   }
 }
 
-class LastNPingPong {
+class LastNPingPong extends StateNotifier<List<PingPong>> {
   final int max;
-  late List<PingPong> array = [];
-  LastNPingPong({required this.max});
+  List<PingPong> _array = [];
+
+  @override
+  get state {
+    return _array;
+  }
+
+  LastNPingPong({required this.max}) : super([]);
+
   void newRequest(PingPong value) {
-    array = array.sublist(1, max);
-    array.add(value);
+    _array.add(value);
+    _array = _array.length > max ? _array.sublist(1, max + 1) : _array;
+    debugPrint("last 5 values, ${_array.map((e) => e.request).toList()}");
   }
 
   void update(int request, PingPongStatus newStatus) {
-    array = array.map((element) {
+    _array = _array.map((element) {
       if (element.request == request) {
         return element.update(newStatus);
       }
@@ -33,19 +44,28 @@ class LastNPingPong {
   }
 
   bool isDeviceFailedToRespond() {
-    if (array.length < 2) {
+    if (state.length <= 3) {
       return false;
     }
-    final [last, beforeLast] = array.reversed.toList();
-    return last.status == PingPongStatus.failed &&
+    final reversedArray = _array.reversed.toList();
+    final last = reversedArray.first;
+    final beforeLast = reversedArray[1];
+    final beforeBeforeLast = reversedArray[2];
+    if (last.status != PingPongStatus.requested) {
+      return last.status == PingPongStatus.failed &&
+          beforeLast.status == PingPongStatus.failed;
+    }
+    return beforeBeforeLast.status == PingPongStatus.failed &&
         beforeLast.status == PingPongStatus.failed;
   }
 
   bool isDeviceShowingStale() {
-    if (array.length < 2) {
+    if (_array.length <= 2) {
       return false;
     }
-    final [last, beforeLast] = array.reversed.toList();
+    final reversedArray = _array.reversed.toList();
+    final last = reversedArray.first;
+    final beforeLast = reversedArray[1];
     return last.status == PingPongStatus.requested &&
         beforeLast.status == PingPongStatus.failed;
   }

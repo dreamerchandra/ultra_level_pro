@@ -51,6 +51,19 @@ String intToHex(int value) {
   return res.padLeft(4, '0');
 }
 
+String _ensure2Byte(String data) {
+  if (data.length == 1) {
+    return '000${data}';
+  }
+  if (data.length == 2) {
+    return '00$data';
+  }
+  if (data.length == 3) {
+    return '0$data';
+  }
+  return data;
+}
+
 String constructData({
   required String value,
   required WriteParameter parameter,
@@ -103,5 +116,6 @@ String constructData({
     case WriteParameter.TankDiameter:
       data = intToHex(int.parse(value));
   }
-  return data;
+
+  return _ensure2Byte(data);
 }

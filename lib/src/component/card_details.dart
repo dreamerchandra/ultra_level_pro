@@ -78,7 +78,10 @@ class _CardDetailsState extends State<CardDetails> {
                     ), //BorderRadius.all
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 36.0,
+                      horizontal: 12.0,
+                    ),
                     child: widget.body,
                   ),
                 ),

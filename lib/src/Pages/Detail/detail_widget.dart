@@ -37,6 +37,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
   final List<MyExpansionTileController> controllers = [
     MyExpansionTileController(),
     MyExpansionTileController(),
+    MyExpansionTileController(),
   ];
   @override
   void initState() {
@@ -65,7 +66,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
 
   Future<bool> writeToDevice(WriteParameter parameter, String value) {
     final reader = ref.read(bleReaderService(notifierFamily));
-    reader.timer.cancel();
+    reader.timer?.cancel();
     return BleWriter(ble: ref.read(bleProvider))
         .writeToDevice(
       deviceId: widget.deviceId,
@@ -83,7 +84,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
 
   Future<bool> onTankTypeChange(TankTypeChanger changer) {
     final reader = ref.read(bleReaderService(notifierFamily));
-    reader.timer.cancel();
+    reader.timer?.cancel();
     return changer
         .commitTankType(
       deviceId: widget.deviceId,
@@ -102,7 +103,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
     required SettingsValueToChange settingsParam,
   }) {
     final reader = ref.read(bleReaderService(notifierFamily));
-    reader.timer.cancel();
+    reader.timer?.cancel();
     return BleWriter(ble: ref.read(bleProvider))
         .writeSettingsToDevice(
       deviceId: widget.deviceId,
@@ -427,7 +428,7 @@ class DetailViewState extends ConsumerState<DetailWidget> {
                           if (isAdmin) ...[
                             CardDetails(
                               width: width,
-                              controller: controllers[1],
+                              controller: controllers[2],
                               state: reader.state,
                               header: const Text(
                                 "Admin Panel",

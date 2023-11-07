@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:simple_circular_progress_bar/simple_circular_progress_bar.dart';
+import 'package:ultra_level_pro/src/ble/ultra_level_helpers/constant.dart';
+import 'package:ultra_level_pro/src/component/ultr_progress_indicator_widget.dart';
 import 'package:ultra_level_pro/src/helper/lru_array.dart';
 
 class PingPongStatusWidget extends StatefulWidget {
@@ -10,7 +11,7 @@ class PingPongStatusWidget extends StatefulWidget {
     required this.lastNPingPong,
   });
 
-  final Timer timer;
+  final Timer? timer;
   final LastNPingPong lastNPingPong;
 
   @override
@@ -20,14 +21,13 @@ class PingPongStatusWidget extends StatefulWidget {
 class _PingPongStatusStateWidget extends State<PingPongStatusWidget> {
   ValueNotifier<double> time = ValueNotifier<double>(0);
   int oldTick = 0;
-  late Timer outTimer;
+  late Timer ourTimer;
   @override
   void initState() {
     super.initState();
-    outTimer = Timer.periodic(Duration(seconds: 1), (t) {
-      debugPrint('$oldTick ${widget.timer.tick} ${time}');
-      if (oldTick != widget.timer.tick) {
-        oldTick = widget.timer.tick;
+    ourTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (oldTick != widget.timer?.tick) {
+        oldTick = widget.timer?.tick ?? 0;
         setState(() {
           time.value = 0;
         });
@@ -42,7 +42,7 @@ class _PingPongStatusStateWidget extends State<PingPongStatusWidget> {
   @override
   void dispose() async {
     super.dispose();
-    outTimer.cancel();
+    ourTimer.cancel();
   }
 
   Color getColor() {
@@ -52,7 +52,7 @@ class _PingPongStatusStateWidget extends State<PingPongStatusWidget> {
     if (widget.lastNPingPong.isDeviceShowingStale()) {
       return Color(Colors.yellow.value);
     }
-    return Color(Colors.transparent.value);
+    return Color(Colors.purple.value);
   }
 
   final size = 25.0;
@@ -72,8 +72,7 @@ class _PingPongStatusStateWidget extends State<PingPongStatusWidget> {
             child: ValueListenableBuilder(
               builder: (context, value, child) {
                 return Text(
-                  '${value.round()}',
-                  style: TextStyle(backgroundColor: getColor()),
+                  '${(POLLING_DURATION.inSeconds.toDouble() - value).round()}',
                 );
               },
               valueListenable: time,
@@ -83,7 +82,7 @@ class _PingPongStatusStateWidget extends State<PingPongStatusWidget> {
         Positioned.fill(
           child: Align(
             alignment: Alignment.center,
-            child: SimpleCircularProgressBar(
+            child: UltraProgressIndicatorWidget(
               size: size,
               valueNotifier: time,
               maxValue: 9.0,
@@ -91,7 +90,7 @@ class _PingPongStatusStateWidget extends State<PingPongStatusWidget> {
               animationDuration: 6,
               progressStrokeWidth: 4,
               backColor: Colors.black,
-              progressColors: const [Colors.purple],
+              progressColors: getColor(),
             ),
           ),
         )

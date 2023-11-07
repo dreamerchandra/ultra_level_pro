@@ -84,8 +84,8 @@ class _AdminWidgetState extends State<AdminWidget> {
                         ),
                       );
                     }
-                    _controller.clear();
                     widget.setIsAdmin(code == _controller.text);
+                    _controller.clear();
                     Navigator.pop(context);
                   },
                   child: const Text(
