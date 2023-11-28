@@ -1,0 +1,306 @@
+The Dart VM service is listening on http://127.0.0.1:41895/txxMSG36ddY=/
+The Dart DevTools debugger and profiler is available at: http://127.0.0.1:41895/txxMSG36ddY=/devtools?uri=ws://127.0.0.1:41895/txxMSG36ddY=/ws
+The Dart VM service is listening on http://127.0.0.1:40735/ACiQZU6jonc=/
+The Dart DevTools debugger and profiler is available at: http://127.0.0.1:40735/ACiQZU6jonc=/devtools?uri=ws://127.0.0.1:40735/ACiQZU6jonc=/ws
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 Plugin ConvertToStatelessBaseWidget threw while analyzing /home/ck/Desktop/outside/ultra_level_pro_refactor/lib/main.dart:
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 InconsistentAnalysisException: Requested result might be inconsistent with previously returned results
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #0      AnalysisSessionImpl._checkConsistency (package:analyzer/src/dart/analysis/session.dart:135:7)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #1      AnalysisSessionImpl.getResolvedUnit (package:analyzer/src/dart/analysis/session.dart:121:5)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #2      ChangeBuilderImpl._createDartFileEditBuilder (package:analyzer_plugin/src/utilities/change_builder/change_builder_core.dart:287:33)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #3      ChangeBuilderImpl.addDartFileEdit (package:analyzer_plugin/src/utilities/change_builder/change_builder_core.dart:136:23)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #4      _ChangeBuilderImpl.addDartFileEdit (package:custom_lint_core/src/change_reporter.dart:116:33)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #5      ConvertToStatelessBaseWidget._convertStatefulToStatelessWidget (package:riverpod_lint/src/assists/convert_to_stateless_base_widget.dart:135:19)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #6      ConvertToStatelessBaseWidget.run.<anonymous closure> (package:riverpod_lint/src/assists/convert_to_stateless_base_widget.dart:58:9)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #7      _rootRunUnary (dart:async/zone.dart:1415:13)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #8      _CustomZone.runUnary (dart:async/zone.dart:1308:19)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #9      LinterVisitor._runSubscriptions (package:custom_lint_core/src/node_lint_visitor.g.dart:29:27)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #10     LinterVisitor.visitExtendsClause (package:custom_lint_core/src/node_lint_visitor.g.dart:387:5)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #11     ExtendsClauseImpl.accept (package:analyzer/src/dart/ast/ast.dart:6406:50)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #12     ClassDeclarationImpl.visitChildren (package:analyzer/src/dart/ast/ast.dart:2899:20)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #13     GeneralizingAstVisitor.visitNode (package:analyzer/dart/ast/visitor.dart:535:10)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #14     LinterVisitor.visitNode (package:custom_lint_core/src/node_lint_visitor.g.dart:784:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #15     GeneralizingAstVisitor.visitAnnotatedNode (package:analyzer/dart/ast/visitor.dart:137:48)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #16     LinterVisitor.visitAnnotatedNode (package:custom_lint_core/src/node_lint_visitor.g.dart:46:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #17     GeneralizingAstVisitor.visitDeclaration (package:analyzer/dart/ast/visitor.dart:260:44)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #18     LinterVisitor.visitDeclaration (package:custom_lint_core/src/node_lint_visitor.g.dart:286:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #19     GeneralizingAstVisitor.visitCompilationUnitMember (package:analyzer/dart/ast/visitor.dart:222:7)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #20     LinterVisitor.visitCompilationUnitMember (package:custom_lint_core/src/node_lint_visitor.g.dart:214:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #21     GeneralizingAstVisitor.visitNamedCompilationUnitMember (package:analyzer/dart/ast/visitor.dart:516:7)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #22     LinterVisitor.visitNamedCompilationUnitMember (package:custom_lint_core/src/node_lint_visitor.g.dart:748:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #23     GeneralizingAstVisitor.visitClassDeclaration (package:analyzer/dart/ast/visitor.dart:201:7)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #24     LinterVisitor.visitClassDeclaration (package:custom_lint_core/src/node_lint_visitor.g.dart:166:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #25     ClassDeclarationImpl.accept (package:analyzer/src/dart/ast/ast.dart:2893:50)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #26     NodeListImpl.accept (package:analyzer/src/dart/ast/ast.dart:12998:20)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #27     CompilationUnitImpl.visitChildren (package:analyzer/src/dart/ast/ast.dart:3631:21)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #28     GeneralizingAstVisitor.visitNode (package:analyzer/dart/ast/visitor.dart:535:10)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #29     LinterVisitor.visitNode (package:custom_lint_core/src/node_lint_visitor.g.dart:784:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #30     GeneralizingAstVisitor.visitCompilationUnit (package:analyzer/dart/ast/visitor.dart:219:52)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #31     LinterVisitor.visitCompilationUnit (package:custom_lint_core/src/node_lint_visitor.g.dart:208:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #32     CompilationUnitImpl.accept (package:analyzer/src/dart/ast/ast.dart:3624:50)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #33     DartAssist.startUp.<anonymous closure> (package:custom_lint_core/src/assist.dart:81:17)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #34     _rootRun (dart:async/zone.dart:1399:13)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #35     _CustomZone.run (dart:async/zone.dart:1301:19)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #36     _CustomZone.bindCallback.<anonymous closure> (dart:async/zone.dart:1233:23)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #37     runPostRunCallbacks (package:custom_lint_core/src/plugin_base.dart:16:19)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #38     _ClientAnalyzerPlugin.handleEditGetAssists (package:custom_lint_builder/src/client.dart:463:5)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 <asynchronous suspension>
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #39     ServerPlugin._getResponse (package:analyzer_plugin/plugin/plugin.dart:556:18)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 <asynchronous suspension>
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 #40     ServerPlugin._onRequest (package:analyzer_plugin/plugin/plugin.dart:599:18)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308 <asynchronous suspension>
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.555308
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 Plugin ConvertToStatefulBaseWidget threw while analyzing /home/ck/Desktop/outside/ultra_level_pro_refactor/lib/main.dart:
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 InconsistentAnalysisException: Requested result might be inconsistent with previously returned results
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #0      AnalysisSessionImpl._checkConsistency (package:analyzer/src/dart/analysis/session.dart:135:7)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #1      AnalysisSessionImpl.getResolvedUnit (package:analyzer/src/dart/analysis/session.dart:121:5)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #2      ChangeBuilderImpl._createDartFileEditBuilder (package:analyzer_plugin/src/utilities/change_builder/change_builder_core.dart:287:33)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #3      ChangeBuilderImpl.addDartFileEdit (package:analyzer_plugin/src/utilities/change_builder/change_builder_core.dart:136:23)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #4      _ChangeBuilderImpl.addDartFileEdit (package:custom_lint_core/src/change_reporter.dart:116:33)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #5      ConvertToStatefulBaseWidget._convertStatefulToStatefulWidget (package:riverpod_lint/src/assists/convert_to_stateful_base_widget.dart:139:19)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #6      ConvertToStatefulBaseWidget.run.<anonymous closure> (package:riverpod_lint/src/assists/convert_to_stateful_base_widget.dart:55:9)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #7      _rootRunUnary (dart:async/zone.dart:1415:13)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #8      _CustomZone.runUnary (dart:async/zone.dart:1308:19)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #9      LinterVisitor._runSubscriptions (package:custom_lint_core/src/node_lint_visitor.g.dart:29:27)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #10     LinterVisitor.visitExtendsClause (package:custom_lint_core/src/node_lint_visitor.g.dart:387:5)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #11     ExtendsClauseImpl.accept (package:analyzer/src/dart/ast/ast.dart:6406:50)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #12     ClassDeclarationImpl.visitChildren (package:analyzer/src/dart/ast/ast.dart:2899:20)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #13     GeneralizingAstVisitor.visitNode (package:analyzer/dart/ast/visitor.dart:535:10)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #14     LinterVisitor.visitNode (package:custom_lint_core/src/node_lint_visitor.g.dart:784:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #15     GeneralizingAstVisitor.visitAnnotatedNode (package:analyzer/dart/ast/visitor.dart:137:48)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #16     LinterVisitor.visitAnnotatedNode (package:custom_lint_core/src/node_lint_visitor.g.dart:46:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #17     GeneralizingAstVisitor.visitDeclaration (package:analyzer/dart/ast/visitor.dart:260:44)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #18     LinterVisitor.visitDeclaration (package:custom_lint_core/src/node_lint_visitor.g.dart:286:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #19     GeneralizingAstVisitor.visitCompilationUnitMember (package:analyzer/dart/ast/visitor.dart:222:7)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #20     LinterVisitor.visitCompilationUnitMember (package:custom_lint_core/src/node_lint_visitor.g.dart:214:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #21     GeneralizingAstVisitor.visitNamedCompilationUnitMember (package:analyzer/dart/ast/visitor.dart:516:7)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #22     LinterVisitor.visitNamedCompilationUnitMember (package:custom_lint_core/src/node_lint_visitor.g.dart:748:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #23     GeneralizingAstVisitor.visitClassDeclaration (package:analyzer/dart/ast/visitor.dart:201:7)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #24     LinterVisitor.visitClassDeclaration (package:custom_lint_core/src/node_lint_visitor.g.dart:166:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #25     ClassDeclarationImpl.accept (package:analyzer/src/dart/ast/ast.dart:2893:50)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #26     NodeListImpl.accept (package:analyzer/src/dart/ast/ast.dart:12998:20)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #27     CompilationUnitImpl.visitChildren (package:analyzer/src/dart/ast/ast.dart:3631:21)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #28     GeneralizingAstVisitor.visitNode (package:analyzer/dart/ast/visitor.dart:535:10)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #29     LinterVisitor.visitNode (package:custom_lint_core/src/node_lint_visitor.g.dart:784:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #30     GeneralizingAstVisitor.visitCompilationUnit (package:analyzer/dart/ast/visitor.dart:219:52)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #31     LinterVisitor.visitCompilationUnit (package:custom_lint_core/src/node_lint_visitor.g.dart:208:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #32     CompilationUnitImpl.accept (package:analyzer/src/dart/ast/ast.dart:3624:50)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #33     DartAssist.startUp.<anonymous closure> (package:custom_lint_core/src/assist.dart:81:17)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #34     _rootRun (dart:async/zone.dart:1399:13)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #35     _CustomZone.run (dart:async/zone.dart:1301:19)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #36     _CustomZone.bindCallback.<anonymous closure> (dart:async/zone.dart:1233:23)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #37     runPostRunCallbacks (package:custom_lint_core/src/plugin_base.dart:16:19)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #38     _ClientAnalyzerPlugin.handleEditGetAssists (package:custom_lint_builder/src/client.dart:463:5)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 <asynchronous suspension>
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #39     ServerPlugin._getResponse (package:analyzer_plugin/plugin/plugin.dart:556:18)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 <asynchronous suspension>
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 #40     ServerPlugin._onRequest (package:analyzer_plugin/plugin/plugin.dart:599:18)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714 <asynchronous suspension>
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.595714
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 Plugin ConvertToStatelessBaseWidget threw while analyzing /home/ck/Desktop/outside/ultra_level_pro_refactor/lib/main.dart:
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 InconsistentAnalysisException: Requested result might be inconsistent with previously returned results
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #0      AnalysisSessionImpl._checkConsistency (package:analyzer/src/dart/analysis/session.dart:135:7)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #1      AnalysisSessionImpl.getResolvedUnit (package:analyzer/src/dart/analysis/session.dart:121:5)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #2      ChangeBuilderImpl._createDartFileEditBuilder (package:analyzer_plugin/src/utilities/change_builder/change_builder_core.dart:287:33)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #3      ChangeBuilderImpl.addDartFileEdit (package:analyzer_plugin/src/utilities/change_builder/change_builder_core.dart:136:23)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #4      _ChangeBuilderImpl.addDartFileEdit (package:custom_lint_core/src/change_reporter.dart:116:33)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #5      ConvertToStatelessBaseWidget._convertStatefulToStatelessWidget (package:riverpod_lint/src/assists/convert_to_stateless_base_widget.dart:135:19)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #6      ConvertToStatelessBaseWidget.run.<anonymous closure> (package:riverpod_lint/src/assists/convert_to_stateless_base_widget.dart:58:9)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #7      _rootRunUnary (dart:async/zone.dart:1415:13)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #8      _CustomZone.runUnary (dart:async/zone.dart:1308:19)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #9      LinterVisitor._runSubscriptions (package:custom_lint_core/src/node_lint_visitor.g.dart:29:27)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #10     LinterVisitor.visitExtendsClause (package:custom_lint_core/src/node_lint_visitor.g.dart:387:5)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #11     ExtendsClauseImpl.accept (package:analyzer/src/dart/ast/ast.dart:6406:50)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #12     ClassDeclarationImpl.visitChildren (package:analyzer/src/dart/ast/ast.dart:2899:20)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #13     GeneralizingAstVisitor.visitNode (package:analyzer/dart/ast/visitor.dart:535:10)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #14     LinterVisitor.visitNode (package:custom_lint_core/src/node_lint_visitor.g.dart:784:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #15     GeneralizingAstVisitor.visitAnnotatedNode (package:analyzer/dart/ast/visitor.dart:137:48)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #16     LinterVisitor.visitAnnotatedNode (package:custom_lint_core/src/node_lint_visitor.g.dart:46:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #17     GeneralizingAstVisitor.visitDeclaration (package:analyzer/dart/ast/visitor.dart:260:44)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #18     LinterVisitor.visitDeclaration (package:custom_lint_core/src/node_lint_visitor.g.dart:286:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #19     GeneralizingAstVisitor.visitCompilationUnitMember (package:analyzer/dart/ast/visitor.dart:222:7)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #20     LinterVisitor.visitCompilationUnitMember (package:custom_lint_core/src/node_lint_visitor.g.dart:214:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #21     GeneralizingAstVisitor.visitNamedCompilationUnitMember (package:analyzer/dart/ast/visitor.dart:516:7)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #22     LinterVisitor.visitNamedCompilationUnitMember (package:custom_lint_core/src/node_lint_visitor.g.dart:748:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #23     GeneralizingAstVisitor.visitClassDeclaration (package:analyzer/dart/ast/visitor.dart:201:7)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #24     LinterVisitor.visitClassDeclaration (package:custom_lint_core/src/node_lint_visitor.g.dart:166:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #25     ClassDeclarationImpl.accept (package:analyzer/src/dart/ast/ast.dart:2893:50)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #26     NodeListImpl.accept (package:analyzer/src/dart/ast/ast.dart:12998:20)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #27     CompilationUnitImpl.visitChildren (package:analyzer/src/dart/ast/ast.dart:3631:21)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #28     GeneralizingAstVisitor.visitNode (package:analyzer/dart/ast/visitor.dart:535:10)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #29     LinterVisitor.visitNode (package:custom_lint_core/src/node_lint_visitor.g.dart:784:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #30     GeneralizingAstVisitor.visitCompilationUnit (package:analyzer/dart/ast/visitor.dart:219:52)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #31     LinterVisitor.visitCompilationUnit (package:custom_lint_core/src/node_lint_visitor.g.dart:208:11)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #32     CompilationUnitImpl.accept (package:analyzer/src/dart/ast/ast.dart:3624:50)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #33     DartAssist.startUp.<anonymous closure> (package:custom_lint_core/src/assist.dart:81:17)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #34     _rootRun (dart:async/zone.dart:1399:13)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #35     _CustomZone.run (dart:async/zone.dart:1301:19)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #36     _CustomZone.bindCallback.<anonymous closure> (dart:async/zone.dart:1233:23)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #37     runPostRunCallbacks (package:custom_lint_core/src/plugin_base.dart:16:19)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #38     _ClientAnalyzerPlugin.handleEditGetAssists (package:custom_lint_builder/src/client.dart:463:5)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 <asynchronous suspension>
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #39     ServerPlugin._getResponse (package:analyzer_plugin/plugin/plugin.dart:556:18)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 <asynchronous suspension>
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 #40     ServerPlugin._onRequest (package:analyzer_plugin/plugin/plugin.dart:599:18)
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681 <asynchronous suspension>
+[ConvertToStatelessBaseWidget] 2023-11-08T14:57:27.596681
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 Plugin ConvertToStatefulBaseWidget threw while analyzing /home/ck/Desktop/outside/ultra_level_pro_refactor/lib/main.dart:
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 InconsistentAnalysisException: Requested result might be inconsistent with previously returned results
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #0      AnalysisSessionImpl._checkConsistency (package:analyzer/src/dart/analysis/session.dart:135:7)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #1      AnalysisSessionImpl.getResolvedUnit (package:analyzer/src/dart/analysis/session.dart:121:5)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #2      ChangeBuilderImpl._createDartFileEditBuilder (package:analyzer_plugin/src/utilities/change_builder/change_builder_core.dart:287:33)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #3      ChangeBuilderImpl.addDartFileEdit (package:analyzer_plugin/src/utilities/change_builder/change_builder_core.dart:136:23)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #4      _ChangeBuilderImpl.addDartFileEdit (package:custom_lint_core/src/change_reporter.dart:116:33)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #5      ConvertToStatefulBaseWidget._convertStatefulToStatefulWidget (package:riverpod_lint/src/assists/convert_to_stateful_base_widget.dart:139:19)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #6      ConvertToStatefulBaseWidget.run.<anonymous closure> (package:riverpod_lint/src/assists/convert_to_stateful_base_widget.dart:55:9)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #7      _rootRunUnary (dart:async/zone.dart:1415:13)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #8      _CustomZone.runUnary (dart:async/zone.dart:1308:19)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #9      LinterVisitor._runSubscriptions (package:custom_lint_core/src/node_lint_visitor.g.dart:29:27)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #10     LinterVisitor.visitExtendsClause (package:custom_lint_core/src/node_lint_visitor.g.dart:387:5)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #11     ExtendsClauseImpl.accept (package:analyzer/src/dart/ast/ast.dart:6406:50)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #12     ClassDeclarationImpl.visitChildren (package:analyzer/src/dart/ast/ast.dart:2899:20)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #13     GeneralizingAstVisitor.visitNode (package:analyzer/dart/ast/visitor.dart:535:10)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #14     LinterVisitor.visitNode (package:custom_lint_core/src/node_lint_visitor.g.dart:784:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #15     GeneralizingAstVisitor.visitAnnotatedNode (package:analyzer/dart/ast/visitor.dart:137:48)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #16     LinterVisitor.visitAnnotatedNode (package:custom_lint_core/src/node_lint_visitor.g.dart:46:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #17     GeneralizingAstVisitor.visitDeclaration (package:analyzer/dart/ast/visitor.dart:260:44)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #18     LinterVisitor.visitDeclaration (package:custom_lint_core/src/node_lint_visitor.g.dart:286:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #19     GeneralizingAstVisitor.visitCompilationUnitMember (package:analyzer/dart/ast/visitor.dart:222:7)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #20     LinterVisitor.visitCompilationUnitMember (package:custom_lint_core/src/node_lint_visitor.g.dart:214:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #21     GeneralizingAstVisitor.visitNamedCompilationUnitMember (package:analyzer/dart/ast/visitor.dart:516:7)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #22     LinterVisitor.visitNamedCompilationUnitMember (package:custom_lint_core/src/node_lint_visitor.g.dart:748:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #23     GeneralizingAstVisitor.visitClassDeclaration (package:analyzer/dart/ast/visitor.dart:201:7)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #24     LinterVisitor.visitClassDeclaration (package:custom_lint_core/src/node_lint_visitor.g.dart:166:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #25     ClassDeclarationImpl.accept (package:analyzer/src/dart/ast/ast.dart:2893:50)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #26     NodeListImpl.accept (package:analyzer/src/dart/ast/ast.dart:12998:20)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #27     CompilationUnitImpl.visitChildren (package:analyzer/src/dart/ast/ast.dart:3631:21)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #28     GeneralizingAstVisitor.visitNode (package:analyzer/dart/ast/visitor.dart:535:10)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #29     LinterVisitor.visitNode (package:custom_lint_core/src/node_lint_visitor.g.dart:784:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #30     GeneralizingAstVisitor.visitCompilationUnit (package:analyzer/dart/ast/visitor.dart:219:52)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #31     LinterVisitor.visitCompilationUnit (package:custom_lint_core/src/node_lint_visitor.g.dart:208:11)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #32     CompilationUnitImpl.accept (package:analyzer/src/dart/ast/ast.dart:3624:50)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #33     DartAssist.startUp.<anonymous closure> (package:custom_lint_core/src/assist.dart:81:17)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #34     _rootRun (dart:async/zone.dart:1399:13)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #35     _CustomZone.run (dart:async/zone.dart:1301:19)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #36     _CustomZone.bindCallback.<anonymous closure> (dart:async/zone.dart:1233:23)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #37     runPostRunCallbacks (package:custom_lint_core/src/plugin_base.dart:16:19)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #38     _ClientAnalyzerPlugin.handleEditGetAssists (package:custom_lint_builder/src/client.dart:463:5)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 <asynchronous suspension>
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #39     ServerPlugin._getResponse (package:analyzer_plugin/plugin/plugin.dart:556:18)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 <asynchronous suspension>
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 #40     ServerPlugin._onRequest (package:analyzer_plugin/plugin/plugin.dart:599:18)
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184 <asynchronous suspension>
+[ConvertToStatefulBaseWidget] 2023-11-08T14:57:27.597184
+The Dart VM service is listening on http://127.0.0.1:33105/0kDzNmwPUCE=/
+The Dart DevTools debugger and profiler is available at: http://127.0.0.1:33105/0kDzNmwPUCE=/devtools?uri=ws://127.0.0.1:33105/0kDzNmwPUCE=/ws
+The Dart VM service is listening on http://127.0.0.1:42523/wzVQgMc9pH8=/
+The Dart DevTools debugger and profiler is available at: http://127.0.0.1:42523/wzVQgMc9pH8=/devtools?uri=ws://127.0.0.1:42523/wzVQgMc9pH8=/ws
+The Dart VM service is listening on http://127.0.0.1:45255/AGoUWElvjbY=/
+The Dart DevTools debugger and profiler is available at: http://127.0.0.1:45255/AGoUWElvjbY=/devtools?uri=ws://127.0.0.1:45255/AGoUWElvjbY=/ws
+The Dart VM service is listening on http://127.0.0.1:33627/HlB3ESHbLFk=/
+The Dart DevTools debugger and profiler is available at: http://127.0.0.1:33627/HlB3ESHbLFk=/devtools?uri=ws://127.0.0.1:33627/HlB3ESHbLFk=/ws
+The Dart VM service is listening on http://127.0.0.1:33033/CTDpXFskznc=/
+The Dart DevTools debugger and profiler is available at: http://127.0.0.1:33033/CTDpXFskznc=/devtools?uri=ws://127.0.0.1:33033/CTDpXFskznc=/ws
+The Dart VM service is listening on http://127.0.0.1:40031/BURmLnMtrCM=/
+The Dart DevTools debugger and profiler is available at: http://127.0.0.1:40031/BURmLnMtrCM=/devtools?uri=ws://127.0.0.1:40031/BURmLnMtrCM=/ws
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 Plugin ConvertToStatelessBaseWidget threw while analyzing /home/ck/Desktop/outside/ultra_level_pro_refactor/lib/components/widgets/device_detail/settings_widget.dart:
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 InconsistentAnalysisException: Requested result might be inconsistent with previously returned results
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #0      AnalysisSessionImpl._checkConsistency (package:analyzer/src/dart/analysis/session.dart:135:7)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #1      AnalysisSessionImpl.getResolvedUnit (package:analyzer/src/dart/analysis/session.dart:121:5)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #2      ChangeBuilderImpl._createDartFileEditBuilder (package:analyzer_plugin/src/utilities/change_builder/change_builder_core.dart:287:33)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #3      ChangeBuilderImpl.addDartFileEdit (package:analyzer_plugin/src/utilities/change_builder/change_builder_core.dart:136:23)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #4      _ChangeBuilderImpl.addDartFileEdit (package:custom_lint_core/src/change_reporter.dart:116:33)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #5      ConvertToStatelessBaseWidget._convertStatelessToStatelessWidget (package:riverpod_lint/src/assists/convert_to_stateless_base_widget.dart:79:19)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #6      ConvertToStatelessBaseWidget.run.<anonymous closure> (package:riverpod_lint/src/assists/convert_to_stateless_base_widget.dart:46:9)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #7      _rootRunUnary (dart:async/zone.dart:1415:13)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #8      _CustomZone.runUnary (dart:async/zone.dart:1308:19)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #9      LinterVisitor._runSubscriptions (package:custom_lint_core/src/node_lint_visitor.g.dart:29:27)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #10     LinterVisitor.visitExtendsClause (package:custom_lint_core/src/node_lint_visitor.g.dart:387:5)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #11     ExtendsClauseImpl.accept (package:analyzer/src/dart/ast/ast.dart:6406:50)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #12     ClassDeclarationImpl.visitChildren (package:analyzer/src/dart/ast/ast.dart:2899:20)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #13     GeneralizingAstVisitor.visitNode (package:analyzer/dart/ast/visitor.dart:535:10)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #14     LinterVisitor.visitNode (package:custom_lint_core/src/node_lint_visitor.g.dart:784:11)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #15     GeneralizingAstVisitor.visitAnnotatedNode (package:analyzer/dart/ast/visitor.dart:137:48)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #16     LinterVisitor.visitAnnotatedNode (package:custom_lint_core/src/node_lint_visitor.g.dart:46:11)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #17     GeneralizingAstVisitor.visitDeclaration (package:analyzer/dart/ast/visitor.dart:260:44)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #18     LinterVisitor.visitDeclaration (package:custom_lint_core/src/node_lint_visitor.g.dart:286:11)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #19     GeneralizingAstVisitor.visitCompilationUnitMember (package:analyzer/dart/ast/visitor.dart:222:7)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #20     LinterVisitor.visitCompilationUnitMember (package:custom_lint_core/src/node_lint_visitor.g.dart:214:11)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #21     GeneralizingAstVisitor.visitNamedCompilationUnitMember (package:analyzer/dart/ast/visitor.dart:516:7)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #22     LinterVisitor.visitNamedCompilationUnitMember (package:custom_lint_core/src/node_lint_visitor.g.dart:748:11)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #23     GeneralizingAstVisitor.visitClassDeclaration (package:analyzer/dart/ast/visitor.dart:201:7)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #24     LinterVisitor.visitClassDeclaration (package:custom_lint_core/src/node_lint_visitor.g.dart:166:11)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #25     ClassDeclarationImpl.accept (package:analyzer/src/dart/ast/ast.dart:2893:50)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #26     NodeListImpl.accept (package:analyzer/src/dart/ast/ast.dart:12998:20)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #27     CompilationUnitImpl.visitChildren (package:analyzer/src/dart/ast/ast.dart:3631:21)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #28     GeneralizingAstVisitor.visitNode (package:analyzer/dart/ast/visitor.dart:535:10)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #29     LinterVisitor.visitNode (package:custom_lint_core/src/node_lint_visitor.g.dart:784:11)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #30     GeneralizingAstVisitor.visitCompilationUnit (package:analyzer/dart/ast/visitor.dart:219:52)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #31     LinterVisitor.visitCompilationUnit (package:custom_lint_core/src/node_lint_visitor.g.dart:208:11)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #32     CompilationUnitImpl.accept (package:analyzer/src/dart/ast/ast.dart:3624:50)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #33     DartAssist.startUp.<anonymous closure> (package:custom_lint_core/src/assist.dart:81:17)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #34     _rootRun (dart:async/zone.dart:1399:13)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #35     _CustomZone.run (dart:async/zone.dart:1301:19)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #36     _CustomZone.bindCallback.<anonymous closure> (dart:async/zone.dart:1233:23)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #37     runPostRunCallbacks (package:custom_lint_core/src/plugin_base.dart:16:19)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #38     _ClientAnalyzerPlugin.handleEditGetAssists (package:custom_lint_builder/src/client.dart:463:5)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 <asynchronous suspension>
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #39     ServerPlugin._getResponse (package:analyzer_plugin/plugin/plugin.dart:556:18)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 <asynchronous suspension>
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 #40     ServerPlugin._onRequest (package:analyzer_plugin/plugin/plugin.dart:599:18)
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299 <asynchronous suspension>
+[ConvertToStatelessBaseWidget] 2023-11-28T13:10:36.363299
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 Plugin ConvertToStatefulBaseWidget threw while analyzing /home/ck/Desktop/outside/ultra_level_pro_refactor/lib/components/widgets/device_detail/settings_widget.dart:
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 InconsistentAnalysisException: Requested result might be inconsistent with previously returned results
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #0      AnalysisSessionImpl._checkConsistency (package:analyzer/src/dart/analysis/session.dart:135:7)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #1      AnalysisSessionImpl.getResolvedUnit (package:analyzer/src/dart/analysis/session.dart:121:5)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #2      ChangeBuilderImpl._createDartFileEditBuilder (package:analyzer_plugin/src/utilities/change_builder/change_builder_core.dart:287:33)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #3      ChangeBuilderImpl.addDartFileEdit (package:analyzer_plugin/src/utilities/change_builder/change_builder_core.dart:136:23)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #4      _ChangeBuilderImpl.addDartFileEdit (package:custom_lint_core/src/change_reporter.dart:116:33)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #5      ConvertToStatefulBaseWidget._convertStatelessToStatefulWidget (package:riverpod_lint/src/assists/convert_to_stateful_base_widget.dart:76:19)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #6      ConvertToStatefulBaseWidget.run.<anonymous closure> (package:riverpod_lint/src/assists/convert_to_stateful_base_widget.dart:46:9)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #7      _rootRunUnary (dart:async/zone.dart:1415:13)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #8      _CustomZone.runUnary (dart:async/zone.dart:1308:19)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #9      LinterVisitor._runSubscriptions (package:custom_lint_core/src/node_lint_visitor.g.dart:29:27)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #10     LinterVisitor.visitExtendsClause (package:custom_lint_core/src/node_lint_visitor.g.dart:387:5)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #11     ExtendsClauseImpl.accept (package:analyzer/src/dart/ast/ast.dart:6406:50)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #12     ClassDeclarationImpl.visitChildren (package:analyzer/src/dart/ast/ast.dart:2899:20)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #13     GeneralizingAstVisitor.visitNode (package:analyzer/dart/ast/visitor.dart:535:10)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #14     LinterVisitor.visitNode (package:custom_lint_core/src/node_lint_visitor.g.dart:784:11)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #15     GeneralizingAstVisitor.visitAnnotatedNode (package:analyzer/dart/ast/visitor.dart:137:48)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #16     LinterVisitor.visitAnnotatedNode (package:custom_lint_core/src/node_lint_visitor.g.dart:46:11)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #17     GeneralizingAstVisitor.visitDeclaration (package:analyzer/dart/ast/visitor.dart:260:44)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #18     LinterVisitor.visitDeclaration (package:custom_lint_core/src/node_lint_visitor.g.dart:286:11)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #19     GeneralizingAstVisitor.visitCompilationUnitMember (package:analyzer/dart/ast/visitor.dart:222:7)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #20     LinterVisitor.visitCompilationUnitMember (package:custom_lint_core/src/node_lint_visitor.g.dart:214:11)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #21     GeneralizingAstVisitor.visitNamedCompilationUnitMember (package:analyzer/dart/ast/visitor.dart:516:7)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #22     LinterVisitor.visitNamedCompilationUnitMember (package:custom_lint_core/src/node_lint_visitor.g.dart:748:11)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #23     GeneralizingAstVisitor.visitClassDeclaration (package:analyzer/dart/ast/visitor.dart:201:7)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #24     LinterVisitor.visitClassDeclaration (package:custom_lint_core/src/node_lint_visitor.g.dart:166:11)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #25     ClassDeclarationImpl.accept (package:analyzer/src/dart/ast/ast.dart:2893:50)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #26     NodeListImpl.accept (package:analyzer/src/dart/ast/ast.dart:12998:20)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #27     CompilationUnitImpl.visitChildren (package:analyzer/src/dart/ast/ast.dart:3631:21)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #28     GeneralizingAstVisitor.visitNode (package:analyzer/dart/ast/visitor.dart:535:10)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #29     LinterVisitor.visitNode (package:custom_lint_core/src/node_lint_visitor.g.dart:784:11)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #30     GeneralizingAstVisitor.visitCompilationUnit (package:analyzer/dart/ast/visitor.dart:219:52)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #31     LinterVisitor.visitCompilationUnit (package:custom_lint_core/src/node_lint_visitor.g.dart:208:11)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #32     CompilationUnitImpl.accept (package:analyzer/src/dart/ast/ast.dart:3624:50)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #33     DartAssist.startUp.<anonymous closure> (package:custom_lint_core/src/assist.dart:81:17)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #34     _rootRun (dart:async/zone.dart:1399:13)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #35     _CustomZone.run (dart:async/zone.dart:1301:19)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #36     _CustomZone.bindCallback.<anonymous closure> (dart:async/zone.dart:1233:23)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #37     runPostRunCallbacks (package:custom_lint_core/src/plugin_base.dart:16:19)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #38     _ClientAnalyzerPlugin.handleEditGetAssists (package:custom_lint_builder/src/client.dart:463:5)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 <asynchronous suspension>
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #39     ServerPlugin._getResponse (package:analyzer_plugin/plugin/plugin.dart:556:18)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 <asynchronous suspension>
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 #40     ServerPlugin._onRequest (package:analyzer_plugin/plugin/plugin.dart:599:18)
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009 <asynchronous suspension>
+[ConvertToStatefulBaseWidget] 2023-11-28T13:10:36.369009
+The Dart VM service is listening on http://127.0.0.1:39593/RUl04r5OXZQ=/
+The Dart DevTools debugger and profiler is available at: http://127.0.0.1:39593/RUl04r5OXZQ=/devtools?uri=ws://127.0.0.1:39593/RUl04r5OXZQ=/ws
