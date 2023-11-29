@@ -70,13 +70,14 @@ String constructData({
   SettingsValueToChange? settingsValueToChange,
   required Settings settings,
 }) {
+  String _value = value.toUpperCase();
   String data = '';
   switch (parameter) {
     case WriteParameter.BaudRate:
-      data = getBitByBaudRate(int.parse(value));
+      data = getBitByBaudRate(int.parse(_value));
       break;
     case WriteParameter.Damping:
-      data = intToHex(int.parse(value));
+      data = intToHex(int.parse(_value));
       break;
     case WriteParameter.Settings:
       if (settingsValueToChange == null) {
@@ -86,36 +87,36 @@ String constructData({
           Settings.updateNewSettings(settings, settingsValueToChange));
       break;
     case WriteParameter.LowLevelRelayInMm:
-      data = intToHex(int.parse(value));
+      data = intToHex(int.parse(_value));
       break;
     case WriteParameter.HighLevelRelayInPercent:
-      data = intToHex(int.parse(value) * 100);
+      data = intToHex(int.parse(_value) * 100);
       break;
     case WriteParameter.Lph:
-      data = intToHex(int.parse(value));
+      data = intToHex(int.parse(_value));
     case WriteParameter.ZeroPercentTrimmingPoint:
-      data = intToHex((double.parse(value) * 1000).round());
+      data = intToHex((double.parse(_value) * 1000).round());
     case WriteParameter.HundredPercentTrimmingPoint:
-      data = intToHex((double.parse(value) * 1000).round());
+      data = intToHex((double.parse(_value) * 1000).round());
     case WriteParameter.LevelCalibrationOffset:
-      data = intToHex(int.parse(value));
+      data = intToHex(int.parse(_value));
     case WriteParameter.SensorOffset:
-      data = intToHex(int.parse(value));
+      data = intToHex(int.parse(_value));
     case WriteParameter.TankOffset:
-      data = intToHex(int.parse(value));
+      data = intToHex(int.parse(_value));
     case WriteParameter.TankType:
-      data = value;
+      data = _value;
     case WriteParameter.TankHeight:
-      data = intToHex(int.parse(value));
+      data = intToHex(int.parse(_value));
     case WriteParameter.TankWidth:
-      data = intToHex(int.parse(value));
+      data = intToHex(int.parse(_value));
     case WriteParameter.TankLength:
-      data = intToHex(int.parse(value));
+      data = intToHex(int.parse(_value));
     case WriteParameter.SlaveId:
       break;
     case WriteParameter.TankDiameter:
-      data = intToHex(int.parse(value));
+      data = intToHex(int.parse(_value));
   }
 
-  return _ensure2Byte(data);
+  return _ensure2Byte(data).toUpperCase();
 }

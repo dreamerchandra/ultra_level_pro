@@ -11,7 +11,7 @@ part 'ble_reader_provider.g.dart';
 BleReaderManager getBleState(GetBleStateRef ref, {required String deviceId}) {
   final provider = ref.read(bleProvider);
   final connector = ref.read(connectorProvider);
-  final last5PingPong = ref.watch(lastNPingPongProvider(5));
+  final last5PingPong = ref.read(lastNPingPongProvider(5));
   final readerManager = BleReaderManager(
     deviceId: deviceId,
     ble: provider,

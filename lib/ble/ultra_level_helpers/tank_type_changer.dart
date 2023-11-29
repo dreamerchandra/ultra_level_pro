@@ -9,32 +9,13 @@ class TankTypeParameter {
   TankTypeParameter({required this.parameter, required this.value});
 }
 
-class TankTypeChanger extends BleWriter {
-  final List<TankTypeParameter> _valuesToCommit = [];
+class NonLinearTankTypeChanger extends BleWriter {
+  List<List<TankTypeParameter>> _valuesToCommit = [];
 
-  TankTypeChanger({required super.ble});
+  NonLinearTankTypeChanger({required super.ble});
 
-  TankTypeChanger set(
-      {required WriteParameter parameter, required String value}) {
-    final index =
-        _valuesToCommit.indexWhere((element) => element.parameter == parameter);
-    if (index != -1) {
-      _valuesToCommit[index] =
-          TankTypeParameter(parameter: parameter, value: value);
-    } else {
-      _valuesToCommit
-          .add(TankTypeParameter(parameter: parameter, value: value));
-    }
-    return this;
-  }
-
-  String getValue(WriteParameter parameter) {
-    final index =
-        _valuesToCommit.indexWhere((element) => element.parameter == parameter);
-    if (index != -1) {
-      return _valuesToCommit[index].value;
-    }
-    return '';
+  void update(List<List<TankTypeParameter>> val) {
+    _valuesToCommit = val;
   }
 
   String constructMultiPartWrite({
@@ -43,14 +24,19 @@ class TankTypeChanger extends BleWriter {
     required String slaveId,
   }) {
     final data = _valuesToCommit
-        .map((item) {
-          final writeAddress = ParameterToAddress[item.parameter];
-          final data = constructData(
-            value: item.value,
-            parameter: item.parameter,
-            settings: settings,
-          );
-          return '$writeAddress$data';
+        .map((tank) {
+          return tank
+              .map((values) {
+                final writeAddress = ParameterToAddress[values.parameter];
+                final data = constructData(
+                  value: values.value,
+                  parameter: values.parameter,
+                  settings: settings,
+                );
+                return '$writeAddress$data';
+              })
+              .toList()
+              .join();
         })
         .toList()
         .join();

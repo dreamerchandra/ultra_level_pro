@@ -42,9 +42,17 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
     return ref.read(getBleStateProvider(deviceId: widget.deviceId));
   }
 
+  void safeCollapse(MyExpansionTileController controller) {
+    try {
+      controller.collapse();
+    } catch (err) {
+      debugPrint("Error in safe collapse $err");
+    }
+  }
+
   @override
   void initState() {
-    controllers.forEach((parentController) {
+    for (var parentController in controllers) {
       parentController.addEventListener((isOpen) {
         if (!isOpen) {
           return;
@@ -52,13 +60,13 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
         if (getDeviceType() == DeviceType.tablet) {
           return;
         }
-        controllers.forEach((child) {
+        for (var child in controllers) {
           if (child != parentController) {
-            child.collapse();
+            safeCollapse(child);
           }
-        });
+        }
       });
-    });
+    }
     super.initState();
   }
 
@@ -79,7 +87,7 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
     );
   }
 
-  Future<bool> onTankTypeChange(TankTypeChanger changer) {
+  Future<bool> onTankTypeChange(NonLinearTankTypeChanger changer) {
     reader.timer?.cancel();
     return changer
         .commitTankType(

@@ -86,10 +86,10 @@ class BleState {
   bool isCRCSame() {
     final crcFromDevice = data.substring(data.length - 4);
     final dataToBeComputed = data.substring(0, data.length - 4);
-    debugPrint('crc: $crcFromDevice');
-    debugPrint('crcData: $dataToBeComputed');
-    // return crcFromDevice == calculateModbusCRC(dataToBeComputed);
-    return true;
+    if (crcFromDevice == calculateModbusCRC(dataToBeComputed)) return true;
+    debugPrint('crc from device: $crcFromDevice');
+    debugPrint('our crc: ${calculateModbusCRC(dataToBeComputed)}');
+    return false;
   }
 
   void computeValues() {

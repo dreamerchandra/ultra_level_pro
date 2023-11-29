@@ -34,7 +34,7 @@ class BleWriter {
     required String desiredValue,
     required String actualValue,
   }) {
-    return desiredValue == actualValue;
+    return desiredValue.toUpperCase() == actualValue.toUpperCase();
   }
 
   String constructWrite({
@@ -83,7 +83,8 @@ class BleWriter {
       characteristicId: UART_RX,
       deviceId: deviceId,
     );
-    ble.writeCharacteristicWithResponse(rxCh, value: valueToWrite.codeUnits);
+    ble.writeCharacteristicWithResponse(rxCh,
+        value: valueToWrite.toUpperCase().codeUnits);
     return completer.future;
   }
 

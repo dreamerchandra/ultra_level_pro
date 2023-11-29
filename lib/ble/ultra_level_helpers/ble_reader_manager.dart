@@ -145,7 +145,6 @@ class BleReaderManager extends ChangeNotifier {
   void _onDataReceived(List<int> data) {
     final res = String.fromCharCodes(data);
     debugPrint("data: $data");
-    debugPrint("res: $res");
     if (res.length < 20) return;
     _setBleState(BleState(data: res));
     debugPrint("data: $res");
@@ -187,7 +186,7 @@ class BleReaderManager extends ChangeNotifier {
       await disconnect();
     }
 
-    // setBleState(
+    // _setBleState(
     //   BleState(
     //     data:
     //         '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E8000100087900',

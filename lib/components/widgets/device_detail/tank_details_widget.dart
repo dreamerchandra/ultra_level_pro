@@ -7,6 +7,7 @@ import 'package:ultra_level_pro/ble/ultra_level_helpers/tank_type_changer.dart';
 import 'package:ultra_level_pro/components/widgets/common/common.dart';
 import 'package:ultra_level_pro/components/widgets/common/input.dart';
 import 'package:ultra_level_pro/components/widgets/device_detail/shapes_widget.dart';
+import 'package:ultra_level_pro/components/widgets/device_detail/tank_type_changer/non_linear_widget.dart';
 
 const headerStyle = TextStyle(
   fontSize: 16,
@@ -33,7 +34,7 @@ Widget bodyText(String text) {
 }
 
 class TankDetailsWidget extends StatefulWidget {
-  TankDetailsWidget({
+  const TankDetailsWidget({
     super.key,
     required this.state,
     required this.onDone,
@@ -42,7 +43,8 @@ class TankDetailsWidget extends StatefulWidget {
   });
 
   final Future<bool> Function(WriteParameter parameter, String value) onDone;
-  final Future<bool> Function(TankTypeChanger changer) onTankTypeChange;
+  final Future<bool> Function(NonLinearTankTypeChanger changer)
+      onTankTypeChange;
 
   final BleState? state;
   final FlutterReactiveBle ble;
@@ -53,7 +55,8 @@ class TankDetailsWidget extends StatefulWidget {
 
 class _TankDetailsWidgetState extends State<TankDetailsWidget> {
   final List<String> tankTypes = TankType.values.map((e) => e.name).toList();
-  late TankTypeChanger changer = TankTypeChanger(ble: widget.ble);
+  late NonLinearTankTypeChanger changer =
+      NonLinearTankTypeChanger(ble: widget.ble);
   final _form = GlobalKey<FormState>();
 
   String getValidationText(String? text) {
@@ -98,20 +101,22 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
 
   void bottomSheetBuilder(BuildContext context, TankType tankType) {
     showModalBottomSheet(
-      context: context,
       isScrollControlled: true,
+      context: context,
       builder: (BuildContext context) {
-        return Padding(
-          padding:
+        return Container(
+          margin:
               EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Padding(
-            padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height * 0.5,
-              child: Column(
+          padding: const EdgeInsets.all(8),
+          height: MediaQuery.of(context).size.height * 0.65,
+          child: Stack(
+            children: [
+              Column(
                 mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(
+                    height: 16,
+                  ),
                   Text(
                     "Values for ${getTankLabel(tankType)}",
                     style: const TextStyle(
@@ -119,99 +124,67 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Form(
-                        key: _form,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            {
-                              "labelText": "Tank Offset",
-                              "hintText": "mm",
-                              "parameter": WriteParameter.TankOffset
-                            },
-                            {
-                              "labelText": "Tank height",
-                              "hintText": "mm",
-                              "parameter": WriteParameter.TankHeight
-                            },
-                            {
-                              "labelText": "Tank Length",
-                              "hintText": "mm",
-                              "parameter": WriteParameter.TankLength
-                            },
-                            {
-                              "labelText": "Tank Width",
-                              "hintText": "mm",
-                              "parameter": WriteParameter.TankWidth
-                            },
-                          ]
-                              .map((e) => FormInput(
-                                    hintText: e["hintText"] as String,
-                                    labelText: e["labelText"] as String,
-                                    parameter: e["parameter"] as WriteParameter,
-                                    onDone: (WriteParameter parameter,
-                                        String value) {
-                                      changer.set(
-                                          parameter: parameter, value: value);
-                                    },
-                                  ))
-                              .toList(),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => {
-                          Navigator.pop(context),
-                        },
-                        child: Text("Cancel"),
-                      ),
-                      MaterialButton(
-                        color: Colors.purple[600],
-                        textTheme: ButtonTextTheme.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        onPressed: () async {
-                          if (_form.currentState == null) {
-                            return;
-                          }
-                          final isValid = _form.currentState?.validate();
-                          if (isValid == null || !isValid) {
-                            return;
-                          }
-                          try {
-                            await widget.onTankTypeChange(changer);
-                            if (context.mounted) {
-                              Navigator.pop(context);
-                            }
-                          } catch (e) {
-                            if (!context.mounted) {
-                              return;
-                            }
-                            ScaffoldMessenger.of(context).showMaterialBanner(
-                              const MaterialBanner(
-                                content: Text(
-                                    "Changing failed try again after some time"),
-                                actions: [],
-                              ),
-                            );
-                          }
-                        },
-                        child: const Text("Save"),
-                      ),
-                    ],
+                  NonLinearTankTypeChangerWidget(
+                    ble: widget.ble,
+                    onChange: (val) {
+                      changer.update(val);
+                    },
                   ),
                 ],
               ),
-            ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => {
+                        Navigator.pop(context),
+                      },
+                      child: Text("Cancel"),
+                    ),
+                    const SizedBox(
+                      width: 8,
+                    ),
+                    MaterialButton(
+                      color: Colors.purple[600],
+                      textTheme: ButtonTextTheme.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      onPressed: () async {
+                        if (_form.currentState == null) {
+                          return;
+                        }
+                        final isValid = _form.currentState?.validate();
+                        if (isValid == null || !isValid) {
+                          return;
+                        }
+                        try {
+                          await widget.onTankTypeChange(changer);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
+                        } catch (e) {
+                          if (!context.mounted) {
+                            return;
+                          }
+                          ScaffoldMessenger.of(context).showMaterialBanner(
+                            const MaterialBanner(
+                              content: Text(
+                                  "Changing failed try again after some time"),
+                              actions: [],
+                            ),
+                          );
+                        }
+                      },
+                      child: const Text("Save"),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -234,7 +207,7 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                   DropdownButton<String>(
                     isExpanded: true,
                     focusColor: Colors.green,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.black87,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -252,7 +225,12 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                       if (newValue != null) {
                         final tankType = TankType.values
                             .firstWhere((element) => element.name == newValue);
-                        bottomSheetBuilder(context, tankType);
+                        if (tankType != TankType.nonLinear) {
+                          widget.onDone(WriteParameter.TankType,
+                              getTankTypeInHex(tankType));
+                        } else {
+                          bottomSheetBuilder(context, tankType);
+                        }
                       }
                     },
                   ),
