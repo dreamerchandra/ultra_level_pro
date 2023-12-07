@@ -30,6 +30,9 @@ String getShapeAssert(TankType type) {
 }
 
 Widget shape(TankType? type) {
+  if (type == TankType.nonLinear) {
+    return Container();
+  }
   if (type == null) {
     return Container();
   }

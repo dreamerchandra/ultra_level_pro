@@ -45,7 +45,9 @@ class _NonLinearTankTypeChangerWidgetState
   }
 
   remove(int index) {
-    _valuesToCommit.removeAt(index);
+    if (_valuesToCommit.length >= index) {
+      _valuesToCommit.removeAt(index);
+    }
     widget.onChange(_valuesToCommit);
     setState(() {
       _valuesToCommit = _valuesToCommit;
@@ -202,24 +204,14 @@ class _NonLinearTankTypeChangerWidgetState
   List<Widget> tankParams(int index) {
     return [
       {
-        "labelText": "Tank Offset",
-        "hintText": "mm",
-        "parameter": WriteParameter.TankOffset
-      },
-      {
-        "labelText": "Tank height",
+        "labelText": "Tank Height",
         "hintText": "mm",
         "parameter": WriteParameter.TankHeight
       },
       {
-        "labelText": "Tank Length",
+        "labelText": "Tank Filled",
         "hintText": "mm",
-        "parameter": WriteParameter.TankLength
-      },
-      {
-        "labelText": "Tank Width",
-        "hintText": "mm",
-        "parameter": WriteParameter.TankWidth
+        "parameter": WriteParameter.TankOffset
       },
     ]
         .map((e) => FormInput(

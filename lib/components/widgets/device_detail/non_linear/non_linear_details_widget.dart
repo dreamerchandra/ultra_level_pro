@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
-import 'package:ultra_level_pro/components/widgets/common/common.dart';
 import 'package:ultra_level_pro/components/widgets/common/input.dart';
 
 const headerStyle = TextStyle(
@@ -85,7 +84,7 @@ class SingleNonLinearTankDetailsWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Tank ${index + 1}',
+                    '${index}',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w900,

@@ -8,6 +8,7 @@ import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_ping_pong.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/helper.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/tank_type.dart';
 
 class BleReaderManager extends ChangeNotifier {
   Timer? timer;
@@ -65,6 +66,11 @@ class BleReaderManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setTempPause() {
+    timer?.cancel();
+    notifyListeners();
+  }
+
   void _pollData() {
     debugPrint("started to poll");
     Timer(const Duration(seconds: 1), () {
@@ -79,6 +85,7 @@ class BleReaderManager extends ChangeNotifier {
   void setResume() {
     debugPrint("resuming polling ");
     _pollData();
+    subscriber?.resume();
     isRunning = true;
     error = null;
   }
@@ -142,12 +149,45 @@ class BleReaderManager extends ChangeNotifier {
     });
   }
 
-  void _onDataReceived(List<int> data) {
+  BleState? _onDataReceived(List<int> data) {
     final res = String.fromCharCodes(data);
     debugPrint("data: $data");
-    if (res.length < 20) return;
-    _setBleState(BleState(data: res));
+    if (res.length < 20) return null;
+    final state = BleState(data: res);
+    _setBleState(state);
     debugPrint("data: $res");
+    return state;
+  }
+
+  void readNonLinear(PingPong pingPong) async {
+    try {
+      final txCh = QualifiedCharacteristic(
+        serviceId: UART_UUID,
+        characteristicId: UART_TX,
+        deviceId: deviceId,
+      );
+
+      final rxCh = QualifiedCharacteristic(
+        serviceId: UART_UUID,
+        characteristicId: UART_RX,
+        deviceId: deviceId,
+      );
+      final writePromise = ble.writeCharacteristicWithResponse(
+        rxCh,
+        value: getReqCodeForNonLinear(slaveId),
+      );
+
+      _subscribeToCharacteristic(txCh, pingPong).then((data) {
+        debugPrint(String.fromCharCodes(data));
+        debugPrint('non linear ');
+        return data;
+      }).catchError((err) {
+        _setErrorState(err);
+      });
+      await writePromise;
+    } catch (err) {
+      debugPrint('error reading for non linear $err');
+    }
   }
 
   void readFromBLE(String foundDeviceId, FlutterReactiveBle ble) async {
@@ -170,9 +210,14 @@ class BleReaderManager extends ChangeNotifier {
         request: Random().nextInt(1000),
       );
 
-      _subscribeToCharacteristic(txCh, pingPong)
-          .then(_onDataReceived)
-          .catchError((err) {
+      _subscribeToCharacteristic(txCh, pingPong).then((val) {
+        final data = _onDataReceived(val);
+        debugPrint('tank type ${data?.tankType}');
+        if (data?.tankType == TankType.nonLinear) {
+          readNonLinear(pingPong);
+        }
+        return data;
+      }).catchError((err) {
         _setErrorState(err);
       });
       lastNPingPong.newRequest(pingPong);

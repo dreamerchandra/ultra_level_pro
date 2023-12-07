@@ -71,7 +71,7 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
   }
 
   Future<bool> writeToDevice(WriteParameter parameter, String value) {
-    reader.timer?.cancel();
+    reader.setTempPause();
     return BleWriter(ble: ref.read(bleProvider))
         .writeToDevice(
       deviceId: widget.deviceId,
@@ -88,7 +88,7 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
   }
 
   Future<bool> onTankTypeChange(NonLinearTankTypeChanger changer) {
-    reader.timer?.cancel();
+    reader.setTempPause();
     return changer
         .commitTankType(
       deviceId: widget.deviceId,
@@ -106,7 +106,7 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
     required String value,
     required SettingsValueToChange settingsParam,
   }) {
-    reader.timer?.cancel();
+    reader.setTempPause();
     return BleWriter(ble: ref.read(bleProvider))
         .writeSettingsToDevice(
       deviceId: widget.deviceId,
@@ -291,7 +291,7 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
               ),
             );
           },
-        ) as Future<bool>;
+        );
         return completer.future;
       },
       child: DefaultTabController(

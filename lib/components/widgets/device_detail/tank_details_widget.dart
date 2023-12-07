@@ -155,13 +155,6 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       onPressed: () async {
-                        if (_form.currentState == null) {
-                          return;
-                        }
-                        final isValid = _form.currentState?.validate();
-                        if (isValid == null || !isValid) {
-                          return;
-                        }
                         try {
                           await widget.onTankTypeChange(changer);
                           if (context.mounted) {
@@ -207,7 +200,7 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
           children: [
             shape(widget.state?.tankType),
             Table(
-              defaultColumnWidth: FlexColumnWidth(2),
+              defaultColumnWidth: const FlexColumnWidth(2),
               children: [
                 TableRow(
                   children: [
@@ -367,9 +360,9 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                 ],
               ],
             ),
-            if (widget.state?.tankType == TankType.nonLinear) ...[
-              const NonLinearTankDetailsWidget()
-            ]
+            // if (widget.state?.tankType == TankType.nonLinear) ...[
+            const NonLinearTankDetailsWidget()
+            // ]
           ],
         ),
       ),

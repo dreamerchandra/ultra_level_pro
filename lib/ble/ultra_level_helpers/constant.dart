@@ -1,12 +1,26 @@
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/helper.dart';
 
 Uuid UART_UUID = Uuid.parse("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
 Uuid UART_RX = Uuid.parse("6E400002-B5A3-F393-E0A9-E50E24DCCA9E");
 Uuid UART_TX = Uuid.parse("6E400003-B5A3-F393-E0A9-E50E24DCCA9E");
 
-List<int> getReqCode(String slaveId) => '${slaveId}03000000204412'.codeUnits;
+List<int> getReqCode(String slaveId) {
+  final data = '${slaveId}0300000020';
+  final crc = calculateModbusCRC(data);
+  return '$data$crc'.codeUnits;
+}
+
+List<int> getReqCodeForNonLinear(String slaveId) {
+  final data = '${slaveId}0301f30020';
+  final crc = calculateModbusCRC(data);
+  return '$data$crc'.codeUnits;
+}
+
+// slaveId/funcode(03)/startAdd(0000)/len(0020)/crc(4412)
+// non slaveId/funcode(03)/startAdd(01f3)/len(0020)/crc()
 const POLLING_DURATION = Duration(seconds: 5);
 
 enum WriteParameter {

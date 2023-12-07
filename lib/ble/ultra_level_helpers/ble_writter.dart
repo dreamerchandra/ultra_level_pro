@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/helper.dart';
@@ -67,6 +68,7 @@ class BleWriter {
         desiredValue: valueToWrite,
       )) {
         completer.complete(true);
+        debugPrint("Write successfull");
       } else {
         throw Exception('Write failed');
       }
@@ -77,6 +79,7 @@ class BleWriter {
     }
 
     listenToEcho(deviceId).then(verifyEcho).onError(handleError);
+    debugPrint("starting to write $valueToWrite");
 
     final rxCh = QualifiedCharacteristic(
       serviceId: UART_UUID,
