@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_non_linear_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/tank_type.dart';
-import 'package:ultra_level_pro/ble/ultra_level_helpers/tank_type_changer.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/non_linear_ble_writer.dart';
 import 'package:ultra_level_pro/components/widgets/common/common.dart';
 import 'package:ultra_level_pro/components/widgets/common/input.dart';
 import 'package:ultra_level_pro/components/widgets/device_detail/non_linear/non_linear_create_widget.dart';
@@ -41,13 +42,14 @@ class TankDetailsWidget extends StatefulWidget {
     required this.onDone,
     required this.ble,
     required this.onTankTypeChange,
+    required this.nonLinearState,
   });
 
   final Future<bool> Function(WriteParameter parameter, String value) onDone;
-  final Future<bool> Function(NonLinearTankTypeChanger changer)
-      onTankTypeChange;
+  final Future<bool> Function(NonLinearBleWriter changer) onTankTypeChange;
 
   final BleState? state;
+  final BleNonLinearState? nonLinearState;
   final FlutterReactiveBle ble;
 
   @override
@@ -56,8 +58,7 @@ class TankDetailsWidget extends StatefulWidget {
 
 class _TankDetailsWidgetState extends State<TankDetailsWidget> {
   final List<String> tankTypes = TankType.values.map((e) => e.name).toList();
-  late NonLinearTankTypeChanger changer =
-      NonLinearTankTypeChanger(ble: widget.ble);
+  late NonLinearBleWriter changer = NonLinearBleWriter(ble: widget.ble);
   final _form = GlobalKey<FormState>();
 
   String getValidationText(String? text) {
@@ -360,9 +361,11 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                 ],
               ],
             ),
-            // if (widget.state?.tankType == TankType.nonLinear) ...[
-            const NonLinearTankDetailsWidget()
-            // ]
+            if (widget.state?.tankType == TankType.nonLinear) ...[
+              NonLinearTankDetailsWidget(
+                state: widget.nonLinearState,
+              )
+            ]
           ],
         ),
       ),

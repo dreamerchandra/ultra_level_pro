@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:ultra_level_pro/ble/ble_device_connector.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_non_linear_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_ping_pong.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
@@ -22,6 +23,7 @@ class BleReaderManager extends ChangeNotifier {
   FlutterReactiveBle ble;
   BleDeviceConnector connector;
   LastNPingPongMeta lastNPingPong;
+  BleNonLinearState? nonLinearState;
 
   BleReaderManager({
     required this.deviceId,
@@ -92,6 +94,7 @@ class BleReaderManager extends ChangeNotifier {
 
   Future<bool> disconnect() async {
     try {
+      debugPrint("Starting to disconnect");
       timer?.cancel();
       await subscriber?.cancel();
       await connector.disconnect(deviceId);
@@ -103,15 +106,13 @@ class BleReaderManager extends ChangeNotifier {
   }
 
   Future<List<int>> _subscribeToCharacteristic(
-      QualifiedCharacteristic txCh, PingPong pingPong,
+      QualifiedCharacteristic txCh, PingPong pingPong, String label,
       [int waitSeconds = 4]) {
     return Future.microtask(() {
       void updateStatus(PingPongStatus status) {
         lastNPingPong.update(pingPong.request, status);
         notifyListeners();
       }
-
-      debugPrint("subscriber present ${subscriber != null}");
 
       subscriber ??= ble.subscribeToCharacteristic(txCh).listen((event) {});
       if (subscriber == null) {
@@ -123,25 +124,25 @@ class BleReaderManager extends ChangeNotifier {
           return;
         }
         updateStatus(PingPongStatus.failed);
-        debugPrint("data failed to  receive data");
+        debugPrint("Ping: ${pingPong.request} timeout in receiving $label ");
         completer
             .completeError(ErrorDescription("Device failed to receive data"));
       });
       subscriber!.onData((data) {
         updateStatus(PingPongStatus.received);
         timer.cancel();
-        debugPrint("data retrieved");
+        debugPrint("Ping: ${pingPong.request} data received $label");
         try {
           completer.complete(data);
         } catch (err) {
           debugPrint(
-              'Continue to do operation.'); // something the future the set to error by timeout and later we get the value
+              'Ping: ${pingPong.request} failed to complete $label'); // something the future the set to error by timeout and later we get the value
         }
       });
       subscriber!.onError((dynamic error) {
         updateStatus(PingPongStatus.failed);
         timer.cancel();
-        debugPrint("data not found");
+        debugPrint("Ping: ${pingPong.request} data error $label");
         completer.completeError(error);
       });
 
@@ -151,11 +152,9 @@ class BleReaderManager extends ChangeNotifier {
 
   BleState? _onDataReceived(List<int> data) {
     final res = String.fromCharCodes(data);
-    debugPrint("data: $data");
     if (res.length < 20) return null;
     final state = BleState(data: res);
     _setBleState(state);
-    debugPrint("data: $res");
     return state;
   }
 
@@ -177,13 +176,18 @@ class BleReaderManager extends ChangeNotifier {
         value: getReqCodeForNonLinear(slaveId),
       );
 
-      _subscribeToCharacteristic(txCh, pingPong).then((data) {
-        debugPrint(String.fromCharCodes(data));
-        debugPrint('non linear ');
+      _subscribeToCharacteristic(txCh, pingPong, 'non linear').then((data) {
+        final res = String.fromCharCodes(data);
+        final state = BleNonLinearState(data: res);
+        nonLinearState = state;
+        notifyListeners();
         return data;
       }).catchError((err) {
         _setErrorState(err);
+        return null;
       });
+      debugPrint(
+          "Ping: ${pingPong.request} starting to read from ble non linear");
       await writePromise;
     } catch (err) {
       debugPrint('error reading for non linear $err');
@@ -210,7 +214,7 @@ class BleReaderManager extends ChangeNotifier {
         request: Random().nextInt(1000),
       );
 
-      _subscribeToCharacteristic(txCh, pingPong).then((val) {
+      _subscribeToCharacteristic(txCh, pingPong, 'actual-data').then((val) {
         final data = _onDataReceived(val);
         debugPrint('tank type ${data?.tankType}');
         if (data?.tankType == TankType.nonLinear) {
@@ -219,12 +223,14 @@ class BleReaderManager extends ChangeNotifier {
         return data;
       }).catchError((err) {
         _setErrorState(err);
+        return null;
       });
       lastNPingPong.newRequest(pingPong);
       notifyListeners();
 
       await writePromise;
-      debugPrint("Reading from ble");
+      debugPrint(
+          "Ping: ${pingPong.request} starting to read from ble actual-data");
     } catch (err) {
       debugPrint("read from ble error $err");
       _setErrorState(err);
@@ -262,7 +268,7 @@ class BleReaderManager extends ChangeNotifier {
       request: Random().nextInt(1000),
     );
 
-    _subscribeToCharacteristic(txCh, pingPong).then((d) {
+    _subscribeToCharacteristic(txCh, pingPong, 'slaveId').then((d) {
       _onDataReceived(d);
       completer.complete(true);
     }).catchError((error) {

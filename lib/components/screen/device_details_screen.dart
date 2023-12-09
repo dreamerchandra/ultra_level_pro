@@ -10,7 +10,8 @@ import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_reader_provider.dart
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_writter.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/settings.dart';
-import 'package:ultra_level_pro/ble/ultra_level_helpers/tank_type_changer.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/non_linear_ble_writer.dart';
+import 'package:ultra_level_pro/components/alert.dart';
 import 'package:ultra_level_pro/components/widgets/common/admin_widget.dart';
 import 'package:ultra_level_pro/components/widgets/common/card_details.dart';
 import 'package:ultra_level_pro/components/widgets/common/expansion_tile_widget.dart';
@@ -87,7 +88,7 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
     );
   }
 
-  Future<bool> onTankTypeChange(NonLinearTankTypeChanger changer) {
+  Future<bool> onTankTypeChange(NonLinearBleWriter changer) {
     reader.setTempPause();
     return changer
         .commitTankType(
@@ -261,36 +262,15 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
     return WillPopScope(
       onWillPop: () {
         Completer<bool> completer = Completer();
-        showDialog<bool>(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return WillPopScope(
-              onWillPop: () async =>
-                  false, // False will prevent and true will allow to dismiss
-              child: AlertDialog(
-                title: Text('Going Back?'),
-                content: Text('Would you like to go back'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      completer.complete(false);
-                    },
-                    child: Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      await reader.disconnect();
-                      Navigator.pop(context);
-                      completer.complete(true);
-                    },
-                    child: Text('Go Back'),
-                  ),
-                ],
-              ),
-            );
+        showAlertDialog(
+          onOk: () async {
+            await reader.disconnect();
+            completer.complete(true);
           },
+          onCancel: () {
+            completer.complete(false);
+          },
+          context: context,
         );
         return completer.future;
       },
@@ -386,6 +366,7 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
                           state: reader.state,
                           ble: ref.read(bleProvider),
                           onTankTypeChange: onTankTypeChange,
+                          nonLinearState: reader.nonLinearState,
                         ),
                         initialExpanded: true,
                       ),

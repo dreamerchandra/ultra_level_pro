@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_non_linear_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_writter.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/helper.dart';
@@ -15,12 +18,12 @@ class TankTypeParameter {
 //slaveId(01)+funcode(10)+startAdd(4500)+len(number of point + 1)+byteCount(len*2)+data(eg len,point 1 in height, point 1 filled....poinnt n)+crc
 //
 
-class NonLinearTankTypeChanger extends BleWriter {
-  List<List<TankTypeParameter>> _valuesToCommit = [];
+class NonLinearBleWriter extends BleWriter {
+  List<NonLinearParameter> _valuesToCommit = [];
 
-  NonLinearTankTypeChanger({required super.ble});
+  NonLinearBleWriter({required super.ble});
 
-  void update(List<List<TankTypeParameter>> val) {
+  void update(List<NonLinearParameter> val) {
     _valuesToCommit = val;
   }
 
@@ -30,18 +33,18 @@ class NonLinearTankTypeChanger extends BleWriter {
     required String slaveId,
   }) {
     final values = _valuesToCommit
-        .map((tank) {
-          return tank
-              .map((values) {
-                final data = constructData(
-                  value: values.value,
-                  parameter: values.parameter,
-                  settings: settings,
-                );
-                return data;
-              })
-              .toList()
-              .join();
+        .map((parameter) {
+          final height = constructData(
+            value: '${parameter.height}',
+            parameter: WriteParameter.TankHeight,
+            settings: settings,
+          );
+          final filled = constructData(
+            value: '${parameter.filled}',
+            parameter: WriteParameter.TankHeight,
+            settings: settings,
+          );
+          return '$height$filled';
         })
         .toList()
         .join();
@@ -54,6 +57,39 @@ class NonLinearTankTypeChanger extends BleWriter {
     final crc = calculateModbusCRC((header + data));
     final valueToWrite = header + data + crc;
     return valueToWrite;
+  }
+
+  Future<bool> multiWriteCommitHelper(String valueToWrite, String deviceId) {
+    Completer<bool> completer = Completer<bool>();
+    verifyEcho(String echoValue) {
+      debugPrint('Echo value $echoValue');
+      if (checkWriteIsOk(
+        actualValue: echoValue.substring(0, 12),
+        desiredValue: echoValue.substring(0, 12),
+      )) {
+        completer.complete(true);
+        debugPrint("Write successfull");
+        // throw Exception("Make sure to rewrite check write is ok");
+      } else {
+        throw Exception('Write failed');
+      }
+    }
+
+    handleError(error, stackTrace) {
+      completer.completeError(error);
+    }
+
+    listenToEcho(deviceId).then(verifyEcho).onError(handleError);
+    debugPrint("starting to write $valueToWrite");
+
+    final rxCh = QualifiedCharacteristic(
+      serviceId: UART_UUID,
+      characteristicId: UART_RX,
+      deviceId: deviceId,
+    );
+    ble.writeCharacteristicWithResponse(rxCh,
+        value: valueToWrite.toUpperCase().codeUnits);
+    return completer.future;
   }
 
   Future<bool> commitTankType({
@@ -81,7 +117,7 @@ class NonLinearTankTypeChanger extends BleWriter {
         deviceId: deviceId,
         slaveId: slaveId,
       );
-      var commitHelper = await super.commitHelper(valueToWrite, deviceId);
+      var commitHelper = await multiWriteCommitHelper(valueToWrite, deviceId);
       completer.complete(commitHelper);
     });
     return completer.future;

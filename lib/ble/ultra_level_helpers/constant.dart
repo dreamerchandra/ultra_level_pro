@@ -14,7 +14,7 @@ List<int> getReqCode(String slaveId) {
 }
 
 List<int> getReqCodeForNonLinear(String slaveId) {
-  final data = '${slaveId}0301f30020';
+  final data = '${slaveId}0301f40020';
   final crc = calculateModbusCRC(data);
   return '$data$crc'.codeUnits;
 }
@@ -22,6 +22,7 @@ List<int> getReqCodeForNonLinear(String slaveId) {
 // slaveId/funcode(03)/startAdd(0000)/len(0020)/crc(4412)
 // non slaveId/funcode(03)/startAdd(01f3)/len(0020)/crc()
 const POLLING_DURATION = Duration(seconds: 5);
+const RESPONSE_WAIT_DURATION = Duration(seconds: 4);
 
 enum WriteParameter {
   Settings,

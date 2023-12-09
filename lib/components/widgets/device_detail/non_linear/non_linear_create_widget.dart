@@ -1,7 +1,8 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_non_linear_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
-import 'package:ultra_level_pro/ble/ultra_level_helpers/tank_type_changer.dart';
 
 class NonLinearTankTypeChangerWidget extends StatefulWidget {
   const NonLinearTankTypeChangerWidget({
@@ -10,7 +11,7 @@ class NonLinearTankTypeChangerWidget extends StatefulWidget {
     required this.onChange,
   });
   final FlutterReactiveBle ble;
-  final void Function(List<List<TankTypeParameter>> val) onChange;
+  final void Function(List<NonLinearParameter> val) onChange;
 
   @override
   State<NonLinearTankTypeChangerWidget> createState() =>
@@ -20,7 +21,7 @@ class NonLinearTankTypeChangerWidget extends StatefulWidget {
 class _NonLinearTankTypeChangerWidgetState
     extends State<NonLinearTankTypeChangerWidget> {
   final _form = GlobalKey<FormState>();
-  List<List<TankTypeParameter>> _valuesToCommit = [[]];
+  List<NonLinearParameter> _valuesToCommit = [];
 
   void set(
       {required WriteParameter parameter,
@@ -29,19 +30,25 @@ class _NonLinearTankTypeChangerWidgetState
     if (_valuesToCommit.length <= tankIndex) {
       throw ErrorDescription('Something went wrong');
     }
-    final index = _valuesToCommit[tankIndex]
-        .indexWhere((element) => element.parameter == parameter);
-    if (index != -1) {
-      _valuesToCommit[tankIndex][index] =
-          TankTypeParameter(parameter: parameter, value: value);
-    } else {
-      _valuesToCommit[tankIndex]
-          .add(TankTypeParameter(parameter: parameter, value: value));
-    }
-    widget.onChange(_valuesToCommit);
     setState(() {
-      _valuesToCommit = _valuesToCommit;
+      _valuesToCommit = _valuesToCommit.mapIndexed((index, element) {
+        if (index == tankIndex) {
+          final height = parameter == WriteParameter.TankHeight
+              ? int.parse(value)
+              : element.height;
+          final filled = parameter == WriteParameter.TankLength
+              ? int.parse(value)
+              : element.height;
+
+          return NonLinearParameter(
+            height: height,
+            filled: filled,
+          );
+        }
+        return element;
+      }).toList();
     });
+    widget.onChange(_valuesToCommit);
   }
 
   remove(int index) {
@@ -55,7 +62,7 @@ class _NonLinearTankTypeChangerWidgetState
   }
 
   add() {
-    _valuesToCommit.add([]);
+    _valuesToCommit.add(NonLinearParameter(height: 0, filled: 0));
     widget.onChange(_valuesToCommit);
     setState(() {
       _valuesToCommit = _valuesToCommit;
@@ -211,7 +218,8 @@ class _NonLinearTankTypeChangerWidgetState
       {
         "labelText": "Tank Filled",
         "hintText": "mm",
-        "parameter": WriteParameter.TankOffset
+        "parameter": WriteParameter
+            .TankLength // tank length is treated as filled parameter
       },
     ]
         .map((e) => FormInput(

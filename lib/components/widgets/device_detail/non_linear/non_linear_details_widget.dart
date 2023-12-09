@@ -1,4 +1,6 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_non_linear_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
 import 'package:ultra_level_pro/components/widgets/common/input.dart';
 
@@ -27,19 +29,26 @@ Widget bodyText(String text) {
 }
 
 class NonLinearTankDetailsWidget extends StatelessWidget {
-  const NonLinearTankDetailsWidget({super.key});
+  const NonLinearTankDetailsWidget({super.key, required this.state});
+  final BleNonLinearState? state;
 
   @override
   Widget build(BuildContext context) {
+    if (state == null) {
+      return Container();
+    }
+    if (state!.nonLinearParameters.isEmpty) {
+      return Container();
+    }
     return Column(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [1, 2, 3, 45, 5].map((e) {
+      children: state!.nonLinearParameters.mapIndexed((idx, e) {
         return SingleNonLinearTankDetailsWidget(
-          index: e,
-          height: 10,
-          filled: 10,
+          index: idx,
+          height: e.height,
+          filled: e.filled,
           onRemove: (index) {},
           onHeightChange: (index, height) async {},
           onFilledChange: (index, filled) async {},
@@ -60,8 +69,8 @@ class SingleNonLinearTankDetailsWidget extends StatelessWidget {
     required this.onFilledChange,
   });
   final int index;
-  final double height;
-  final double filled;
+  final int height;
+  final int filled;
   final void Function(int index) onRemove;
   final Future<void> Function(int index, String height) onHeightChange;
   final Future<void> Function(int index, String filled) onFilledChange;
@@ -85,7 +94,7 @@ class SingleNonLinearTankDetailsWidget extends StatelessWidget {
                 children: [
                   Text(
                     '${index}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w900,
                     ),
@@ -155,7 +164,7 @@ class SingleNonLinearTankDetailsWidget extends StatelessWidget {
                           width: 16,
                         ),
                         Text(
-                          height.toString(),
+                          filled.toString(),
                           style: bodyStyle,
                         ),
                         const SizedBox(
