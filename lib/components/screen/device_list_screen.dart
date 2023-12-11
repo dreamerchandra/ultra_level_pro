@@ -86,6 +86,8 @@ class _DeviceListScreenState extends ConsumerState<DeviceListScreen> {
     });
   }
 
+  String connectingDevice = '';
+
   @override
   Widget build(BuildContext context) {
     final scannerState = ref.watch(bleScannerStateProvider);
@@ -117,10 +119,17 @@ class _DeviceListScreenState extends ConsumerState<DeviceListScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: DeviceListWidget(
             devices: scannerState.value?.discoveredDevices ?? [],
+            connectingDeviceId: connectingDevice,
             onTap: (device) async {
+              setState(() {
+                connectingDevice = device.id;
+              });
               scanner.stopScan();
               await ref.read(connectorProvider).connect(device.id);
               if (!context.mounted) return;
+              setState(() {
+                connectingDevice = '';
+              });
               connectedDevice.setDevice(device);
               Future.delayed(Duration.zero, () {
                 GoRouter.of(context).push(getDeviceDetailsRoute(device.id));

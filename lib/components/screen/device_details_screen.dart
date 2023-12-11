@@ -16,6 +16,7 @@ import 'package:ultra_level_pro/components/widgets/common/admin_widget.dart';
 import 'package:ultra_level_pro/components/widgets/common/card_details.dart';
 import 'package:ultra_level_pro/components/widgets/common/expansion_tile_widget.dart';
 import 'package:ultra_level_pro/components/widgets/common/ping_pong_status.dart';
+import 'package:ultra_level_pro/components/widgets/common/rssid.dart';
 import 'package:ultra_level_pro/components/widgets/device_detail/admin_settings_widget.dart';
 import 'package:ultra_level_pro/components/widgets/device_detail/device_settings_widget.dart';
 import 'package:ultra_level_pro/components/widgets/device_detail/read_values_widget.dart';
@@ -175,60 +176,9 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
                 color: Colors.white,
               ),
             ),
-            Row(
-              children: [
-                Text(
-                  "${getRSSI()}dBm",
-                  style: const TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.black,
-                          ),
-                          shape: BoxShape.rectangle,
-                          color: getRSSI() < -100 ? Colors.white : Colors.amber,
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 2),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.black,
-                          ),
-                          shape: BoxShape.rectangle,
-                          color: getRSSI() < -86 && getRSSI() < -100
-                              ? Colors.white
-                              : Colors.amber,
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 4),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.black,
-                          ),
-                          shape: BoxShape.rectangle,
-                          color: getRSSI() < -85 ? Colors.white : Colors.amber,
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 6),
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            )
+            Rssid(
+              rssid: getRSSI(),
+            ),
           ],
         ),
         TableRow(
