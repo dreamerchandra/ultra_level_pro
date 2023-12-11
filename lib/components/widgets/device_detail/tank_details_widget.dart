@@ -164,11 +164,10 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                           if (!context.mounted) {
                             return;
                           }
-                          ScaffoldMessenger.of(context).showMaterialBanner(
-                            const MaterialBanner(
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
                               content: Text(
                                   "Changing failed try again after some time"),
-                              actions: [],
                             ),
                           );
                         }
