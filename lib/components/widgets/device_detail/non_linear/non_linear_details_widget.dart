@@ -29,8 +29,13 @@ Widget bodyText(String text) {
 }
 
 class NonLinearTankDetailsWidget extends StatelessWidget {
-  const NonLinearTankDetailsWidget({super.key, required this.state});
+  const NonLinearTankDetailsWidget({
+    super.key,
+    required this.state,
+    required this.onChange,
+  });
   final BleNonLinearState? state;
+  final Future<bool> Function(List<NonLinearParameter> val) onChange;
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +54,40 @@ class NonLinearTankDetailsWidget extends StatelessWidget {
           index: idx,
           height: e.height,
           filled: e.filled,
-          onRemove: (index) {},
-          onHeightChange: (index, height) async {},
-          onFilledChange: (index, filled) async {},
+          onRemove: (index) async {
+            if (state?.nonLinearParameters != null) {
+              List<NonLinearParameter> newState =
+                  List.from(state!.nonLinearParameters)..removeAt(index);
+              return onChange(newState);
+            }
+            return Future.value(false);
+          },
+          onHeightChange: (index, height) async {
+            final res = state?.nonLinearParameters.mapIndexed((idx, element) {
+              if (idx == index) {
+                return NonLinearParameter(
+                    height: int.parse(height), filled: element.filled);
+              }
+              return element;
+            }).toList();
+            if (res != null) {
+              return onChange(res);
+            }
+            return Future.value(false);
+          },
+          onFilledChange: (index, filled) async {
+            final res = state?.nonLinearParameters.mapIndexed((idx, element) {
+              if (idx == index) {
+                return NonLinearParameter(
+                    height: element.height, filled: int.parse(filled));
+              }
+              return element;
+            }).toList();
+            if (res != null) {
+              return onChange(res);
+            }
+            return Future.value(false);
+          },
         );
       }).toList(),
     );
@@ -71,9 +107,9 @@ class SingleNonLinearTankDetailsWidget extends StatelessWidget {
   final int index;
   final int height;
   final int filled;
-  final void Function(int index) onRemove;
-  final Future<void> Function(int index, String height) onHeightChange;
-  final Future<void> Function(int index, String filled) onFilledChange;
+  final Future<bool> Function(int index) onRemove;
+  final Future<bool> Function(int index, String height) onHeightChange;
+  final Future<bool> Function(int index, String filled) onFilledChange;
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +210,7 @@ class SingleNonLinearTankDetailsWidget extends StatelessWidget {
                           child: Input(
                             hintText: "Tank Filled",
                             onDone: (_, val) {
-                              return onHeightChange(index, val);
+                              return onFilledChange(index, val);
                             },
                             parameter: WriteParameter.TankHeight,
                           ),

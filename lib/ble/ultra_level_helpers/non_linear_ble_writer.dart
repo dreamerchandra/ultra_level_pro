@@ -48,9 +48,9 @@ class NonLinearBleWriter extends BleWriter {
         })
         .toList()
         .join();
-    String startAdd = '01f4'; // hex(500) -> 01f3;
-    String len = ensure2Byte(intToHex(_valuesToCommit.length + 1));
-    String byteCount = ensure1Byte('${(values.length) * 2}');
+    String startAdd = '01f4'; // hex(501) -> 01f4;
+    String len = intToHex(_valuesToCommit.length + 1);
+    String byteCount = ensure1Byte('${(_valuesToCommit.length) * 2}');
     String data = '$startAdd$len$byteCount$values';
     String header = '${slaveId}10'; // slaveId funCode writeAddress data crc
 
@@ -110,6 +110,9 @@ class NonLinearBleWriter extends BleWriter {
       settings: settings,
     );
     await super.commitHelper(data, deviceId);
+    final lengthData = '010601f3${intToHex(_valuesToCommit.length)}';
+    await super
+        .commitHelper('$lengthData${calculateModbusCRC(lengthData)}', deviceId);
     Completer<bool> completer = Completer<bool>();
     Future.delayed(Duration(milliseconds: 100), () async {
       final valueToWrite = constructMultiPartWrite(

@@ -59,7 +59,6 @@ class TankDetailsWidget extends StatefulWidget {
 class _TankDetailsWidgetState extends State<TankDetailsWidget> {
   final List<String> tankTypes = TankType.values.map((e) => e.name).toList();
   late NonLinearBleWriter changer = NonLinearBleWriter(ble: widget.ble);
-  final _form = GlobalKey<FormState>();
 
   String getValidationText(String? text) {
     if (text == null || text.isEmpty) {
@@ -364,6 +363,12 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
             if (widget.state?.tankType == TankType.nonLinear) ...[
               NonLinearTankDetailsWidget(
                 state: widget.nonLinearState,
+                onChange: (val) async {
+                  NonLinearBleWriter changer =
+                      NonLinearBleWriter(ble: widget.ble);
+                  changer.update(val);
+                  return widget.onTankTypeChange(changer);
+                },
               )
             ]
           ],

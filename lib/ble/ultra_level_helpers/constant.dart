@@ -14,7 +14,7 @@ List<int> getReqCode(String slaveId) {
 }
 
 List<int> getReqCodeForNonLinear(String slaveId) {
-  final data = '${slaveId}0301f40020';
+  final data = '${slaveId}0301f30020';
   final crc = calculateModbusCRC(data);
   return '$data$crc'.codeUnits;
 }

@@ -159,6 +159,9 @@ class BleReaderManager extends ChangeNotifier {
   }
 
   void readNonLinear(PingPong pingPong) async {
+    if (timer?.isActive == false || timer == null) {
+      return;
+    }
     try {
       final txCh = QualifiedCharacteristic(
         serviceId: UART_UUID,
@@ -178,6 +181,7 @@ class BleReaderManager extends ChangeNotifier {
 
       _subscribeToCharacteristic(txCh, pingPong, 'non linear').then((data) {
         final res = String.fromCharCodes(data);
+        if (res.length < 20) return null;
         final state = BleNonLinearState(data: res);
         nonLinearState = state;
         notifyListeners();
@@ -240,7 +244,7 @@ class BleReaderManager extends ChangeNotifier {
     // _setBleState(
     //   BleState(
     //     data:
-    //         '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E8000100087900',
+    //         '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E800010008A4A6',
     //   ),
     // );
   }

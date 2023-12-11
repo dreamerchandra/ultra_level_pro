@@ -28,7 +28,9 @@ class BleNonLinearState {
   void computeValues() {
     nonLinearParameters = [];
     int dataI = 8;
-    for (int i = 0; i < 2; i++) {
+    debugPrint(data);
+    int length = int.parse(data.substring(dataI, dataI += 4), radix: 16);
+    for (int i = 0; i < length; i++) {
       final height = int.parse(data.substring(dataI, dataI += 4), radix: 16);
       final filled = int.parse(data.substring(dataI, dataI += 4), radix: 16);
       nonLinearParameters
