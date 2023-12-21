@@ -60,8 +60,7 @@ class _AdminWidgetState extends State<AdminWidget> {
                   onPressed: () {
                     String code = OTP.generateTOTPCodeString(
                       TOTP_SECRET,
-                      DateTime.utc(DateTime.now().year).millisecondsSinceEpoch,
-                      algorithm: Algorithm.SHA512,
+                      DateTime.now().millisecondsSinceEpoch,
                       interval: 60 * 10,
                       length: 6,
                     );
