@@ -3,11 +3,11 @@ import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_state.dart';
 import 'package:ultra_level_pro/components/widgets/common/common.dart';
 
 const headerStyle = TextStyle(
-  fontSize: 18,
+  fontSize: 14,
   fontWeight: FontWeight.bold,
 );
 const bodyStyle = TextStyle(
-  fontSize: 20,
+  fontSize: 16,
   fontWeight: FontWeight.bold,
 );
 
@@ -22,6 +22,7 @@ class ReadValues extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Table(
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: [
         TableRow(
           children: [

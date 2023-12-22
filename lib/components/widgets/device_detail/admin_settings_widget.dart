@@ -88,6 +88,7 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
             1: FlexColumnWidth(1),
             2: FlexColumnWidth(2),
           },
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           children: [
             TableRow(
               children: [
@@ -95,7 +96,7 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
                 Text(': ${widget.state?.levelCalibrationOffset}'),
                 formItem(
                   Input(
-                    hintText: "0.09",
+                    hintText: "9100",
                     onDone: (parameter, value) {
                       return widget.onChange(
                         parameter,
@@ -125,7 +126,7 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
                 Text(': ${widget.state?.damping}'),
                 formItem(
                   Input(
-                    hintText: "0.09",
+                    hintText: "5",
                     onDone: (parameter, value) {
                       return widget.onChange(
                         parameter,

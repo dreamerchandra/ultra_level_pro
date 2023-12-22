@@ -17,14 +17,18 @@ showAlertDialog({
           TextButton(
             onPressed: () {
               onCancel?.call();
-              Navigator.pop(context);
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              }
             },
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
               await onOk();
-              Navigator.of(context).pop();
+              if (context.mounted && Navigator.canPop(context)) {
+                Navigator.pop(context);
+              }
             },
             child: const Text('Go Back'),
           ),

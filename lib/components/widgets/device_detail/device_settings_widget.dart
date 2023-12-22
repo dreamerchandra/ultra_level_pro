@@ -74,6 +74,7 @@ class _DeviceSettingsWidgetState extends State<DeviceSettingsWidget> {
             1: FlexColumnWidth(1),
             2: FlexColumnWidth(2),
           },
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           children: [
             TableRow(
               children: [

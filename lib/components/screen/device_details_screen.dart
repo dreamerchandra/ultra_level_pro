@@ -153,6 +153,7 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
         0: FlexColumnWidth(1),
         1: FlexColumnWidth(4),
       },
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: [
         TableRow(children: [
           const Text(
@@ -227,6 +228,7 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
       child: DefaultTabController(
         length: 3,
         child: Scaffold(
+          resizeToAvoidBottomInset: false,
           floatingActionButton: AdminWidget(
               isAdmin: isAdmin,
               setIsAdmin: (bool _isAdmin) {
@@ -264,7 +266,9 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
                 onPressed: () async {
                   debugPrint("Going back");
                   await reader.disconnect();
-                  Navigator.pop(context);
+                  if (context.mounted && Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
                 },
                 icon: const Icon(Icons.arrow_back)),
             title: Text(connectedDevice?.name ?? 'Loading...'),

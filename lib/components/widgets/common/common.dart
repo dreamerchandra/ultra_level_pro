@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 Widget formItem(Widget child) {
   return SizedBox(
-    height: 22,
+    height: 45,
     child: child,
   );
 }

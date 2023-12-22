@@ -113,16 +113,14 @@ class NonLinearBleWriter extends BleWriter {
     final lengthData = '010601f3${intToHex(_valuesToCommit.length)}';
     await super
         .commitHelper('$lengthData${calculateModbusCRC(lengthData)}', deviceId);
-    Completer<bool> completer = Completer<bool>();
-    Future.delayed(Duration(milliseconds: 100), () async {
+    return Future.delayed(Duration(milliseconds: 100), () async {
       final valueToWrite = constructMultiPartWrite(
         settings: settings,
         deviceId: deviceId,
         slaveId: slaveId,
       );
       var commitHelper = await multiWriteCommitHelper(valueToWrite, deviceId);
-      completer.complete(commitHelper);
+      return commitHelper;
     });
-    return completer.future;
   }
 }

@@ -17,6 +17,13 @@ class BleWriter {
     );
 
     Completer<String> completer = Completer<String>();
+    Timer timer = Timer(Duration(seconds: 3), () {
+      if (completer.isCompleted) {
+        return;
+      }
+      debugPrint("Writing failed due to timeout ");
+      completer.completeError(ErrorDescription("Device failed to write data"));
+    });
     final subscription = ble.subscribeToCharacteristic(txCh).listen((data) {
       final res = String.fromCharCodes(data);
       completer.complete(res);
@@ -25,8 +32,10 @@ class BleWriter {
     });
     completer.future.then((_) {
       subscription.cancel();
+      timer.cancel();
     }, onError: (_) {
       subscription.cancel();
+      timer.cancel();
     });
     return completer.future;
   }

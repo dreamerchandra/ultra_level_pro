@@ -53,7 +53,9 @@ class _AdminWidgetState extends State<AdminWidget> {
             actions: [
               TextButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
                   },
                   child: const Text("No")),
               TextButton(
@@ -85,7 +87,9 @@ class _AdminWidgetState extends State<AdminWidget> {
                     }
                     widget.setIsAdmin(code == _controller.text);
                     _controller.clear();
-                    Navigator.pop(context);
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
                   },
                   child: const Text(
                     "Yes",

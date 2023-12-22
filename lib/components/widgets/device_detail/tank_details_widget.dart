@@ -10,6 +10,7 @@ import 'package:ultra_level_pro/components/widgets/common/input.dart';
 import 'package:ultra_level_pro/components/widgets/device_detail/non_linear/non_linear_create_widget.dart';
 import 'package:ultra_level_pro/components/widgets/device_detail/non_linear/non_linear_details_widget.dart';
 import 'package:ultra_level_pro/components/widgets/device_detail/shapes_widget.dart';
+import 'package:ultra_level_pro/main.dart';
 
 const headerStyle = TextStyle(
   fontSize: 16,
@@ -17,7 +18,7 @@ const headerStyle = TextStyle(
 );
 
 const bodyStyle = TextStyle(
-  fontSize: 18,
+  fontSize: 16,
   fontWeight: FontWeight.w900,
 );
 
@@ -100,85 +101,18 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
     );
   }
 
+  bool isError = false;
+
   void bottomSheetBuilder(BuildContext context, TankType tankType) {
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          margin:
-              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          padding: const EdgeInsets.all(8),
-          height: MediaQuery.of(context).size.height * 0.65,
-          child: Stack(
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  Text(
-                    "Values for ${getTankLabel(tankType)}",
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  NonLinearTankTypeChangerWidget(
-                    ble: widget.ble,
-                    onChange: (val) {
-                      changer.update(val);
-                    },
-                  ),
-                ],
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => {
-                        Navigator.pop(context),
-                      },
-                      child: Text("Cancel"),
-                    ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    MaterialButton(
-                      color: Colors.purple[600],
-                      textTheme: ButtonTextTheme.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      onPressed: () async {
-                        try {
-                          await widget.onTankTypeChange(changer);
-                          if (context.mounted) {
-                            Navigator.pop(context);
-                          }
-                        } catch (e) {
-                          if (!context.mounted) {
-                            return;
-                          }
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  "Changing failed try again after some time"),
-                            ),
-                          );
-                        }
-                      },
-                      child: const Text("Save"),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+        return NonLinearBottomSheet(
+          isError: isError,
+          ble: widget.ble,
+          changer: changer,
+          onTankTypeChange: widget.onTankTypeChange,
         );
       },
     );
@@ -200,6 +134,7 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
             shape(widget.state?.tankType),
             Table(
               defaultColumnWidth: const FlexColumnWidth(2),
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               children: [
                 TableRow(
                   children: [
@@ -220,7 +155,15 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                         items: tankTypes.map((String items) {
                           return DropdownMenuItem(
                             value: items,
-                            child: Text(items),
+                            child: Text(
+                              items
+                                  .split(RegExp(r"(?=[A-Z])"))
+                                  .join(' ')
+                                  .capitalize(),
+                              style: TextStyle(
+                                fontSize: 12,
+                              ),
+                            ),
                           );
                         }).toList(),
                         onChanged: (String? newValue) {
@@ -372,6 +315,105 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
             ]
           ],
         ),
+      ),
+    );
+  }
+}
+
+class NonLinearBottomSheet extends StatefulWidget {
+  const NonLinearBottomSheet({
+    super.key,
+    required this.isError,
+    required this.ble,
+    required this.changer,
+    required this.onTankTypeChange,
+  });
+
+  final Future<bool> Function(NonLinearBleWriter changer) onTankTypeChange;
+  final bool isError;
+  final FlutterReactiveBle ble;
+  final NonLinearBleWriter changer;
+
+  @override
+  State<NonLinearBottomSheet> createState() => _NonLinearBottomSheetState();
+}
+
+class _NonLinearBottomSheetState extends State<NonLinearBottomSheet> {
+  bool isError = false;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: const EdgeInsets.all(8),
+      height: MediaQuery.of(context).size.height * 0.65,
+      child: Stack(
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(
+                height: 16,
+              ),
+              Text(
+                "Values for Non Linear ${widget.isError ? '(write failed)' : ''}",
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              NonLinearTankTypeChangerWidget(
+                ble: widget.ble,
+                onChange: (val) {
+                  widget.changer.update(val);
+                },
+                isError: widget.isError,
+              ),
+            ],
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Text("Cancel"),
+                ),
+                const SizedBox(
+                  width: 8,
+                ),
+                MaterialButton(
+                  color: Colors.purple[600],
+                  textTheme: ButtonTextTheme.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  onPressed: () async {
+                    try {
+                      await widget.onTankTypeChange(widget.changer);
+                      if (context.mounted && Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      }
+                    } catch (e) {
+                      if (!context.mounted) {
+                        return;
+                      }
+                      setState(() {
+                        isError = true;
+                      });
+                    }
+                  },
+                  child: Text(widget.isError ? 'Write Failed' : "Save"),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

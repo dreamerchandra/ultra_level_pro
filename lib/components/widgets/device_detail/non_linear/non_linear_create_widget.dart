@@ -9,9 +9,11 @@ class NonLinearTankTypeChangerWidget extends StatefulWidget {
     super.key,
     required this.ble,
     required this.onChange,
+    required this.isError,
   });
   final FlutterReactiveBle ble;
   final void Function(List<NonLinearParameter> val) onChange;
+  final bool isError;
 
   @override
   State<NonLinearTankTypeChangerWidget> createState() =>
@@ -125,6 +127,12 @@ class _NonLinearTankTypeChangerWidgetState
       children: [
         Column(
           children: [
+            if (widget.isError) ...[
+              const Text(
+                "Failed to write to device",
+                style: TextStyle(color: Colors.red, fontSize: 14),
+              ),
+            ],
             const SizedBox(
               height: 8,
             ),

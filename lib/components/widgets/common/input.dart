@@ -63,7 +63,7 @@ class _InputState extends State<Input> {
               ),
             ),
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
               color: isError ? Colors.red : Colors.black,
             ),
@@ -72,7 +72,7 @@ class _InputState extends State<Input> {
         ),
         value.isNotEmpty
             ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 2.0),
                 child: IconButton(
                   onPressed: () async {
                     try {
