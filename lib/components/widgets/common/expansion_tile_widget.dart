@@ -446,45 +446,47 @@ class _MyExpansionTileState extends State<MyExpansionTile>
     }
     return Container(
       clipBehavior: clipBehavior,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Semantics(
-            hint: semanticsHint,
-            onTapHint: onTapHint,
-            child: ListTileTheme.merge(
-              iconColor: _iconColor.value ?? expansionTileTheme.iconColor,
-              textColor: _headerColor.value,
-              child: InkWell(
-                onTap: _handleTap,
-                child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.purple[600],
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(10),
-                        topRight: const Radius.circular(10),
-                        bottomLeft: _isExpanded
-                            ? const Radius.circular(0)
-                            : const Radius.circular(10),
-                        bottomRight: _isExpanded
-                            ? const Radius.circular(0)
-                            : const Radius.circular(10),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Semantics(
+              hint: semanticsHint,
+              onTapHint: onTapHint,
+              child: ListTileTheme.merge(
+                iconColor: _iconColor.value ?? expansionTileTheme.iconColor,
+                textColor: _headerColor.value,
+                child: InkWell(
+                  onTap: _handleTap,
+                  child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.purple[600],
+                        borderRadius: BorderRadius.only(
+                          topLeft: const Radius.circular(10),
+                          topRight: const Radius.circular(10),
+                          bottomLeft: _isExpanded
+                              ? const Radius.circular(0)
+                              : const Radius.circular(10),
+                          bottomRight: _isExpanded
+                              ? const Radius.circular(0)
+                              : const Radius.circular(10),
+                        ),
                       ),
-                    ),
-                    child: widget.title),
+                      child: widget.title),
+                ),
               ),
             ),
-          ),
-          ClipRect(
-            child: Align(
-              alignment: widget.expandedAlignment ??
-                  expansionTileTheme.expandedAlignment ??
-                  Alignment.center,
-              heightFactor: _heightFactor.value,
-              child: child,
+            ClipRect(
+              child: Align(
+                alignment: widget.expandedAlignment ??
+                    expansionTileTheme.expandedAlignment ??
+                    Alignment.center,
+                heightFactor: _heightFactor.value,
+                child: child,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

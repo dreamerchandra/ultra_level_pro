@@ -10,7 +10,7 @@ const headerStyle = TextStyle(
 );
 
 const bodyStyle = TextStyle(
-  fontSize: 18,
+  fontSize: 14,
   fontWeight: FontWeight.w900,
 );
 
@@ -123,33 +123,37 @@ class SingleNonLinearTankDetailsWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Column(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '# ${index + 1}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      onRemove(index);
-                    },
-                    child: const Text(
-                      'Remove',
-                      style: TextStyle(
-                        color: Colors.red,
+              SizedBox(
+                width: 50,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      '# ${index + 1}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                width: 25,
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size(30, 30),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        alignment: Alignment.centerLeft,
+                      ),
+                      onPressed: () {
+                        onRemove(index);
+                      },
+                      child: const Text(
+                        'Remove',
+                        style: TextStyle(color: Colors.red, fontSize: 10),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               Flexible(
                 child: Column(

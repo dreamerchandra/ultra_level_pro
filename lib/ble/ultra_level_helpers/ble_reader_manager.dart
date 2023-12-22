@@ -254,6 +254,7 @@ class BleReaderManager extends ChangeNotifier {
           return data;
         }).catchError((err) {
           _setErrorState(err, 'actual-data');
+          lastNPingPong.update(pingPong.request, PingPongStatus.failed);
           return null;
         }).whenComplete(() {
           lastCompleter.updateDataCompleted();

@@ -91,13 +91,16 @@ class _InputState extends State<Input> {
                       textController.clear();
                     } catch (e) {
                       debugPrint("error: $e");
-                      setState(() {
-                        loading = false;
-                        isError = true;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text("Failed to sent message"),
-                      ));
+                      if (context.mounted) {
+                        setState(() {
+                          loading = false;
+                          isError = true;
+                        });
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text("Failed to sent message"),
+                        ));
+                      }
                     }
                   },
                   icon: loading
