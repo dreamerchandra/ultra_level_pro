@@ -26,7 +26,6 @@ class Settings {
   static Settings getSettings(String hex) {
     final binary =
         int.parse(hex, radix: 16).toRadixString(2).split('').reversed.join();
-    debugPrint("binary" + binary.toString());
     try {
       return Settings(
         isInMM: binary[0] == '1',

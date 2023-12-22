@@ -129,7 +129,7 @@ class SingleNonLinearTankDetailsWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '${index}',
+                    '# ${index + 1}',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w900,

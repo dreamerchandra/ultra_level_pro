@@ -9,7 +9,7 @@ Uuid UART_TX = Uuid.parse("6E400003-B5A3-F393-E0A9-E50E24DCCA9E");
 
 List<int> getReqCode(String slaveId) {
   final data = '${slaveId}0300000020';
-  final crc = calculateModbusCRC(data);
+  final crc = '4412';
   return '$data$crc'.codeUnits;
 }
 

@@ -191,7 +191,7 @@ class _NonLinearTankTypeChangerWidgetState
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Tank Details #$index"),
+                  Text("Tank Details #${index + 1}"),
                   IconButton.filledTonal(
                     onPressed: () {
                       remove(index);
