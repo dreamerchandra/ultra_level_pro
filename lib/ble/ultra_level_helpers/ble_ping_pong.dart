@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 enum PingPongStatus {
   requested,
   received,
@@ -18,29 +16,28 @@ class PingPong {
   }
 }
 
-@immutable
 class LastNPingPongMeta {
   final int max;
-  final List<PingPong> pingPongs;
+  List<PingPong> pingPongs;
 
-  const LastNPingPongMeta({required this.max, required this.pingPongs});
+  LastNPingPongMeta({required this.max, required this.pingPongs});
 
-  LastNPingPongMeta newRequest(PingPong value) {
-    return LastNPingPongMeta(
-      pingPongs: pingPongs.isEmpty ? [value] : pingPongs.sublist(1, max + 1)
-        ..add(value),
-      max: max,
-    );
+  void newRequest(PingPong value) {
+    pingPongs = pingPongs.isEmpty
+        ? [value]
+        : pingPongs.length >= max
+            ? (pingPongs.sublist(1, max)..add(value))
+            : (pingPongs..add(value));
   }
 
-  LastNPingPongMeta update(int request, PingPongStatus newStatus) {
+  void update(int request, PingPongStatus newStatus) {
     final newArray = pingPongs.map((element) {
       if (element.request == request) {
         return element.update(newStatus);
       }
       return element;
     }).toList();
-    return LastNPingPongMeta(max: max, pingPongs: newArray);
+    pingPongs = newArray;
   }
 
   bool isDeviceFailedToRespond() {

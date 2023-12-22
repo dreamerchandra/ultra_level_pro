@@ -270,7 +270,7 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
             title: Text(connectedDevice?.name ?? 'Loading...'),
             actions: [
               PingPongStatusWidget(
-                timer: reader.timer,
+                isPaused: reader.isPaused,
                 lastNPingPong: reader.lastNPingPong,
               ),
               TextButton.icon(

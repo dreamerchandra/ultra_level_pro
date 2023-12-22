@@ -72,6 +72,7 @@ class BleReaderManager extends ChangeNotifier {
     isPaused = true;
     error = '';
     loading = false;
+    subscriber?.pause();
     notifyListeners();
   }
 
@@ -79,6 +80,7 @@ class BleReaderManager extends ChangeNotifier {
     await lastCompleter.waitTillRead();
     isTempPause = true;
     notifyListeners();
+    subscriber?.pause();
   }
 
   void _pollData() {
@@ -105,8 +107,15 @@ class BleReaderManager extends ChangeNotifier {
     isPaused = false;
     isTempPause = false;
     notifyListeners();
-    _pollData();
+    final txCh = QualifiedCharacteristic(
+      serviceId: UART_UUID,
+      characteristicId: UART_TX,
+      deviceId: deviceId,
+    );
+    subscriber ??= ble.subscribeToCharacteristic(txCh).listen((dat) {});
     subscriber?.resume();
+    notifyListeners();
+    _pollData();
     error = null;
     notifyListeners();
   }
@@ -127,8 +136,7 @@ class BleReaderManager extends ChangeNotifier {
     }
   }
 
-  Future<List<int>> _subscribeToCharacteristic(
-      QualifiedCharacteristic txCh, PingPong pingPong, String label,
+  Future<List<int>> _subscribeToCharacteristic(PingPong pingPong, String label,
       [int waitSeconds = 6]) {
     void updateStatus(PingPongStatus status) {
       lastNPingPong.update(pingPong.request, status);
@@ -136,7 +144,7 @@ class BleReaderManager extends ChangeNotifier {
     }
 
     Completer<List<int>> completer = Completer<List<int>>();
-    var timer = Timer(Duration(seconds: waitSeconds), () {
+    final Timer timer = Timer(Duration(seconds: waitSeconds), () {
       if (completer.isCompleted) {
         return;
       }
@@ -144,9 +152,9 @@ class BleReaderManager extends ChangeNotifier {
       log("Ping: ${pingPong.request} timeout in receiving $label ");
       completer
           .completeError(ErrorDescription("Device failed to receive data"));
-      subscriber?.cancel();
+      // subscriber?.cancel();
     });
-    subscriber = ble.subscribeToCharacteristic(txCh).listen((data) {
+    subscriber?.onData((data) {
       updateStatus(PingPongStatus.received);
       timer.cancel();
       log("Ping: ${pingPong.request} data received $label");
@@ -155,13 +163,14 @@ class BleReaderManager extends ChangeNotifier {
       }
       try {
         completer.complete(data);
-        subscriber?.cancel();
+        // subscriber?.cancel();
       } catch (err) {
         log('Ping: ${pingPong.request} failed to complete $label'); // something the future the set to error by timeout and later we get the value
       }
-    }, onError: (dynamic error) {
+    });
+    subscriber?.onError((dynamic error) {
       updateStatus(PingPongStatus.failed);
-      subscriber?.cancel();
+      // subscriber?.cancel();
 
       timer.cancel();
       log("Ping: ${pingPong.request} data error $label");
@@ -182,12 +191,7 @@ class BleReaderManager extends ChangeNotifier {
   void readNonLinear(PingPong pingPong) async {
     try {
       lastCompleter.createNewNonLinear();
-      await sleep(1500);
-      final txCh = QualifiedCharacteristic(
-        serviceId: UART_UUID,
-        characteristicId: UART_TX,
-        deviceId: deviceId,
-      );
+      await sleep(500);
 
       final rxCh = QualifiedCharacteristic(
         serviceId: UART_UUID,
@@ -200,7 +204,7 @@ class BleReaderManager extends ChangeNotifier {
       );
 
       Future.microtask(() {
-        _subscribeToCharacteristic(txCh, pingPong, 'non linear').then((data) {
+        _subscribeToCharacteristic(pingPong, 'non linear').then((data) {
           final res = String.fromCharCodes(data);
           if (res.length < 20) return null;
           final state = BleNonLinearState(data: res);
@@ -226,11 +230,6 @@ class BleReaderManager extends ChangeNotifier {
   void readFromBLE(String foundDeviceId, FlutterReactiveBle ble) async {
     try {
       lastCompleter.createNewData();
-      final txCh = QualifiedCharacteristic(
-        serviceId: UART_UUID,
-        characteristicId: UART_TX,
-        deviceId: deviceId,
-      );
 
       final rxCh = QualifiedCharacteristic(
         serviceId: UART_UUID,
@@ -245,7 +244,7 @@ class BleReaderManager extends ChangeNotifier {
       );
 
       Future.microtask(() {
-        _subscribeToCharacteristic(txCh, pingPong, 'actual-data').then((val) {
+        _subscribeToCharacteristic(pingPong, 'actual-data').then((val) {
           final data = _onDataReceived(val);
           log('tank type ${data?.tankType}');
           if (data?.tankType == TankType.nonLinear) {
@@ -284,11 +283,6 @@ class BleReaderManager extends ChangeNotifier {
 
   Future<bool> _checkSlaveId(String slaveId, FlutterReactiveBle ble) async {
     Completer<bool> completer = Completer<bool>();
-    final txCh = QualifiedCharacteristic(
-      serviceId: UART_UUID,
-      characteristicId: UART_TX,
-      deviceId: deviceId,
-    );
 
     final rxCh = QualifiedCharacteristic(
       serviceId: UART_UUID,
@@ -300,7 +294,7 @@ class BleReaderManager extends ChangeNotifier {
       request: Random().nextInt(1000),
     );
 
-    _subscribeToCharacteristic(txCh, pingPong, 'slaveId').then((d) {
+    _subscribeToCharacteristic(pingPong, 'slaveId').then((d) {
       _onDataReceived(d);
       completer.complete(true);
     }).catchError((error) {

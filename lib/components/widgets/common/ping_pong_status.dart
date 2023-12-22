@@ -7,11 +7,11 @@ import 'package:ultra_level_pro/components/widgets/common/ultra_progress_indicat
 class PingPongStatusWidget extends StatefulWidget {
   const PingPongStatusWidget({
     super.key,
-    required this.timer,
+    required this.isPaused,
     required this.lastNPingPong,
   });
 
-  final Timer? timer;
+  final bool isPaused;
   final LastNPingPongMeta lastNPingPong;
 
   @override
@@ -25,18 +25,28 @@ class _PingPongStatusStateWidget extends State<PingPongStatusWidget> {
   @override
   void initState() {
     super.initState();
-    ourTimer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (oldTick != widget.timer?.tick) {
-        oldTick = widget.timer?.tick ?? 0;
+    ourTimer = Timer.periodic(const Duration(seconds: 1), timerCallback);
+  }
+
+  void timerCallback(t) {
+    setState(() {
+      time.value = (time.value + 1) % POLLING_DURATION.inSeconds;
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant PingPongStatusWidget oldWidget) {
+    if (oldWidget.isPaused != widget.isPaused) {
+      if (widget.isPaused) {
+        ourTimer.cancel();
+      } else {
         setState(() {
           time.value = 0;
         });
-      } else {
-        setState(() {
-          time.value = time.value + 1;
-        });
+        ourTimer = Timer.periodic(const Duration(seconds: 1), timerCallback);
       }
-    });
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -85,9 +95,9 @@ class _PingPongStatusStateWidget extends State<PingPongStatusWidget> {
             child: UltraProgressIndicatorWidget(
               size: size,
               valueNotifier: time,
-              maxValue: 9.0,
+              maxValue: POLLING_DURATION.inSeconds.toDouble(),
               backStrokeWidth: 0,
-              animationDuration: 6,
+              animationDuration: 3,
               progressStrokeWidth: 4,
               backColor: Colors.black,
               progressColors: getColor(),
