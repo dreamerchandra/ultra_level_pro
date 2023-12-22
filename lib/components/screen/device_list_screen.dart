@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ultra_level_pro/ble/state.dart';
 import 'package:ultra_level_pro/ble/turn_on_ble.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/sleep.dart';
 import 'package:ultra_level_pro/components/widgets/home/ble_status_widget.dart';
 import 'package:ultra_level_pro/components/widgets/home/device_list_widget.dart';
 import 'package:ultra_level_pro/constants/constants.dart';
@@ -23,10 +24,6 @@ Future<bool> isPermissionAllowed(List<Permission> permissions) async {
   });
 }
 
-Future<void> sleep() {
-  return Future.delayed(const Duration(milliseconds: 500), () {});
-}
-
 Future<bool> checkAndRequestPermissions() async {
   bool isBluetoothConnectAllowed = await isPermissionAllowed([
     Permission.bluetoothConnect,
@@ -34,7 +31,7 @@ Future<bool> checkAndRequestPermissions() async {
     Permission.location
   ]);
   if (!isBluetoothConnectAllowed) return false;
-  await sleep();
+  await sleep(500);
 
   await BleDeviceController.turnOn();
   return true;

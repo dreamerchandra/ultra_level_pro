@@ -9,6 +9,7 @@ import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_ping_pong.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/helper.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/sleep.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/tank_type.dart';
 
 void log(string) {
@@ -103,15 +104,19 @@ class BleReaderManager extends ChangeNotifier {
     log("resuming polling ");
     isPaused = false;
     isTempPause = false;
+    notifyListeners();
     _pollData();
     subscriber?.resume();
     error = null;
+    notifyListeners();
   }
 
   Future<bool> disconnect() async {
     try {
       await lastCompleter.waitTillRead();
       isPaused = true;
+      notifyListeners();
+
       log("Starting to disconnect");
       await subscriber?.cancel();
       await connector.disconnect(deviceId);
@@ -177,6 +182,7 @@ class BleReaderManager extends ChangeNotifier {
   void readNonLinear(PingPong pingPong) async {
     try {
       lastCompleter.createNewNonLinear();
+      await sleep(1500);
       final txCh = QualifiedCharacteristic(
         serviceId: UART_UUID,
         characteristicId: UART_TX,
