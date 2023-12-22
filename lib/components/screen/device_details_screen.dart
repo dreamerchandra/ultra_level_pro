@@ -72,8 +72,8 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
     super.initState();
   }
 
-  Future<bool> writeToDevice(WriteParameter parameter, String value) {
-    reader.setTempPause();
+  Future<bool> writeToDevice(WriteParameter parameter, String value) async {
+    await reader.setTempPause();
     return BleWriter(ble: ref.read(bleProvider))
         .writeToDevice(
       deviceId: widget.deviceId,
@@ -89,8 +89,8 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
     );
   }
 
-  Future<bool> onTankTypeChange(NonLinearBleWriter changer) {
-    reader.setTempPause();
+  Future<bool> onTankTypeChange(NonLinearBleWriter changer) async {
+    await reader.setTempPause();
     return changer
         .commitTankType(
       deviceId: widget.deviceId,
@@ -107,8 +107,8 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
   Future<bool> onSettingsChange({
     required String value,
     required SettingsValueToChange settingsParam,
-  }) {
-    reader.setTempPause();
+  }) async {
+    await reader.setTempPause();
     return BleWriter(ble: ref.read(bleProvider))
         .writeSettingsToDevice(
       deviceId: widget.deviceId,
@@ -275,15 +275,15 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
               ),
               TextButton.icon(
                 onPressed: () async {
-                  if (reader.isRunning) {
-                    reader.setPaused();
-                  } else {
+                  if (reader.isPaused) {
                     reader.setResume();
+                  } else {
+                    reader.setPaused();
                   }
                 },
-                icon: reader.isRunning
-                    ? const Icon(Icons.pause)
-                    : const Icon(Icons.play_arrow),
+                icon: reader.isPaused
+                    ? const Icon(Icons.play_arrow)
+                    : const Icon(Icons.pause),
                 label: const Text(''),
               )
             ],

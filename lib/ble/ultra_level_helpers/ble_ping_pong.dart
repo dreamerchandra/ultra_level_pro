@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'dart:async';
 
-part 'ble_ping_pong.g.dart';
+import 'package:flutter/material.dart';
 
 enum PingPongStatus {
   requested,
@@ -73,14 +71,43 @@ class LastNPingPongMeta {
   }
 }
 
-@riverpod
-class LastNPingPong extends _$LastNPingPong {
-  @override
-  LastNPingPongMeta build(int max) {
-    return LastNPingPongMeta(max: max, pingPongs: const []);
+class LastCompleter {
+  Completer<bool>? nonLinearCompleter;
+  Completer<bool>? dataCompleter;
+
+  createNewData() {
+    dataCompleter = Completer<bool>();
   }
 
-  get _pingPongs {
-    return state.pingPongs;
+  createNewNonLinear() {
+    nonLinearCompleter = Completer<bool>();
+  }
+
+  updateDataCompleted() {
+    if (dataCompleter == null) {
+      return;
+    }
+    if (dataCompleter!.isCompleted) {
+      return;
+    }
+    dataCompleter?.complete(true);
+  }
+
+  updateNonLinear() {
+    if (nonLinearCompleter == null) {
+      return;
+    }
+    if (nonLinearCompleter!.isCompleted) {
+      return;
+    }
+    nonLinearCompleter?.complete(true);
+  }
+
+  Future<bool> waitTillRead() async {
+    await dataCompleter?.future;
+    if (nonLinearCompleter != null) {
+      await nonLinearCompleter?.future;
+    }
+    return true;
   }
 }

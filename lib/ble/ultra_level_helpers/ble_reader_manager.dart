@@ -19,7 +19,8 @@ class BleReaderManager extends ChangeNotifier {
   Timer? timer;
   BleState? state;
   bool loading = true;
-  bool isRunning = false;
+  bool isTempPause = false;
+  bool isPaused = false;
   String? error = null;
   String slaveId = '01';
   String deviceId;
@@ -28,6 +29,7 @@ class BleReaderManager extends ChangeNotifier {
   BleDeviceConnector connector;
   LastNPingPongMeta lastNPingPong;
   BleNonLinearState? nonLinearState;
+  LastCompleter lastCompleter = LastCompleter();
 
   BleReaderManager({
     required this.deviceId,
@@ -38,14 +40,14 @@ class BleReaderManager extends ChangeNotifier {
 
   void _setBleState(BleState s) {
     state = s;
-    isRunning = true;
+    isPaused = false;
     error = '';
     loading = false;
     notifyListeners();
   }
 
-  void _setErrorState(dynamic err) {
-    log("setting error ${err.toString()}");
+  void _setErrorState(dynamic err, String label) {
+    log("setting error $label ${err.toString()}");
 
     String str = '';
     if (err is String) {
@@ -62,41 +64,55 @@ class BleReaderManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setPaused() {
-    timer?.cancel();
+  void setPaused() async {
+    await lastCompleter.waitTillRead();
     log("paused");
     state = null;
-    isRunning = false;
+    isPaused = true;
     error = '';
     loading = false;
     notifyListeners();
   }
 
-  void setTempPause() {
-    timer?.cancel();
+  Future<void> setTempPause() async {
+    await lastCompleter.waitTillRead();
+    isTempPause = true;
     notifyListeners();
   }
 
   void _pollData() {
     log("started to poll");
-    timer = Timer.periodic(POLLING_DURATION, (timer) {
+    void pollData() async {
+      await lastCompleter.waitTillRead();
       readFromBLE(deviceId, ble);
-    });
+      Future.delayed(POLLING_DURATION, () async {
+        await lastCompleter.waitTillRead();
+        var isHalted = isPaused || isTempPause;
+        if (isHalted) {
+          return;
+        }
+        pollData();
+      });
+    }
+
+    pollData();
     notifyListeners();
   }
 
   void setResume() {
     log("resuming polling ");
+    isPaused = false;
+    isTempPause = false;
     _pollData();
     subscriber?.resume();
-    isRunning = true;
     error = null;
   }
 
   Future<bool> disconnect() async {
     try {
+      await lastCompleter.waitTillRead();
+      isPaused = true;
       log("Starting to disconnect");
-      timer?.cancel();
       await subscriber?.cancel();
       await connector.disconnect(deviceId);
       return Future.value(true);
@@ -108,7 +124,7 @@ class BleReaderManager extends ChangeNotifier {
 
   Future<List<int>> _subscribeToCharacteristic(
       QualifiedCharacteristic txCh, PingPong pingPong, String label,
-      [int waitSeconds = 4]) {
+      [int waitSeconds = 6]) {
     void updateStatus(PingPongStatus status) {
       lastNPingPong.update(pingPong.request, status);
       notifyListeners();
@@ -147,9 +163,6 @@ class BleReaderManager extends ChangeNotifier {
       completer.completeError(error);
     });
 
-    // subscriber!.onData((data) {});
-    // subscriber!.onError();
-
     return completer.future;
   }
 
@@ -162,10 +175,8 @@ class BleReaderManager extends ChangeNotifier {
   }
 
   void readNonLinear(PingPong pingPong) async {
-    if (timer?.isActive == false || timer == null) {
-      return;
-    }
     try {
+      lastCompleter.createNewNonLinear();
       final txCh = QualifiedCharacteristic(
         serviceId: UART_UUID,
         characteristicId: UART_TX,
@@ -191,8 +202,10 @@ class BleReaderManager extends ChangeNotifier {
           notifyListeners();
           return data;
         }).catchError((err) {
-          _setErrorState(err);
+          _setErrorState(err, 'non linear');
           return null;
+        }).whenComplete(() {
+          lastCompleter.updateNonLinear();
         });
       });
 
@@ -200,11 +213,13 @@ class BleReaderManager extends ChangeNotifier {
       await writePromise;
     } catch (err) {
       log('error reading for non linear $err');
+      lastCompleter.updateNonLinear();
     }
   }
 
   void readFromBLE(String foundDeviceId, FlutterReactiveBle ble) async {
     try {
+      lastCompleter.createNewData();
       final txCh = QualifiedCharacteristic(
         serviceId: UART_UUID,
         characteristicId: UART_TX,
@@ -229,11 +244,14 @@ class BleReaderManager extends ChangeNotifier {
           log('tank type ${data?.tankType}');
           if (data?.tankType == TankType.nonLinear) {
             readNonLinear(pingPong);
+            return data;
           }
           return data;
         }).catchError((err) {
-          _setErrorState(err);
+          _setErrorState(err, 'actual-data');
           return null;
+        }).whenComplete(() {
+          lastCompleter.updateDataCompleted();
         });
         lastNPingPong.newRequest(pingPong);
       });
@@ -243,8 +261,10 @@ class BleReaderManager extends ChangeNotifier {
       await writePromise;
       log("Ping: ${pingPong.request} starting to read from ble actual-data");
     } catch (err) {
+      lastCompleter.updateDataCompleted();
+
       log("read from ble error $err");
-      _setErrorState(err);
+      _setErrorState(err, 'actual-data');
       await disconnect();
     }
 
@@ -254,11 +274,6 @@ class BleReaderManager extends ChangeNotifier {
     //         '01030040084908491B9E036F036F0B7220080B55DEAB0C58DC68000B000000000000000D0010005A000600FA0FA0000A03980014000000020BB803E803E803E800010008A4A6',
     //   ),
     // );
-  }
-
-  void pausePolling() {
-    timer?.cancel();
-    notifyListeners();
   }
 
   Future<bool> _checkSlaveId(String slaveId, FlutterReactiveBle ble) async {
