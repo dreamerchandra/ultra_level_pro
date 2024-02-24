@@ -226,7 +226,7 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                     ],
                   ),
                   if (widget.state?.tankType == TankType.rectangle ||
-                      widget.state?.tankType == TankType.horizontalOval) ...[
+                      widget.state?.tankType == TankType.elliptical) ...[
                     tableGap(),
                     TableRow(
                       children: [
@@ -236,7 +236,7 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                           Input(
                             hintText: "Tank Length",
                             onDone: widget.onDone,
-                            parameter: WriteParameter.TankLength,
+                            parameter: WriteParameter.TankWidth,
                           ),
                         )
                       ],
