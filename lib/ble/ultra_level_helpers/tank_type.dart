@@ -8,6 +8,7 @@ enum TankType {
   horizontalCapsule,
   elliptical,
   nonLinear,
+  verticalOval,
 }
 
 String getTankLabel(TankType tankType) {
@@ -30,6 +31,8 @@ String getTankLabel(TankType tankType) {
       return 'Elliptical';
     case TankType.nonLinear:
       return 'Non Linear';
+    case TankType.verticalOval:
+      return 'Vertical Oval';
   }
 }
 
@@ -47,6 +50,7 @@ TankType getTankType(String hex) {
     if (binary[6] == '1') tankType = TankType.horizontalCapsule;
     if (binary[7] == '1') tankType = TankType.elliptical;
     if (binary[8] == '1') tankType = TankType.nonLinear;
+    if (binary[9] == '1') tankType = TankType.verticalOval;
     return tankType;
   } catch (e) {
     return tankType;
@@ -82,6 +86,9 @@ String getTankTypeInHex(TankType tankType) {
       break;
     case TankType.nonLinear:
       binary = '0100000000';
+      break;
+    case TankType.verticalOval:
+      binary = '1000000000';
       break;
   }
   final hex = int.parse(binary, radix: 2).toRadixString(16);

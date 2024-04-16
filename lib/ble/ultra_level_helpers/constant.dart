@@ -21,8 +21,8 @@ List<int> getReqCodeForNonLinear(String slaveId) {
 
 // slaveId/funcode(03)/startAdd(0000)/len(0020)/crc(4412)
 // non slaveId/funcode(03)/startAdd(01f3)/len(0020)/crc()
-const POLLING_DURATION = Duration(seconds: 5);
-const RESPONSE_WAIT_DURATION = Duration(seconds: 4);
+const POLLING_DURATION = Duration(seconds: 2);
+const RESPONSE_WAIT_DURATION = Duration(seconds: 1);
 
 enum WriteParameter {
   Settings,

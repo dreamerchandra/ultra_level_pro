@@ -5,7 +5,7 @@ String getShapeAssert(TankType type) {
   String? asset_name = null;
 
   if (type == TankType.elliptical) {
-    asset_name = 'oval_tank';
+    asset_name = 'horizontal_capsule';
   }
   if (type == TankType.rectangle) {
     asset_name = 'rectangle_tank';
@@ -14,7 +14,7 @@ String getShapeAssert(TankType type) {
     asset_name = 'horizontal_cylinder';
   }
   if (type == TankType.horizontalOval) {
-    asset_name = 'horizontal_capsule';
+    asset_name = 'oval_tank';
   }
   if (type == TankType.verticalCylinder) {
     asset_name = 'vertical_cylinder';
@@ -24,6 +24,9 @@ String getShapeAssert(TankType type) {
   }
   if (type == TankType.horizontalCapsule) {
     asset_name = 'horizontal_capsule';
+  }
+  if (type == TankType.verticalOval) {
+    asset_name = 'vertical_oval';
   }
 
   return 'asserts/shape/$asset_name.png';

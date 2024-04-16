@@ -82,7 +82,8 @@ flutter:
     - asserts/shape/horizontal_cylinder.png
     - asserts/shape/rectangle_tank.png
     - asserts/shape/vertical_cylinder.png
-    - asserts/shape/vertical_capsule.png
+    - asserts/shape/vertical_cylinder.png
+    - asserts/shape/vertical_oval.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
