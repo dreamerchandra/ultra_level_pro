@@ -120,25 +120,6 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
               ],
             ),
             tableGap(),
-            TableRow(
-              children: [
-                const Text("Damping"),
-                Text(': ${widget.state?.damping}'),
-                formItem(
-                  Input(
-                    hintText: "5",
-                    onDone: (parameter, value) {
-                      return widget.onChange(
-                        parameter,
-                        value,
-                      );
-                    },
-                    parameter: WriteParameter.Damping,
-                  ),
-                )
-              ],
-            ),
-            tableGap(),
           ],
         ),
       ],

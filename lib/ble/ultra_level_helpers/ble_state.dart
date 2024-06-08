@@ -19,7 +19,7 @@ class BleState {
   late String macAddress;
   late String version;
   late double powerSupplyVoltage;
-  late double temperature1;
+  late int temperature1;
   late double temperature2;
   late Settings settings;
   late int lowLevelRelayInMm;
@@ -80,6 +80,8 @@ class BleState {
         return settings;
       case WriteParameter.SlaveId:
         return slaveId;
+      case WriteParameter.Temperature1:
+        return temperature1;
     }
   }
 
@@ -105,7 +107,7 @@ class BleState {
     macAddress = data.substring(i, i += 4 * 3);
     version = data.substring(i, i += 4);
     powerSupplyVoltage = hexToInt(data.substring(i, i += 4)) / 100;
-    temperature1 = hexToInt(data.substring(i, i += 4)) / 100;
+    temperature1 = hexToInt(data.substring(i, i += 4));
     temperature2 = hexToInt(data.substring(i, i += 4)) / 100;
     settings = Settings.getSettings(data.substring(i, i += 4));
     lowLevelRelayInMm = hexToInt(data.substring(i, i += 4));

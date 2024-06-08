@@ -170,12 +170,8 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                           if (newValue != null) {
                             final tankType = TankType.values.firstWhere(
                                 (element) => element.name == newValue);
-                            if (tankType != TankType.nonLinear) {
-                              widget.onDone(WriteParameter.TankType,
-                                  getTankTypeInHex(tankType));
-                            } else {
-                              bottomSheetBuilder(context, tankType);
-                            }
+                            widget.onDone(WriteParameter.TankType,
+                                getTankTypeInHex(tankType));
                           }
                         },
                       ),
@@ -221,6 +217,44 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                           hintText: "Tank Length",
                           onDone: widget.onDone,
                           parameter: WriteParameter.TankLength,
+                        ),
+                      )
+                    ],
+                  ),
+                  tableGap(),
+                  TableRow(
+                    children: [
+                      const Text("Median Filter"),
+                      Text(': ${widget.state?.damping}'),
+                      formItem(
+                        Input(
+                          hintText: "5",
+                          onDone: (parameter, value) {
+                            return widget.onDone(
+                              parameter,
+                              value,
+                            );
+                          },
+                          parameter: WriteParameter.Damping,
+                        ),
+                      )
+                    ],
+                  ),
+                  tableGap(),
+                  TableRow(
+                    children: [
+                      const Text("Moving Average"),
+                      Text(': ${widget.state?.temperature1}'),
+                      formItem(
+                        Input(
+                          hintText: "5",
+                          onDone: (parameter, value) {
+                            return widget.onDone(
+                              parameter,
+                              value,
+                            );
+                          },
+                          parameter: WriteParameter.Temperature1,
                         ),
                       )
                     ],
@@ -303,6 +337,17 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
               ],
             ),
             if (widget.state?.tankType == TankType.nonLinear) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      bottomSheetBuilder(context, TankType.nonLinear);
+                    },
+                    child: const Text("Edit Non Linear"),
+                  ),
+                ],
+              ),
               NonLinearTankDetailsWidget(
                 state: widget.nonLinearState,
                 onChange: (val) async {

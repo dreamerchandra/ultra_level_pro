@@ -42,6 +42,7 @@ enum WriteParameter {
   TankDiameter,
   SlaveId,
   BaudRate,
+  Temperature1,
 }
 
 Map<WriteParameter, String> ParameterToAddress = {

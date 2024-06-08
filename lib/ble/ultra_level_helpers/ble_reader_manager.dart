@@ -22,6 +22,7 @@ class BleReaderManager extends ChangeNotifier {
   bool loading = true;
   bool isTempPause = false;
   bool isPaused = false;
+  bool isSlaveIdFound = false;
   String? error = null;
   String slaveId = '01';
   String deviceId;
@@ -115,7 +116,11 @@ class BleReaderManager extends ChangeNotifier {
     subscriber ??= ble.subscribeToCharacteristic(txCh).listen((dat) {});
     subscriber?.resume();
     notifyListeners();
-    _pollData();
+    if (isSlaveIdFound) {
+      _pollData();
+    } else {
+      findSlaveId();
+    }
     error = null;
     notifyListeners();
   }
@@ -282,8 +287,8 @@ class BleReaderManager extends ChangeNotifier {
     // );
   }
 
-  Future<bool> _checkSlaveId(String slaveId, FlutterReactiveBle ble) async {
-    Completer<bool> completer = Completer<bool>();
+  Future<String> _checkSlaveId(FlutterReactiveBle ble) async {
+    Completer<String> completer = Completer<String>();
 
     final rxCh = QualifiedCharacteristic(
       serviceId: UART_UUID,
@@ -296,25 +301,29 @@ class BleReaderManager extends ChangeNotifier {
     );
 
     _subscribeToCharacteristic(pingPong, 'slaveId').then((d) {
-      _onDataReceived(d);
-      completer.complete(true);
+      final res = String.fromCharCodes(d);
+      final slaveId = res.substring(2, 4);
+      completer.complete(slaveId);
     }).catchError((error) {
-      completer.complete(false);
+      completer.complete('');
     });
     log("Reading from ble");
-    await ble.writeCharacteristicWithResponse(rxCh, value: getReqCode(slaveId));
+    await ble.writeCharacteristicWithResponse(rxCh, value: 'ULB\$'.codeUnits);
     return completer.future;
   }
 
-  void findSlaveId() async {
-    for (int i = 255; i < 256; i++) {
-      final _slaveId = intToHex(i).substring(2, 4);
-      final res = await _checkSlaveId(_slaveId, ble);
-      log("checking slave id $_slaveId: $res");
-      if (res) {
-        slaveId = _slaveId;
-        setResume();
+  void findSlaveId({int tries = 0}) async {
+    Future.delayed(Duration(seconds: 3), () async {
+      slaveId = await _checkSlaveId(ble);
+      if (slaveId.isEmpty && tries < 3) {
+        findSlaveId(tries: tries + 1);
+      } else {
+        slaveId = '01';
       }
-    }
+      isSlaveIdFound = true;
+      if (slaveId.isNotEmpty) {
+        _pollData();
+      }
+    });
   }
 }
