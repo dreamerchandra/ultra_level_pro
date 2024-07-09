@@ -93,7 +93,7 @@ class _DeviceListScreenState extends ConsumerState<DeviceListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nearby Devices'),
+        title: const Text('Nearby Devices v1'),
         actions: [
           TextButton.icon(
             onPressed: () {

@@ -94,20 +94,6 @@ class ReadValues extends StatelessWidget {
         rowSpacer,
         TableRow(
           children: [
-            const Text("Temperature 1° C", style: headerStyle),
-            Text(': ${state?.temperature1} C', style: bodyStyle)
-          ],
-        ),
-        rowSpacer,
-        TableRow(
-          children: [
-            const Text("Temperature 2° C", style: headerStyle),
-            Text(': ${state?.temperature2} C', style: bodyStyle)
-          ],
-        ),
-        rowSpacer,
-        TableRow(
-          children: [
             Text("Version", style: headerStyle),
             Text(": ${state?.version}", style: bodyStyle)
           ],

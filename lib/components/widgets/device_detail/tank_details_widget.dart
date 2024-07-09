@@ -224,8 +224,8 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                   tableGap(),
                   TableRow(
                     children: [
-                      const Text("Median Filter"),
-                      Text(': ${widget.state?.damping}'),
+                      headerText("Median Filter"),
+                      bodyText(': ${widget.state?.damping}'),
                       formItem(
                         Input(
                           hintText: "5",
@@ -243,8 +243,8 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                   tableGap(),
                   TableRow(
                     children: [
-                      const Text("Moving Average"),
-                      Text(': ${widget.state?.temperature1}'),
+                      headerText("Moving Average"),
+                      bodyText(': ${widget.state?.temperature1}'),
                       formItem(
                         Input(
                           hintText: "5",
@@ -255,6 +255,25 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                             );
                           },
                           parameter: WriteParameter.Temperature1,
+                        ),
+                      )
+                    ],
+                  ),
+                  tableGap(),
+                  TableRow(
+                    children: [
+                      headerText("Tank Profile"),
+                      bodyText(': ${widget.state?.temperature2}'),
+                      formItem(
+                        Input(
+                          hintText: "5",
+                          onDone: (parameter, value) {
+                            return widget.onDone(
+                              parameter,
+                              value,
+                            );
+                          },
+                          parameter: WriteParameter.Temperature2,
                         ),
                       )
                     ],

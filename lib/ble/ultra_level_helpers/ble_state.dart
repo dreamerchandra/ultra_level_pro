@@ -82,6 +82,8 @@ class BleState {
         return slaveId;
       case WriteParameter.Temperature1:
         return temperature1;
+      case WriteParameter.Temperature2:
+        return temperature2;
     }
   }
 

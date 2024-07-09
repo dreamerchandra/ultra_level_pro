@@ -123,8 +123,13 @@ String constructData({
       break;
     case WriteParameter.TankDiameter:
       data = intToHex(int.parse(_value));
+      break;
     case WriteParameter.Temperature1:
       data = intToHex(int.parse(_value));
+      break;
+    case WriteParameter.Temperature2:
+      data = intToHex(int.parse(_value));
+      break;
   }
 
   return ensure2Byte(data).toUpperCase();

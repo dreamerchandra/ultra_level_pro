@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/helper.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/settings.dart';
@@ -97,6 +100,16 @@ class BleWriter {
     );
     ble.writeCharacteristicWithResponse(rxCh,
         value: valueToWrite.toUpperCase().codeUnits);
+    Clipboard.setData(ClipboardData(text: "${valueToWrite.toUpperCase()}"));
+    Fluttertoast.showToast(
+      msg: "${valueToWrite.toUpperCase()}",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.black,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
     return completer.future;
   }
 

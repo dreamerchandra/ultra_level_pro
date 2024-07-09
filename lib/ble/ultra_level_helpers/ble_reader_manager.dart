@@ -3,12 +3,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ultra_level_pro/ble/ble_device_connector.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_non_linear_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_ping_pong.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
-import 'package:ultra_level_pro/ble/ultra_level_helpers/helper.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/sleep.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/tank_type.dart';
 
@@ -189,6 +189,7 @@ class BleReaderManager extends ChangeNotifier {
     final res = String.fromCharCodes(data);
     if (res.length < 20) return null;
     final state = BleState(data: res);
+    Fluttertoast.showToast(msg: 'Data received');
     _setBleState(state);
     return state;
   }
@@ -241,6 +242,8 @@ class BleReaderManager extends ChangeNotifier {
         characteristicId: UART_RX,
         deviceId: deviceId,
       );
+      Fluttertoast.showToast(
+          msg: 'Reading from ble ${getReqCode(slaveId).toString()}');
       final writePromise =
           ble.writeCharacteristicWithResponse(rxCh, value: getReqCode(slaveId));
       PingPong pingPong = PingPong(
@@ -300,9 +303,9 @@ class BleReaderManager extends ChangeNotifier {
       request: Random().nextInt(1000),
     );
 
-    _subscribeToCharacteristic(pingPong, 'slaveId').then((d) {
+    _subscribeToCharacteristic(pingPong, 'slaveId', 2).then((d) {
       final res = String.fromCharCodes(d);
-      final slaveId = res.substring(2, 4);
+      final slaveId = onlyNumber(res).substring(2, 4);
       completer.complete(slaveId);
     }).catchError((error) {
       completer.complete('');
@@ -312,12 +315,18 @@ class BleReaderManager extends ChangeNotifier {
     return completer.future;
   }
 
+  String onlyNumber(String str) {
+    return str.replaceAll(RegExp(r'[^0-9]'), '');
+  }
+
   void findSlaveId({int tries = 0}) async {
-    Future.delayed(Duration(seconds: 3), () async {
+    Future.delayed(Duration(milliseconds: 500), () async {
       slaveId = await _checkSlaveId(ble);
+      Fluttertoast.showToast(msg: 'Checking slave id $slaveId');
       if (slaveId.isEmpty && tries < 3) {
+        Fluttertoast.showToast(msg: 'Failed to find slave id');
         findSlaveId(tries: tries + 1);
-      } else {
+      } else if (tries >= 3) {
         slaveId = '01';
       }
       isSlaveIdFound = true;
