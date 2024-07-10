@@ -133,7 +133,7 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
           children: [
             shape(widget.state?.tankType),
             Table(
-              defaultColumnWidth: const FlexColumnWidth(2),
+              defaultColumnWidth: const FlexColumnWidth(1),
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               children: [
                 TableRow(
@@ -196,34 +196,6 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                   tableGap(),
                   TableRow(
                     children: [
-                      headerText("Tank height mm"),
-                      bodyText(': ${widget.state?.tankHeight}'),
-                      formItem(
-                        Input(
-                          hintText: "Tank height",
-                          onDone: widget.onDone,
-                          parameter: WriteParameter.TankHeight,
-                        ),
-                      )
-                    ],
-                  ),
-                  tableGap(),
-                  TableRow(
-                    children: [
-                      headerText("Tank Length mm"),
-                      bodyText(': ${widget.state?.tankLength}'),
-                      formItem(
-                        Input(
-                          hintText: "Tank Length",
-                          onDone: widget.onDone,
-                          parameter: WriteParameter.TankLength,
-                        ),
-                      )
-                    ],
-                  ),
-                  tableGap(),
-                  TableRow(
-                    children: [
                       headerText("Median Filter"),
                       bodyText(': ${widget.state?.damping}'),
                       formItem(
@@ -266,7 +238,7 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                       bodyText(': ${widget.state?.temperature2}'),
                       formItem(
                         Input(
-                          hintText: "5",
+                          hintText: "0-3",
                           onDone: (parameter, value) {
                             return widget.onDone(
                               parameter,
@@ -274,6 +246,34 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                             );
                           },
                           parameter: WriteParameter.Temperature2,
+                        ),
+                      )
+                    ],
+                  ),
+                  tableGap(),
+                  TableRow(
+                    children: [
+                      headerText("Tank height mm"),
+                      bodyText(': ${widget.state?.tankHeight}'),
+                      formItem(
+                        Input(
+                          hintText: "Tank height",
+                          onDone: widget.onDone,
+                          parameter: WriteParameter.TankHeight,
+                        ),
+                      )
+                    ],
+                  ),
+                  tableGap(),
+                  TableRow(
+                    children: [
+                      headerText("Tank Length mm"),
+                      bodyText(': ${widget.state?.tankLength}'),
+                      formItem(
+                        Input(
+                          hintText: "Tank Length",
+                          onDone: widget.onDone,
+                          parameter: WriteParameter.TankLength,
                         ),
                       )
                     ],
@@ -327,11 +327,12 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                   tableGap(),
                   TableRow(
                     children: [
-                      headerText("High level Relay mm"),
-                      bodyText(": ${widget.state?.highLevelRelayInPercent}"),
+                      headerText("High level Relay %"),
+                      bodyText(
+                          ": ${(widget.state?.highLevelRelayInPercent ?? 0) * 100}%"),
                       formItem(
                         Input(
-                          hintText: "High level relay",
+                          hintText: "High level relay %",
                           onDone: widget.onDone,
                           parameter: WriteParameter.HighLevelRelayInPercent,
                         ),

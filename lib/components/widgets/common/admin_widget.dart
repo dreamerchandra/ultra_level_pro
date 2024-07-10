@@ -59,41 +59,42 @@ class _AdminWidgetState extends State<AdminWidget> {
                   },
                   child: const Text("No")),
               TextButton(
-                  onPressed: () {
-                    String code = OTP.generateTOTPCodeString(
-                      TOTP_SECRET,
-                      DateTime.now().millisecondsSinceEpoch,
-                      interval: 60 * 10,
-                      length: 6,
+                onPressed: () {
+                  String code = OTP.generateTOTPCodeString(
+                    TOTP_SECRET,
+                    DateTime.now().millisecondsSinceEpoch,
+                    interval: 60 * 10,
+                    length: 6,
+                  );
+                  if (SUPER_ADMIN_CODE == _controller.text) {
+                    _controller.value = TextEditingValue(
+                      text: code,
                     );
-                    if (SUPER_ADMIN_CODE == _controller.text) {
-                      _controller.value = TextEditingValue(
-                        text: code,
-                      );
-                      return;
-                    }
-                    if (code != _controller.text) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Wrong OTP"),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("You are now Admin"),
-                        ),
-                      );
-                    }
-                    widget.setIsAdmin(code == _controller.text);
-                    _controller.clear();
-                    if (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text(
-                    "Yes",
-                  )),
+                    return;
+                  }
+                  if (code != _controller.text) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Wrong OTP"),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("You are now Admin"),
+                      ),
+                    );
+                  }
+                  widget.setIsAdmin(code == _controller.text);
+                  _controller.clear();
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
+                },
+                child: const Text(
+                  "Yes",
+                ),
+              ),
             ],
           ),
         );

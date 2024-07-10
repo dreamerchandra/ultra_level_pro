@@ -7,6 +7,7 @@ import 'package:ultra_level_pro/ble/ble_connected_device.dart';
 import 'package:ultra_level_pro/ble/state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_reader_manager.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_reader_provider.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_writter.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/settings.dart';
@@ -24,6 +25,17 @@ import 'package:ultra_level_pro/components/widgets/device_detail/settings_widget
 import 'package:ultra_level_pro/components/widgets/device_detail/tank_details_widget.dart';
 import 'package:ultra_level_pro/constants/common.dart';
 
+String insertColon(String input) {
+  StringBuffer buffer = StringBuffer();
+  for (int i = 0; i < input.length; i += 2) {
+    buffer.write(input.substring(i, i + 2));
+    if (i + 2 < input.length) {
+      buffer.write(':');
+    }
+  }
+  return buffer.toString();
+}
+
 class DeviceDetailWidget extends ConsumerStatefulWidget {
   const DeviceDetailWidget({super.key, required this.deviceId});
   final String deviceId;
@@ -31,8 +43,10 @@ class DeviceDetailWidget extends ConsumerStatefulWidget {
   DetailViewState createState() => DetailViewState();
 }
 
-class DetailViewState extends ConsumerState<DeviceDetailWidget> {
+class DetailViewState extends ConsumerState<DeviceDetailWidget>
+    with SingleTickerProviderStateMixin {
   bool isAdmin = false;
+  late TabController tabController = TabController(length: 3, vsync: this);
 
   final List<MyExpansionTileController> controllers = [
     MyExpansionTileController(),
@@ -54,6 +68,7 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
 
   @override
   void initState() {
+    super.initState();
     for (var parentController in controllers) {
       parentController.addEventListener((isOpen) {
         if (!isOpen) {
@@ -146,7 +161,7 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
     return connectedDevice?.rssi ?? -110;
   }
 
-  Widget buildReadHeaders() {
+  Widget buildReadHeaders(BleState? state) {
     final connectedDevice = getConnectedDevice();
     return Table(
       columnWidths: const {
@@ -191,7 +206,7 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
               ),
             ),
             Text(
-              "${connectedDevice?.id}",
+              "${state != null ? insertColon(state.macAddress) : connectedDevice?.id}",
               style: const TextStyle(
                 color: Colors.white,
               ),
@@ -210,6 +225,9 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
         ? MediaQuery.of(context).size.width
         : MediaQuery.of(context).size.width / 2;
     if (reader.loading) return const Center(child: CircularProgressIndicator());
+    if (reader.state == null) {
+      return const Center(child: Text("Device is Paused"));
+    }
     return WillPopScope(
       onWillPop: () {
         Completer<bool> completer = Completer();
@@ -229,24 +247,27 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
         length: 3,
         child: Scaffold(
           resizeToAvoidBottomInset: false,
-          floatingActionButton: AdminWidget(
-              isAdmin: isAdmin,
-              setIsAdmin: (bool _isAdmin) {
-                if (_isAdmin) {
-                  Timer(const Duration(minutes: 10), () {
+          floatingActionButton: tabController.index == 2
+              ? AdminWidget(
+                  isAdmin: isAdmin,
+                  setIsAdmin: (bool _isAdmin) {
+                    if (_isAdmin) {
+                      Timer(const Duration(minutes: 10), () {
+                        setState(() {
+                          isAdmin = false;
+                        });
+                      });
+                    }
                     setState(() {
-                      isAdmin = false;
+                      isAdmin = _isAdmin;
                     });
-                  });
-                }
-                setState(() {
-                  isAdmin = _isAdmin;
-                });
-              }),
+                  })
+              : null,
           backgroundColor: Colors.grey[200],
           appBar: AppBar(
-            bottom: const TabBar(
-              tabs: [
+            bottom: TabBar(
+              controller: tabController,
+              tabs: const [
                 Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Text("Basic"),
@@ -292,102 +313,96 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget> {
               )
             ],
           ),
-          body: reader.state == null
-              ? const Center(
-                  child: Text("Device is paused"),
-                )
-              : TabBarView(
+          body: TabBarView(
+            controller: tabController,
+            children: [
+              CardDetails(
+                width: width,
+                state: reader.state,
+                header: buildReadHeaders(reader.state),
+                body: ReadValues(state: reader.state),
+                initialExpanded: true,
+              ),
+              SingleChildScrollView(
+                child: CardDetails(
+                  width: width,
+                  state: reader.state,
+                  header: const Text(
+                    "Tank Details",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  body: TankDetailsWidget(
+                    onDone: writeToDevice,
+                    state: reader.state,
+                    ble: ref.read(bleProvider),
+                    onTankTypeChange: onTankTypeChange,
+                    nonLinearState: reader.nonLinearState,
+                  ),
+                  initialExpanded: true,
+                ),
+              ),
+              SingleChildScrollView(
+                child: StaggeredGrid.count(
+                  crossAxisCount: getDeviceType() == DeviceType.phone ? 1 : 2,
                   children: [
                     CardDetails(
                       width: width,
+                      controller: controllers[0],
                       state: reader.state,
-                      header: buildReadHeaders(),
-                      body: ReadValues(state: reader.state),
+                      header: const Text(
+                        "Settings",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      body: SettingsWidget(
+                        onDone: writeToDevice,
+                        state: reader.state,
+                      ),
                       initialExpanded: true,
                     ),
-                    SingleChildScrollView(
-                      child: CardDetails(
+                    CardDetails(
+                      width: width,
+                      controller: controllers[1],
+                      state: reader.state,
+                      header: const Text(
+                        "Device Settings",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      body: DeviceSettingsWidget(
+                        onDone: onSettingsChange,
+                        state: reader.state,
+                      ),
+                      initialExpanded: getDeviceType() == DeviceType.tablet,
+                    ),
+                    if (isAdmin) ...[
+                      CardDetails(
                         width: width,
+                        controller: controllers[2],
                         state: reader.state,
                         header: const Text(
-                          "Tank Details",
+                          "Admin Panel",
                           style: TextStyle(
                             color: Colors.white,
                           ),
                         ),
-                        body: TankDetailsWidget(
-                          onDone: writeToDevice,
+                        body: AdminSettingsWidget(
+                          onSettingsChange: onSettingsChange,
+                          onChange: writeToDevice,
                           state: reader.state,
-                          ble: ref.read(bleProvider),
-                          onTankTypeChange: onTankTypeChange,
-                          nonLinearState: reader.nonLinearState,
                         ),
-                        initialExpanded: true,
-                      ),
-                    ),
-                    SingleChildScrollView(
-                      child: StaggeredGrid.count(
-                        crossAxisCount:
-                            getDeviceType() == DeviceType.phone ? 1 : 2,
-                        children: [
-                          CardDetails(
-                            width: width,
-                            controller: controllers[0],
-                            state: reader.state,
-                            header: const Text(
-                              "Settings",
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                            body: SettingsWidget(
-                              onDone: writeToDevice,
-                              state: reader.state,
-                            ),
-                            initialExpanded: true,
-                          ),
-                          CardDetails(
-                            width: width,
-                            controller: controllers[1],
-                            state: reader.state,
-                            header: const Text(
-                              "Device Settings",
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                            body: DeviceSettingsWidget(
-                              onDone: onSettingsChange,
-                              state: reader.state,
-                            ),
-                            initialExpanded:
-                                getDeviceType() == DeviceType.tablet,
-                          ),
-                          if (isAdmin) ...[
-                            CardDetails(
-                              width: width,
-                              controller: controllers[2],
-                              state: reader.state,
-                              header: const Text(
-                                "Admin Panel",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              body: AdminSettingsWidget(
-                                onSettingsChange: onSettingsChange,
-                                onChange: writeToDevice,
-                                state: reader.state,
-                              ),
-                              initialExpanded:
-                                  getDeviceType() == DeviceType.tablet,
-                            )
-                          ]
-                        ],
-                      ),
-                    )
+                        initialExpanded: getDeviceType() == DeviceType.tablet,
+                      )
+                    ]
                   ],
                 ),
+              )
+            ],
+          ),
         ),
       ),
     );

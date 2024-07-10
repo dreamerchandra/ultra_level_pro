@@ -20,7 +20,7 @@ class BleState {
   late String version;
   late double powerSupplyVoltage;
   late int temperature1;
-  late double temperature2;
+  late int temperature2;
   late Settings settings;
   late int lowLevelRelayInMm;
   late double highLevelRelayInPercent;
@@ -38,6 +38,7 @@ class BleState {
   late int tankDiameter;
   late String slaveId;
   late int baudRate;
+  late int sensorHeight;
 
   BleState({required this.data}) {
     if (!isCRCSame()) throw Exception("CRC is not same");
@@ -84,6 +85,8 @@ class BleState {
         return temperature1;
       case WriteParameter.Temperature2:
         return temperature2;
+      case WriteParameter.SensorHeight:
+        return sensorHeight;
     }
   }
 
@@ -110,7 +113,7 @@ class BleState {
     version = data.substring(i, i += 4);
     powerSupplyVoltage = hexToInt(data.substring(i, i += 4)) / 100;
     temperature1 = hexToInt(data.substring(i, i += 4));
-    temperature2 = hexToInt(data.substring(i, i += 4)) / 100;
+    temperature2 = hexToInt(data.substring(i, i += 4));
     settings = Settings.getSettings(data.substring(i, i += 4));
     lowLevelRelayInMm = hexToInt(data.substring(i, i += 4));
     highLevelRelayInPercent = hexToInt(data.substring(i, i += 4)) / 100;

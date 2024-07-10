@@ -79,6 +79,7 @@ class BleWriter {
         actualValue: echoValue.substring(0, valueToWrite.length),
         desiredValue: valueToWrite,
       )) {
+        Fluttertoast.showToast(msg: 'Write successfull');
         completer.complete(true);
         debugPrint("Write successfull");
       } else {

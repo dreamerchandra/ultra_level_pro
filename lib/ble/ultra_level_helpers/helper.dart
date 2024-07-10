@@ -97,7 +97,7 @@ String constructData({
       data = intToHex(int.parse(_value));
       break;
     case WriteParameter.HighLevelRelayInPercent:
-      data = intToHex(int.parse(_value) * 100);
+      data = intToHex(int.parse(_value));
       break;
     case WriteParameter.Lph:
       data = intToHex(int.parse(_value));
@@ -119,8 +119,6 @@ String constructData({
       data = intToHex(int.parse(_value));
     case WriteParameter.TankLength:
       data = intToHex(int.parse(_value));
-    case WriteParameter.SlaveId:
-      break;
     case WriteParameter.TankDiameter:
       data = intToHex(int.parse(_value));
       break;
@@ -128,6 +126,12 @@ String constructData({
       data = intToHex(int.parse(_value));
       break;
     case WriteParameter.Temperature2:
+      data = intToHex(int.parse(_value));
+      break;
+    case WriteParameter.SlaveId:
+      data = intToHex(int.parse(_value));
+      break;
+    case WriteParameter.SensorHeight:
       data = intToHex(int.parse(_value));
       break;
   }
