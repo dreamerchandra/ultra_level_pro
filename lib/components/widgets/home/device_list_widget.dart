@@ -20,40 +20,66 @@ class DeviceListWidget extends StatelessWidget {
       itemCount: devices.length,
       itemBuilder: (context, index) {
         final device = devices[index];
-        return ListTile(
-          title: Text(device.name),
-          subtitle: Text(device.id),
-          trailing: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (connectingDeviceId == device.id) ...[
-                const Center(
-                  child: CircularProgressIndicator(),
-                )
-              ],
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Rssid(
-                    rssid: device.rssi,
-                  ),
-                  Text(
-                    '${device.rssi} dBM',
-                    style: const TextStyle(fontSize: 14),
-                  )
-                ],
-              ),
-            ],
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
           ),
-          selectedColor: Colors.grey,
-          selected: connectingDeviceId == device.id,
-          onTap: () {
-            onTap(device);
-          },
+          margin: EdgeInsets.only(top: 10, bottom: 10),
+          child: ListTile(
+            leading: Container(
+              width: 36,
+              height: 36,
+              color: Colors.primaries.first,
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(10)),
+            ),
+            title: Text(device.name),
+            subtitle: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              textBaseline: TextBaseline.alphabetic,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Rssid(
+                      rssid: device.rssi,
+                    ),
+                    Text(
+                      '${device.rssi} dBM',
+                      style: const TextStyle(fontSize: 14),
+                    )
+                  ],
+                ),
+                Text(device.id),
+              ],
+            ),
+            trailing: TextButton(
+              onPressed: () {
+                onTap(device);
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: connectingDeviceId == device.id
+                    ? Colors.grey
+                    : const Color.fromARGB(255, 2, 189, 158),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: Text(
+                connectingDeviceId == device.id ? 'Connecting...' : 'Connect',
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+            selectedColor: Colors.grey,
+            selected: connectingDeviceId == device.id,
+            onTap: () {
+              onTap(device);
+            },
+          ),
         );
       },
       separatorBuilder: (BuildContext context, int index) {

@@ -49,47 +49,49 @@ class NonLinearTankDetailsWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: state!.nonLinearParameters.mapIndexed((idx, e) {
-        return SingleNonLinearTankDetailsWidget(
-          index: idx,
-          height: e.height,
-          filled: e.filled,
-          onRemove: (index) async {
-            if (state?.nonLinearParameters != null) {
-              List<NonLinearParameter> newState =
-                  List.from(state!.nonLinearParameters)..removeAt(index);
-              return onChange(newState);
-            }
-            return Future.value(false);
-          },
-          onHeightChange: (index, height) async {
-            final res = state?.nonLinearParameters.mapIndexed((idx, element) {
-              if (idx == index) {
-                return NonLinearParameter(
-                    height: int.parse(height), filled: element.filled);
+      children: [
+        ...state!.nonLinearParameters.mapIndexed((idx, e) {
+          return SingleNonLinearTankDetailsWidget(
+            index: idx,
+            height: e.height,
+            filled: e.filled,
+            onRemove: (index) async {
+              if (state?.nonLinearParameters != null) {
+                List<NonLinearParameter> newState =
+                    List.from(state!.nonLinearParameters)..removeAt(index);
+                return onChange(newState);
               }
-              return element;
-            }).toList();
-            if (res != null) {
-              return onChange(res);
-            }
-            return Future.value(false);
-          },
-          onFilledChange: (index, filled) async {
-            final res = state?.nonLinearParameters.mapIndexed((idx, element) {
-              if (idx == index) {
-                return NonLinearParameter(
-                    height: element.height, filled: int.parse(filled));
+              return Future.value(false);
+            },
+            onHeightChange: (index, height) async {
+              final res = state?.nonLinearParameters.mapIndexed((idx, element) {
+                if (idx == index) {
+                  return NonLinearParameter(
+                      height: int.parse(height), filled: element.filled);
+                }
+                return element;
+              }).toList();
+              if (res != null) {
+                return onChange(res);
               }
-              return element;
-            }).toList();
-            if (res != null) {
-              return onChange(res);
-            }
-            return Future.value(false);
-          },
-        );
-      }).toList(),
+              return Future.value(false);
+            },
+            onFilledChange: (index, filled) async {
+              final res = state?.nonLinearParameters.mapIndexed((idx, element) {
+                if (idx == index) {
+                  return NonLinearParameter(
+                      height: element.height, filled: int.parse(filled));
+                }
+                return element;
+              }).toList();
+              if (res != null) {
+                return onChange(res);
+              }
+              return Future.value(false);
+            },
+          );
+        }).toList()
+      ],
     );
   }
 }

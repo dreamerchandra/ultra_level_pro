@@ -47,6 +47,7 @@ dependencies:
   permission_handler: ^11.0.1
   collection: ^1.17.2
   fluttertoast: ^8.2.5
+  flutter_native_splash: ^2.4.1
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +63,7 @@ dev_dependencies:
   riverpod_lint: ^2.3.3
   riverpod_generator: ^2.3.5
   build_runner: ^2.4.6
+  flutter_launcher_icons: ^0.13.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -81,6 +83,7 @@ flutter:
     - asserts/shape/horizontal_cylinder.png
     - asserts/shape/oval_tank.png
     - asserts/shape/horizontal_cylinder.png
+    - asserts/shape/vertical_capsule.png
     - asserts/shape/rectangle_tank.png
     - asserts/shape/vertical_cylinder.png
     - asserts/shape/vertical_cylinder.png

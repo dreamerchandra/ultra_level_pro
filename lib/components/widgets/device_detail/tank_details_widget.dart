@@ -36,6 +36,53 @@ Widget bodyText(String text) {
   );
 }
 
+bool shouldApply(WriteParameter parameter, TankType? tankType) {
+  if (tankType == null) {
+    return false;
+  }
+  if (parameter == WriteParameter.TankHeight) {
+    return true;
+  }
+  const diameter = [
+    TankType.horizontalCylinder,
+    TankType.verticalCylinder,
+    TankType.horizontalCapsule,
+    TankType.verticalCapsule
+  ];
+  const length = [
+    TankType.horizontalCylinder,
+    TankType.rectangle,
+    TankType.horizontalOval,
+    TankType.verticalOval,
+    TankType.horizontalCapsule,
+    TankType.verticalCapsule,
+  ];
+  const width = [
+    TankType.rectangle,
+    TankType.horizontalOval,
+    TankType.verticalOval,
+  ];
+  const height = [
+    TankType.verticalCylinder,
+    TankType.rectangle,
+    TankType.horizontalOval,
+    TankType.verticalOval,
+  ];
+  if (diameter.contains(tankType) && parameter == WriteParameter.TankDiameter) {
+    return true;
+  }
+  if (length.contains(tankType) && parameter == WriteParameter.TankLength) {
+    return true;
+  }
+  if (width.contains(tankType) && parameter == WriteParameter.TankWidth) {
+    return true;
+  }
+  if (height.contains(tankType) && parameter == WriteParameter.TankHeight) {
+    return true;
+  }
+  return false;
+}
+
 class TankDetailsWidget extends StatefulWidget {
   const TankDetailsWidget({
     super.key,
@@ -103,7 +150,8 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
 
   bool isError = false;
 
-  void bottomSheetBuilder(BuildContext context, TankType tankType) {
+  void bottomSheetBuilder(BuildContext context, TankType tankType,
+      List<NonLinearParameter> initialValues) {
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -113,6 +161,7 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
           ble: widget.ble,
           changer: changer,
           onTankTypeChange: widget.onTankTypeChange,
+          initialValues: initialValues,
         );
       },
     );
@@ -250,36 +299,42 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                       )
                     ],
                   ),
-                  tableGap(),
-                  TableRow(
-                    children: [
-                      headerText("Tank height mm"),
-                      bodyText(': ${widget.state?.tankHeight}'),
-                      formItem(
-                        Input(
-                          hintText: "Tank height",
-                          onDone: widget.onDone,
-                          parameter: WriteParameter.TankHeight,
-                        ),
-                      )
-                    ],
-                  ),
-                  tableGap(),
-                  TableRow(
-                    children: [
-                      headerText("Tank Length mm"),
-                      bodyText(': ${widget.state?.tankLength}'),
-                      formItem(
-                        Input(
-                          hintText: "Tank Length",
-                          onDone: widget.onDone,
-                          parameter: WriteParameter.TankLength,
-                        ),
-                      )
-                    ],
-                  ),
-                  if (widget.state?.tankType == TankType.rectangle ||
-                      widget.state?.tankType == TankType.elliptical) ...[
+                  if (shouldApply(
+                      WriteParameter.TankHeight, widget.state?.tankType)) ...[
+                    tableGap(),
+                    TableRow(
+                      children: [
+                        headerText("Tank height mm"),
+                        bodyText(': ${widget.state?.tankHeight}'),
+                        formItem(
+                          Input(
+                            hintText: "Tank height",
+                            onDone: widget.onDone,
+                            parameter: WriteParameter.TankHeight,
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                  if (shouldApply(
+                      WriteParameter.TankLength, widget.state?.tankType)) ...[
+                    tableGap(),
+                    TableRow(
+                      children: [
+                        headerText("Tank Length mm"),
+                        bodyText(': ${widget.state?.tankLength}'),
+                        formItem(
+                          Input(
+                            hintText: "Tank Length",
+                            onDone: widget.onDone,
+                            parameter: WriteParameter.TankLength,
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                  if (shouldApply(
+                      WriteParameter.TankWidth, widget.state?.tankType)) ...[
                     tableGap(),
                     TableRow(
                       children: [
@@ -294,7 +349,9 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                         )
                       ],
                     ),
-                  ] else ...[
+                  ],
+                  if (shouldApply(
+                      WriteParameter.TankDiameter, widget.state?.tankType)) ...[
                     tableGap(),
                     TableRow(
                       children: [
@@ -304,7 +361,7 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                           Input(
                             hintText: "Tank Diameter",
                             onDone: widget.onDone,
-                            parameter: WriteParameter.TankLength,
+                            parameter: WriteParameter.TankDiameter,
                           ),
                         )
                       ],
@@ -360,12 +417,29 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      bottomSheetBuilder(context, TankType.nonLinear);
-                    },
-                    child: const Text("Edit Non Linear"),
-                  ),
+                  formItem(
+                    Input(
+                      hintText: "Non linear tans lengths",
+                      onDone: (value, val) {
+                        int size = int.parse(val);
+                        List<NonLinearParameter> initialValues = [];
+                        for (int i = 0; i < size; i++) {
+                          if (widget
+                                  .nonLinearState!.nonLinearParameters.length >
+                              i) {
+                            initialValues.add(
+                                widget.nonLinearState!.nonLinearParameters[i]);
+                          } else {
+                            initialValues
+                                .add(NonLinearParameter(height: 0, filled: 0));
+                          }
+                          bottomSheetBuilder(context, TankType.nonLinear, []);
+                        }
+                        return Future.value();
+                      },
+                      parameter: WriteParameter.TankLength,
+                    ),
+                  )
                 ],
               ),
               NonLinearTankDetailsWidget(
@@ -392,12 +466,14 @@ class NonLinearBottomSheet extends StatefulWidget {
     required this.ble,
     required this.changer,
     required this.onTankTypeChange,
+    required this.initialValues,
   });
 
   final Future<bool> Function(NonLinearBleWriter changer) onTankTypeChange;
   final bool isError;
   final FlutterReactiveBle ble;
   final NonLinearBleWriter changer;
+  final List<NonLinearParameter> initialValues;
 
   @override
   State<NonLinearBottomSheet> createState() => _NonLinearBottomSheetState();
@@ -432,6 +508,7 @@ class _NonLinearBottomSheetState extends State<NonLinearBottomSheet> {
                   widget.changer.update(val);
                 },
                 isError: widget.isError,
+                initialValues: widget.initialValues,
               ),
             ],
           ),

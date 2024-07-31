@@ -32,6 +32,10 @@ class BleScanner implements ReactiveState<BleScannerState> {
     _subscription?.cancel();
     _subscription =
         _ble.scanForDevices(withServices: serviceIds).listen((device) {
+      if (device.name.isEmpty) return;
+      if (!device.name.toLowerCase().startsWith('ultra')) {
+        return;
+      }
       // debugPrint('Device found: ${device.name}');
       final knownDeviceIndex = _devices.indexWhere((d) => d.id == device.id);
       if (knownDeviceIndex >= 0) {

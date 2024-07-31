@@ -10,10 +10,12 @@ class NonLinearTankTypeChangerWidget extends StatefulWidget {
     required this.ble,
     required this.onChange,
     required this.isError,
+    required this.initialValues,
   });
   final FlutterReactiveBle ble;
   final void Function(List<NonLinearParameter> val) onChange;
   final bool isError;
+  final List<NonLinearParameter> initialValues;
 
   @override
   State<NonLinearTankTypeChangerWidget> createState() =>
@@ -24,6 +26,14 @@ class _NonLinearTankTypeChangerWidgetState
     extends State<NonLinearTankTypeChangerWidget> {
   final _form = GlobalKey<FormState>();
   List<NonLinearParameter> _valuesToCommit = [];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialValues.isNotEmpty) {
+      _valuesToCommit = widget.initialValues;
+    }
+  }
 
   void set(
       {required WriteParameter parameter,

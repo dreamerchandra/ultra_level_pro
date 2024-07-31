@@ -120,6 +120,24 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
               ],
             ),
             tableGap(),
+            TableRow(
+              children: [
+                const Text("Sensor Height"),
+                Text(': ${widget.state?.levelCalibrationOffset}'),
+                formItem(
+                  Input(
+                    hintText: "9100",
+                    onDone: (parameter, value) {
+                      return widget.onChange(
+                        parameter,
+                        value,
+                      );
+                    },
+                    parameter: WriteParameter.SensorHeight,
+                  ),
+                )
+              ],
+            ),
           ],
         ),
       ],
