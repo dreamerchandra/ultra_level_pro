@@ -417,8 +417,13 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  formItem(
-                    Input(
+                  headerText("Tank Length"),
+                  bodyText(": ${widget.nonLinearState?.data.length ?? 0}"),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Expanded(
+                    child: Input(
                       hintText: "Non linear tans lengths",
                       onDone: (value, val) {
                         int size = int.parse(val);
@@ -433,13 +438,14 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                             initialValues
                                 .add(NonLinearParameter(height: 0, filled: 0));
                           }
-                          bottomSheetBuilder(context, TankType.nonLinear, []);
+                          bottomSheetBuilder(
+                              context, TankType.nonLinear, initialValues);
                         }
                         return Future.value();
                       },
                       parameter: WriteParameter.TankLength,
                     ),
-                  )
+                  ),
                 ],
               ),
               NonLinearTankDetailsWidget(

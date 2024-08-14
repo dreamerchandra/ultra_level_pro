@@ -31,8 +31,10 @@ class DeviceListWidget extends StatelessWidget {
               width: 36,
               height: 36,
               color: Colors.primaries.first,
-              decoration:
-                  BoxDecoration(borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                shape: BoxShape.circle,
+              ),
             ),
             title: Text(device.name),
             subtitle: Column(
