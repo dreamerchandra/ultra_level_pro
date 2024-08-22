@@ -36,7 +36,7 @@ class BleScanner implements ReactiveState<BleScannerState> {
       if (!device.name.toLowerCase().startsWith('ultra')) {
         return;
       }
-      // debugPrint('Device found: ${device.name}');
+      debugPrint('Device found: ${device.name}');
       final knownDeviceIndex = _devices.indexWhere((d) => d.id == device.id);
       if (knownDeviceIndex >= 0) {
         _devices[knownDeviceIndex] = device;

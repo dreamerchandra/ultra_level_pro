@@ -44,11 +44,13 @@ class DeviceListWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Rssid(
-                      rssid: device.rssi,
+                    Expanded(
+                      child: Rssid(
+                        rssid: device.rssi,
+                      ),
                     ),
                     Text(
                       '${device.rssi} dBM',

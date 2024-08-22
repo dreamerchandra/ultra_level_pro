@@ -8,11 +8,13 @@ class Input extends StatefulWidget {
     required this.onDone,
     required this.parameter,
     this.textInputAction,
+    this.onChange,
   });
   final String hintText;
   final Future<void> Function(WriteParameter, String) onDone;
   final WriteParameter parameter;
   final TextInputAction? textInputAction;
+  final void Function(String)? onChange;
 
   @override
   State<Input> createState() => _InputState();
@@ -28,6 +30,7 @@ class _InputState extends State<Input> {
     textController.addListener(() {
       setState(() {
         value = textController.value.text;
+        if (widget.onChange != null) widget.onChange!(value);
       });
     });
     super.initState();

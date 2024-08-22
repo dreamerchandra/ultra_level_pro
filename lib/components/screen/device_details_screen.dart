@@ -339,6 +339,12 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget>
                     ble: ref.read(bleProvider),
                     onTankTypeChange: onTankTypeChange,
                     nonLinearState: reader.nonLinearState,
+                    pauseTimer: () {
+                      reader.setTempPause();
+                    },
+                    resumeTimer: () {
+                      reader.setResume();
+                    },
                   ),
                   initialExpanded: true,
                 ),

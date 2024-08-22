@@ -1,253 +1,285 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_non_linear_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
+import 'package:ultra_level_pro/components/widgets/common/input.dart';
 
-class NonLinearTankTypeChangerWidget extends StatefulWidget {
-  const NonLinearTankTypeChangerWidget({
-    super.key,
-    required this.ble,
-    required this.onChange,
-    required this.isError,
-    required this.initialValues,
-  });
-  final FlutterReactiveBle ble;
-  final void Function(List<NonLinearParameter> val) onChange;
-  final bool isError;
-  final List<NonLinearParameter> initialValues;
+const headerStyle = TextStyle(
+  fontSize: 16,
+  fontWeight: FontWeight.w900,
+);
 
-  @override
-  State<NonLinearTankTypeChangerWidget> createState() =>
-      _NonLinearTankTypeChangerWidgetState();
+const bodyStyle = TextStyle(
+  fontSize: 14,
+  fontWeight: FontWeight.w900,
+);
+
+Widget headerText(String text) {
+  return Text(
+    text,
+    style: headerStyle,
+  );
 }
 
-class _NonLinearTankTypeChangerWidgetState
-    extends State<NonLinearTankTypeChangerWidget> {
-  final _form = GlobalKey<FormState>();
-  List<NonLinearParameter> _valuesToCommit = [];
+Widget bodyText(String text) {
+  return Text(
+    text,
+    style: bodyStyle,
+  );
+}
+
+class NonLinearCreateWidget extends StatefulWidget {
+  const NonLinearCreateWidget({
+    super.key,
+    required this.initialState,
+    required this.onChange,
+    required this.onReset,
+  });
+  final List<NonLinearParameter> initialState;
+  final void Function() onReset;
+  final Future<bool> Function(List<NonLinearParameter> val) onChange;
 
   @override
+  State<NonLinearCreateWidget> createState() => _NonLinearCreateWidget();
+}
+
+class _NonLinearCreateWidget extends State<NonLinearCreateWidget> {
+  List<NonLinearParameter> state = [];
+  @override
   void initState() {
+    state = widget.initialState;
     super.initState();
-    if (widget.initialValues.isNotEmpty) {
-      _valuesToCommit = widget.initialValues;
-    }
   }
 
-  void set(
-      {required WriteParameter parameter,
-      required String value,
-      required int tankIndex}) {
-    if (_valuesToCommit.length <= tankIndex) {
-      throw ErrorDescription('Something went wrong');
-    }
-    setState(() {
-      _valuesToCommit = _valuesToCommit.mapIndexed((index, element) {
-        if (index == tankIndex) {
-          final height = parameter == WriteParameter.TankHeight
-              ? int.parse(value)
-              : element.height;
-          final filled = parameter == WriteParameter.TankLength
-              ? int.parse(value)
-              : element.height;
-
-          return NonLinearParameter(
-            height: height,
-            filled: filled,
-          );
-        }
-        return element;
-      }).toList();
-    });
-    widget.onChange(_valuesToCommit);
-  }
-
-  remove(int index) {
-    if (_valuesToCommit.length >= index) {
-      _valuesToCommit.removeAt(index);
-    }
-    widget.onChange(_valuesToCommit);
-    setState(() {
-      _valuesToCommit = _valuesToCommit;
-    });
-  }
-
-  add() {
-    _valuesToCommit.add(NonLinearParameter(height: 0, filled: 0));
-    widget.onChange(_valuesToCommit);
-    setState(() {
-      _valuesToCommit = _valuesToCommit;
-    });
-  }
-
-  String getValidationText(String? text) {
-    if (text == null || text.isEmpty) {
-      return "Value can't be empty";
-    }
-    return "";
-  }
-
-  Widget FormInput({
-    required String hintText,
-    required String labelText,
-    required WriteParameter parameter,
-    required void Function(WriteParameter parameter, String value) onDone,
-  }) {
-    const textStyle = TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-    );
+  @override
+  Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            labelText,
-            style: textStyle,
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: TextFormField(
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                hintText: hintText,
-              ),
-              validator: getValidationText,
-              onChanged: (value) {
-                onDone(parameter, value);
+          ...widget.initialState.mapIndexed((idx, e) {
+            return SingleNonLinearTankDetailsWidget(
+              index: idx,
+              height: e.height,
+              filled: e.filled,
+              onRemove: (index) async {
+                List<NonLinearParameter> newState = List.from(state)
+                  ..removeAt(index);
+                setState(() {
+                  state = newState;
+                });
+                return Future.value(true);
               },
-              style: textStyle,
-              textInputAction: TextInputAction.next,
-            ),
+              onHeightChange: (index, height) async {
+                final res = state.mapIndexed((idx, element) {
+                  if (idx == index) {
+                    return NonLinearParameter(
+                        height: int.parse(height), filled: element.filled);
+                  }
+                  return element;
+                }).toList();
+                setState(() {
+                  state = res;
+                });
+                return Future.value(true);
+              },
+              onFilledChange: (index, filled) async {
+                final res = state.mapIndexed((idx, element) {
+                  if (idx == index) {
+                    return NonLinearParameter(
+                        height: element.height, filled: int.parse(filled));
+                  }
+                  return element;
+                }).toList();
+                setState(() {
+                  state = res;
+                });
+                return Future.value(true);
+              },
+            );
+          }).toList(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextButton(
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size(30, 30),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  alignment: Alignment.centerLeft,
+                ),
+                onPressed: () {
+                  widget.onReset();
+                },
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.green, fontSize: 10),
+                ),
+              ),
+              const SizedBox(
+                width: 16,
+              ),
+              FilledButton(
+                style: TextButton.styleFrom(
+                  alignment: Alignment.centerLeft,
+                ),
+                onPressed: () async {
+                  widget.onChange(state);
+                },
+                child: const Text(
+                  'Save',
+                  style: TextStyle(color: Colors.green, fontSize: 10),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
+}
 
-  ScrollController itemScroll = ScrollController();
+class SingleNonLinearTankDetailsWidget extends StatelessWidget {
+  const SingleNonLinearTankDetailsWidget({
+    super.key,
+    required this.index,
+    required this.height,
+    required this.filled,
+    required this.onRemove,
+    required this.onHeightChange,
+    required this.onFilledChange,
+  });
+  final int index;
+  final int height;
+  final int filled;
+  final Future<bool> Function(int index) onRemove;
+  final Future<bool> Function(int index, String height) onHeightChange;
+  final Future<bool> Function(int index, String filled) onFilledChange;
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Column(
-          children: [
-            if (widget.isError) ...[
-              const Text(
-                "Failed to write to device",
-                style: TextStyle(color: Colors.red, fontSize: 14),
-              ),
-            ],
-            const SizedBox(
-              height: 8,
-            ),
-            Form(
-              key: _form,
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.50,
-                child: ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  controller: itemScroll,
-                  itemBuilder: (context, index) => tankInfo(index),
-                  itemCount: _valuesToCommit.length,
+    return LayoutBuilder(builder: (context, constrain) {
+      return SizedBox(
+        width: constrain.maxWidth,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 50,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      '# ${index + 1}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size(30, 30),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        alignment: Alignment.centerLeft,
+                      ),
+                      onPressed: () {
+                        onRemove(index);
+                      },
+                      child: const Text(
+                        'Remove',
+                        style: TextStyle(color: Colors.red, fontSize: 10),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 48,
-            ),
-          ],
-        ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          child: Center(
-            child: FilledButton.icon(
-              onPressed: () {
-                add();
-                Future.delayed(const Duration(milliseconds: 500), () {
-                  itemScroll.animateTo(
-                    itemScroll.position.maxScrollExtent,
-                    curve: Curves.bounceIn,
-                    duration: const Duration(milliseconds: 500),
-                  );
-                });
-              },
-              icon: const Icon(Icons.add),
-              label: const Text("Add New"),
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget tankInfo(int index) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.blueGrey,
-          width: 1,
-        ),
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
-      ),
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Tank Details #${index + 1}"),
-                  IconButton.filledTonal(
-                    onPressed: () {
-                      remove(index);
-                    },
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
+              Flexible(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Height:',
+                          style: bodyStyle,
+                        ),
+                        const SizedBox(
+                          width: 8,
+                        ),
+                        Text(
+                          height.toString(),
+                          style: bodyStyle,
+                        ),
+                        const SizedBox(
+                          width: 16,
+                        ),
+                        Expanded(
+                          child: Input(
+                            hintText: "Tank Height",
+                            onDone: (_, val) {
+                              return onHeightChange(index, val);
+                            },
+                            parameter: WriteParameter.TankHeight,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Filled:',
+                          style: bodyStyle,
+                        ),
+                        const SizedBox(
+                          width: 16,
+                        ),
+                        Text(
+                          filled.toString(),
+                          style: bodyStyle,
+                        ),
+                        const SizedBox(
+                          width: 24,
+                        ),
+                        Expanded(
+                          child: Input(
+                            hintText: "Tank Filled",
+                            onDone: (_, val) {
+                              return onFilledChange(index, val);
+                            },
+                            parameter: WriteParameter.TankHeight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            ...tankParams(index),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
-
-  List<Widget> tankParams(int index) {
-    return [
-      {
-        "labelText": "Tank Height",
-        "hintText": "mm",
-        "parameter": WriteParameter.TankHeight
-      },
-      {
-        "labelText": "Tank Filled",
-        "hintText": "mm",
-        "parameter": WriteParameter
-            .TankLength // tank length is treated as filled parameter
-      },
-    ]
-        .map((e) => FormInput(
-              hintText: e["hintText"] as String,
-              labelText: e["labelText"] as String,
-              parameter: e["parameter"] as WriteParameter,
-              onDone: (WriteParameter parameter, String value) {
-                set(parameter: parameter, value: value, tankIndex: index);
-              },
-            ))
-        .toList();
+      );
+    });
   }
 }

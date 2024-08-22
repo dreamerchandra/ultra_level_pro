@@ -91,10 +91,14 @@ class TankDetailsWidget extends StatefulWidget {
     required this.ble,
     required this.onTankTypeChange,
     required this.nonLinearState,
+    required this.pauseTimer,
+    required this.resumeTimer,
   });
 
   final Future<bool> Function(WriteParameter parameter, String value) onDone;
   final Future<bool> Function(NonLinearBleWriter changer) onTankTypeChange;
+  final void Function() pauseTimer;
+  final void Function() resumeTimer;
 
   final BleState? state;
   final BleNonLinearState? nonLinearState;
@@ -107,6 +111,8 @@ class TankDetailsWidget extends StatefulWidget {
 class _TankDetailsWidgetState extends State<TankDetailsWidget> {
   final List<String> tankTypes = TankType.values.map((e) => e.name).toList();
   late NonLinearBleWriter changer = NonLinearBleWriter(ble: widget.ble);
+  bool nonLinearEdit = false;
+  List<NonLinearParameter> nonLinearInitialValues = [];
 
   String getValidationText(String? text) {
     if (text == null || text.isEmpty) {
@@ -149,23 +155,6 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
   }
 
   bool isError = false;
-
-  void bottomSheetBuilder(BuildContext context, TankType tankType,
-      List<NonLinearParameter> initialValues) {
-    showModalBottomSheet(
-      isScrollControlled: true,
-      context: context,
-      builder: (BuildContext context) {
-        return NonLinearBottomSheet(
-          isError: isError,
-          ble: widget.ble,
-          changer: changer,
-          onTankTypeChange: widget.onTankTypeChange,
-          initialValues: initialValues,
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -418,15 +407,18 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   headerText("Tank Length"),
-                  bodyText(": ${widget.nonLinearState?.data.length ?? 0}"),
+                  bodyText(
+                    ": ${widget.nonLinearState?.nonLinearParameters.length ?? 0}",
+                  ),
                   SizedBox(
                     width: 20,
                   ),
                   Expanded(
                     child: Input(
-                      hintText: "Non linear tans lengths",
+                      hintText: "Non linear tanks lengths",
                       onDone: (value, val) {
                         int size = int.parse(val);
+                        widget.pauseTimer();
                         List<NonLinearParameter> initialValues = [];
                         for (int i = 0; i < size; i++) {
                           if (widget
@@ -438,9 +430,11 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                             initialValues
                                 .add(NonLinearParameter(height: 0, filled: 0));
                           }
-                          bottomSheetBuilder(
-                              context, TankType.nonLinear, initialValues);
                         }
+                        setState(() {
+                          nonLinearEdit = true;
+                          nonLinearInitialValues = initialValues;
+                        });
                         return Future.value();
                       },
                       parameter: WriteParameter.TankLength,
@@ -448,120 +442,42 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                   ),
                 ],
               ),
-              NonLinearTankDetailsWidget(
-                state: widget.nonLinearState,
-                onChange: (val) async {
-                  NonLinearBleWriter changer =
-                      NonLinearBleWriter(ble: widget.ble);
-                  changer.update(val);
-                  return widget.onTankTypeChange(changer);
-                },
-              )
+              if (nonLinearEdit) ...[
+                NonLinearCreateWidget(
+                  initialState: nonLinearInitialValues,
+                  onReset: () {
+                    setState(() {
+                      nonLinearEdit = false;
+                      nonLinearInitialValues = [];
+                    });
+                    widget.resumeTimer();
+                  },
+                  onChange: (val) async {
+                    changer.update(val);
+                    return widget.onTankTypeChange(changer);
+                  },
+                )
+              ] else ...[
+                NonLinearTankDetailsWidget(
+                  state: widget.nonLinearState,
+                  onChange: (val) async {
+                    NonLinearBleWriter changer =
+                        NonLinearBleWriter(ble: widget.ble);
+                    changer.update(val);
+                    final res = await widget.onTankTypeChange(changer);
+                    if (res) {
+                      setState(() {
+                        nonLinearEdit = false;
+                        nonLinearInitialValues = [];
+                      });
+                    }
+                    return res;
+                  },
+                )
+              ]
             ]
           ],
         ),
-      ),
-    );
-  }
-}
-
-class NonLinearBottomSheet extends StatefulWidget {
-  const NonLinearBottomSheet({
-    super.key,
-    required this.isError,
-    required this.ble,
-    required this.changer,
-    required this.onTankTypeChange,
-    required this.initialValues,
-  });
-
-  final Future<bool> Function(NonLinearBleWriter changer) onTankTypeChange;
-  final bool isError;
-  final FlutterReactiveBle ble;
-  final NonLinearBleWriter changer;
-  final List<NonLinearParameter> initialValues;
-
-  @override
-  State<NonLinearBottomSheet> createState() => _NonLinearBottomSheetState();
-}
-
-class _NonLinearBottomSheetState extends State<NonLinearBottomSheet> {
-  bool isError = false;
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      padding: const EdgeInsets.all(8),
-      height: MediaQuery.of(context).size.height * 0.65,
-      child: Stack(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 16,
-              ),
-              Text(
-                "Values for Non Linear ${widget.isError ? '(write failed)' : ''}",
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              NonLinearTankTypeChangerWidget(
-                ble: widget.ble,
-                onChange: (val) {
-                  widget.changer.update(val);
-                },
-                isError: widget.isError,
-                initialValues: widget.initialValues,
-              ),
-            ],
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    if (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: Text("Cancel"),
-                ),
-                const SizedBox(
-                  width: 8,
-                ),
-                MaterialButton(
-                  color: Colors.purple[600],
-                  textTheme: ButtonTextTheme.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  onPressed: () async {
-                    try {
-                      await widget.onTankTypeChange(widget.changer);
-                      if (context.mounted && Navigator.canPop(context)) {
-                        Navigator.pop(context);
-                      }
-                    } catch (e) {
-                      if (!context.mounted) {
-                        return;
-                      }
-                      setState(() {
-                        isError = true;
-                      });
-                    }
-                  },
-                  child: Text(widget.isError ? 'Write Failed' : "Save"),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
