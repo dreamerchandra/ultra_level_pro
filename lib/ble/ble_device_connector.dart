@@ -1,0 +1,67 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:ultra_level_pro/ble/reactive_state.dart';
+
+class BleDeviceConnector extends ReactiveState<ConnectionStateUpdate> {
+  BleDeviceConnector({
+    required FlutterReactiveBle ble,
+    required Function(String message) logMessage,
+  })  : _ble = ble,
+        _logMessage = logMessage;
+
+  final FlutterReactiveBle _ble;
+  final void Function(String message) _logMessage;
+
+  @override
+  Stream<ConnectionStateUpdate> get state => _deviceConnectionController.stream;
+
+  final _deviceConnectionController = StreamController<ConnectionStateUpdate>();
+
+  // ignore: cancel_subscriptions
+  late StreamSubscription<ConnectionStateUpdate> _connection;
+
+  Future<bool> connect(String deviceId) async {
+    var completer = Completer<bool>();
+    _logMessage('Start connecting to $deviceId');
+    _connection = _ble
+        .connectToDevice(
+      id: deviceId,
+    )
+        .listen(
+      (update) {
+        debugPrint(
+            'ConnectionState for device $deviceId : ${update.connectionState}');
+        if (update.connectionState == DeviceConnectionState.connected) {
+          completer.complete(true);
+          _deviceConnectionController.add(update);
+        }
+      },
+      onError: (Object e) =>
+          _logMessage('Connecting to device $deviceId resulted in error $e'),
+    );
+    return completer.future;
+  }
+
+  Future<void> disconnect(String deviceId) async {
+    try {
+      debugPrint('disconnecting to device: $deviceId');
+      await _connection.cancel();
+    } on Exception catch (e, _) {
+      _logMessage("Error disconnecting from a device: $e");
+    } finally {
+      // Since [_connection] subscription is terminated, the "disconnected" state cannot be received and propagated
+      _deviceConnectionController.add(
+        ConnectionStateUpdate(
+          deviceId: deviceId,
+          connectionState: DeviceConnectionState.disconnected,
+          failure: null,
+        ),
+      );
+    }
+  }
+
+  Future<void> dispose() async {
+    await _deviceConnectionController.close();
+  }
+}

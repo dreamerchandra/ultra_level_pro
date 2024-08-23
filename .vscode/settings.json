@@ -1,7 +1,6 @@
 {
     "cSpell.words": [
-        "autocorrect",
-        "riverpod",
-        "UART"
-    ]
+        "microtask"
+    ],
+    "cmake.configureOnOpen": false
 }

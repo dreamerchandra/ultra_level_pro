@@ -1,0 +1,4 @@
+- non linear ui updation (done)
+- add two parameters (moving average, tank height profile) to tank screen
+- move damping from admin panel to tank screen and rename it as 'median filter' (done)
+- add sensor height to admin panel
