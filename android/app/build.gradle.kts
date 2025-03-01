@@ -1,12 +1,11 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
-    namespace = "com.example.ultra_level_pro"
+    namespace = "com.elint.ultra_level"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,25 +19,31 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.ultra_level_pro"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        applicationId = "com.elint.ultra_level"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("/Users/chandrakumar/Desktop/outside/test_ultra_level_pro/ultra_level_pro/my-release-key.keystore")  // Ensure the path is correct
+            storePassword = "apple1996"
+            keyAlias = "my-key-alias"
+            keyPassword = "apple1996"
+        }
+    }
+
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+        getByName("release") {
+            signingConfig = signingConfigs["release"]  // Linking to the signing config
+            isMinifyEnabled = false  // Set to true if you want to use ProGuard or R8 minification
+            isShrinkResources = false  // Enables resource shrinking
         }
     }
 }
 
 flutter {
-    source = "../.."
+    source = "../.."  // Adjust this if needed based on your Flutter project structure
 }

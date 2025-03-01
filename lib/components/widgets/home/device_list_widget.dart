@@ -27,11 +27,6 @@ class DeviceListWidget extends StatelessWidget {
           ),
           margin: EdgeInsets.only(top: 10, bottom: 10),
           child: ListTile(
-            leading: Container(
-              width: 36,
-              height: 36,
-              color: Colors.primaries.first,
-            ),
             title: Text(device.name),
             subtitle: Column(
               mainAxisAlignment: MainAxisAlignment.start,

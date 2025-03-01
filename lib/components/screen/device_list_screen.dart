@@ -28,7 +28,7 @@ Future<bool> checkAndRequestPermissions() async {
   bool isBluetoothConnectAllowed = await isPermissionAllowed([
     Permission.bluetoothConnect,
     Permission.bluetoothScan,
-    Permission.location
+    Permission.location,
   ]);
   if (!isBluetoothConnectAllowed) return false;
   await sleep(500);
@@ -49,38 +49,45 @@ class _DeviceListScreenState extends ConsumerState<DeviceListScreen> {
     final bleStatus = ref.watch(bleMonitorProvider);
     Widget loader = const Center(child: CircularProgressIndicator());
 
-    return bleStatus.when(data: (status) {
-      if (status == null) {
-        return const Center(child: Text("Contact admin"));
-      }
-      if (status == BleStatus.ready) {
-        return child;
-      }
+    return bleStatus.when(
+      data: (status) {
+        if (status == null) {
+          return const Center(child: Text("Contact admin"));
+        }
+        if (status == BleStatus.ready) {
+          return child;
+        }
 
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [BleStatusWidget(bleStatus: status)],
-      );
-    }, error: (err, stack) {
-      return Text("Error: $err");
-    }, loading: () {
-      return loader;
-    });
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [BleStatusWidget(bleStatus: status)],
+        );
+      },
+      error: (err, stack) {
+        return Text("Error: $err");
+      },
+      loading: () {
+        return loader;
+      },
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    checkAndRequestPermissions().then((granted) {
-      if (granted) {
-        Future.delayed(Duration(milliseconds: 500), () {
-          ref.read(bleScannerProvider).startScan([]);
+    checkAndRequestPermissions()
+        .then((granted) {
+          if (granted) {
+            Future.delayed(Duration(milliseconds: 500), () {
+              ref.read(bleScannerProvider).startScan([]);
+            });
+          }
+        })
+        .catchError((err) {
+          debugPrint(
+            'Something went wrong during granting permission ${err.toString()}',
+          );
         });
-      }
-    }).catchError((err) {
-      debugPrint(
-          'Something went wrong during granting permission ${err.toString()}');
-    });
   }
 
   String connectingDevice = '';
@@ -93,7 +100,7 @@ class _DeviceListScreenState extends ConsumerState<DeviceListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nearby Devices v1'),
+        title: const Text('Ultra Level Pro'),
         actions: [
           TextButton.icon(
             onPressed: () {
@@ -104,10 +111,11 @@ class _DeviceListScreenState extends ConsumerState<DeviceListScreen> {
               }
             },
             icon: const Icon(Icons.refresh),
-            label: scanner.isScanning
-                ? const Text('Stop Scan')
-                : const Text("Scan"),
-          )
+            label:
+                scanner.isScanning
+                    ? const Text('Stop Scan')
+                    : const Text("Scan"),
+          ),
         ],
       ),
       body: byBleStatus(

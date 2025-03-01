@@ -10,6 +10,12 @@ String getDeviceDetailsRoute(String deviceId) {
 
 class AppRouteConstants {
   static RouterDetails homeRoute = RouterDetails(path: '/', name: 'Home');
-  static RouterDetails detailsRoute =
-      RouterDetails(path: '/details/:deviceId', name: 'Device Details');
+  static RouterDetails deviceSelection = RouterDetails(
+    path: '/device',
+    name: 'Devices',
+  );
+  static RouterDetails detailsRoute = RouterDetails(
+    path: '/details/:deviceId',
+    name: 'Device Details',
+  );
 }

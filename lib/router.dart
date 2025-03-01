@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ultra_level_pro/components/screen/app_selection.dart';
 import 'package:ultra_level_pro/components/screen/device_details_screen.dart';
 import 'package:ultra_level_pro/components/screen/device_list_screen.dart';
 import 'package:ultra_level_pro/constants/constants.dart';
@@ -12,6 +13,13 @@ class AppRouter {
         GoRoute(
           name: AppRouteConstants.homeRoute.name,
           path: AppRouteConstants.homeRoute.path,
+          builder: (context, state) {
+            return const AppSelectionScreen();
+          },
+        ),
+        GoRoute(
+          name: AppRouteConstants.deviceSelection.name,
+          path: AppRouteConstants.deviceSelection.path,
           builder: (context, state) {
             return const DeviceListScreen();
           },
@@ -26,9 +34,10 @@ class AppRouter {
           },
         ),
       ],
-      errorBuilder: (context, state) => CustomError(
-        errorDetails: FlutterErrorDetails(exception: state.error!),
-      ),
+      errorBuilder:
+          (context, state) => CustomError(
+            errorDetails: FlutterErrorDetails(exception: state.error!),
+          ),
     );
     return router;
   }
