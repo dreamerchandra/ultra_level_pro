@@ -62,7 +62,7 @@ class _PingPongStatusStateWidget extends State<PingPongStatusWidget> {
     if (widget.lastNPingPong.isDeviceShowingStale()) {
       return Color(Colors.yellow.value);
     }
-    return Color(Colors.purple.value);
+    return Color(Color.fromRGBO(99, 48, 169, 1).value);
   }
 
   final size = 25.0;
@@ -103,7 +103,7 @@ class _PingPongStatusStateWidget extends State<PingPongStatusWidget> {
               progressColors: getColor(),
             ),
           ),
-        )
+        ),
       ],
     );
   }

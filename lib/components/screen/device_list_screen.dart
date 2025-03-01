@@ -5,10 +5,26 @@ import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ultra_level_pro/ble/state.dart';
 import 'package:ultra_level_pro/ble/turn_on_ble.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/device_selection.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/sleep.dart';
 import 'package:ultra_level_pro/components/widgets/home/ble_status_widget.dart';
 import 'package:ultra_level_pro/components/widgets/home/device_list_widget.dart';
 import 'package:ultra_level_pro/constants/constants.dart';
+
+String getLabel(UltraLevelDevice? devices) {
+  switch (devices) {
+    case UltraLevelDevice.ultraLevelPro:
+      return 'ULTRALEVEL PRO';
+    case UltraLevelDevice.ultraLevelMax:
+      return 'ULTRALEVEL MAX';
+    case UltraLevelDevice.smartStarter:
+      return 'SMART STARTER';
+    case UltraLevelDevice.ultraLevelDisplay:
+      return 'ULTRALEVEL DISPLAY';
+    default:
+      return 'Select Device';
+  }
+}
 
 Future<bool> isPermissionAllowed(List<Permission> permissions) async {
   return Future.delayed(Duration.zero, () async {
@@ -97,10 +113,11 @@ class _DeviceListScreenState extends ConsumerState<DeviceListScreen> {
     final scannerState = ref.watch(bleScannerStateProvider);
     final scanner = ref.watch(bleScannerProvider);
     final connectedDevice = ref.watch(bleConnectedDeviceProvider.notifier);
+    final deviceSelection = ref.watch(deviceSelectionProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ultra Level Pro'),
+        title: Text(getLabel(deviceSelection)),
         actions: [
           TextButton.icon(
             onPressed: () {

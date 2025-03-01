@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/device_selection.dart';
 import 'package:ultra_level_pro/components/widgets/common/common.dart';
 import 'package:ultra_level_pro/components/widgets/common/input.dart';
 
-class SettingsWidget extends StatelessWidget {
-  const SettingsWidget({
-    super.key,
-    required this.state,
-    required this.onDone,
-  });
+class SettingsWidget extends ConsumerWidget {
+  const SettingsWidget({super.key, required this.state, required this.onDone});
 
   final Future<bool> Function(WriteParameter parameter, String value) onDone;
 
   final BleState? state;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final deviceSelection = ref.watch(deviceSelectionProvider);
+    final isMax = deviceSelection == UltraLevelDevice.ultraLevelMax;
     return Column(
       children: [
         Table(
@@ -27,32 +27,52 @@ class SettingsWidget extends StatelessWidget {
           },
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           children: [
+            if (isMax) ...[
+              TableRow(
+                children: [
+                  const Text("Sleep Data Periodic in Sec"),
+                  Text(': ${state?.lph}'),
+                  formItem(
+                    Input(
+                      hintText: "1-65,000",
+                      onDone: onDone,
+                      parameter: WriteParameter.Lph,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            tableGap(),
             TableRow(
               children: [
-                Text("Zero % Voltage Trimming"),
+                Text(
+                  isMax ? "Data Periodic Pump ON Sec" : "0% Voltage Trimming",
+                ),
                 Text(': ${state?.zeroPercentTrimmingPoint}'),
                 formItem(
                   Input(
-                    hintText: "0.100",
+                    hintText: isMax ? "1-3600" : '0.100',
                     onDone: onDone,
                     parameter: WriteParameter.ZeroPercentTrimmingPoint,
                   ),
-                )
+                ),
               ],
             ),
             tableGap(),
             TableRow(
               children: [
-                Text("100% Voltage Trimming"),
+                Text(isMax ? "Power dbm (1-20)" : "100% Voltage Trimming"),
                 Text(': ${state?.hundredPercentTrimmingPoint}'),
                 formItem(
                   Input(
-                      hintText: "4.000",
-                      onDone: onDone,
-                      parameter: WriteParameter.HundredPercentTrimmingPoint),
-                )
+                    hintText: isMax ? "1-22" : "4.000",
+                    onDone: onDone,
+                    parameter: WriteParameter.HundredPercentTrimmingPoint,
+                  ),
+                ),
               ],
             ),
+
             tableGap(),
             TableRow(
               children: [
@@ -64,7 +84,7 @@ class SettingsWidget extends StatelessWidget {
                     parameter: WriteParameter.SensorOffset,
                     hintText: "Sensor Offset",
                   ),
-                )
+                ),
               ],
             ),
             tableGap(),
@@ -78,7 +98,7 @@ class SettingsWidget extends StatelessWidget {
                     onDone: onDone,
                     parameter: WriteParameter.SlaveId,
                   ),
-                )
+                ),
               ],
             ),
             tableGap(),

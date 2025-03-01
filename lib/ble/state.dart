@@ -51,4 +51,5 @@ final bleScannerStateProvider = StreamProvider<BleScannerState?>((ref) async* {
 });
 final bleConnectedDeviceProvider =
     StateNotifierProvider<BleConnectedDeviceNotifier, BleConnectedDevice?>(
-        (ref) => BleConnectedDeviceNotifier());
+      (ref) => BleConnectedDeviceNotifier(),
+    );

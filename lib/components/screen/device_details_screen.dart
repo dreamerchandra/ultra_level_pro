@@ -284,6 +284,9 @@ class DetailViewState extends ConsumerState<DeviceDetailWidget>
                 lastNPingPong: reader.lastNPingPong,
               ),
               TextButton.icon(
+                style: TextButton.styleFrom(
+                  iconColor: const Color.fromRGBO(99, 48, 169, 1),
+                ),
                 onPressed: () async {
                   if (reader.isPaused) {
                     reader.setResume();

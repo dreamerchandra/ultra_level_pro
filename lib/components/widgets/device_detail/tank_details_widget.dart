@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_non_linear_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/ble_state.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/constant.dart';
+import 'package:ultra_level_pro/ble/ultra_level_helpers/device_selection.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/tank_type.dart';
 import 'package:ultra_level_pro/ble/ultra_level_helpers/non_linear_ble_writer.dart';
 import 'package:ultra_level_pro/components/widgets/common/common.dart';
@@ -71,7 +73,7 @@ bool shouldApply(WriteParameter parameter, TankType? tankType) {
   return false;
 }
 
-class TankDetailsWidget extends StatefulWidget {
+class TankDetailsWidget extends ConsumerStatefulWidget {
   const TankDetailsWidget({
     super.key,
     required this.state,
@@ -97,10 +99,10 @@ class TankDetailsWidget extends StatefulWidget {
   final FlutterReactiveBle ble;
 
   @override
-  State<TankDetailsWidget> createState() => _TankDetailsWidgetState();
+  _TankDetailsWidgetState createState() => _TankDetailsWidgetState();
 }
 
-class _TankDetailsWidgetState extends State<TankDetailsWidget> {
+class _TankDetailsWidgetState extends ConsumerState<TankDetailsWidget> {
   final List<String> tankTypes = TankType.values.map((e) => e.name).toList();
   late NonLinearBleWriter changer = NonLinearBleWriter(ble: widget.ble);
   bool nonLinearEdit = false;
@@ -148,6 +150,8 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final isMax =
+        ref.watch(deviceSelectionProvider) == UltraLevelDevice.ultraLevelMax;
     return SingleChildScrollView(
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -377,20 +381,22 @@ class _TankDetailsWidgetState extends State<TankDetailsWidget> {
                       ),
                     ],
                   ),
-                  tableGap(),
-                  TableRow(
-                    children: [
-                      headerText("LPH"),
-                      bodyText(": ${widget.state?.lph}"),
-                      formItem(
-                        Input(
-                          hintText: "Liters per hour",
-                          onDone: widget.onDone,
-                          parameter: WriteParameter.Lph,
+                  if (!isMax) ...[
+                    tableGap(),
+                    TableRow(
+                      children: [
+                        headerText("LPH"),
+                        bodyText(": ${widget.state?.lph}"),
+                        formItem(
+                          Input(
+                            hintText: "Liters per hour",
+                            onDone: widget.onDone,
+                            parameter: WriteParameter.Lph,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ],
               ],
             ),
