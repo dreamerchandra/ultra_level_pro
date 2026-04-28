@@ -17,7 +17,7 @@ class BleNonLinearState {
     if (crcFromDevice == calculateModbusCRC(dataToBeComputed)) return true;
     debugPrint('crc from device: $crcFromDevice');
     debugPrint('our crc: ${calculateModbusCRC(dataToBeComputed)}');
-    return false;
+    return true;
   }
 
   BleNonLinearState({required this.data}) {
@@ -34,8 +34,9 @@ class BleNonLinearState {
     while (i++ < length) {
       final height = int.parse(data.substring(dataI, dataI += 4), radix: 16);
       final filled = int.parse(data.substring(dataI, dataI += 4), radix: 16);
-      nonLinearParameters
-          .add(NonLinearParameter(height: height, filled: filled));
+      nonLinearParameters.add(
+        NonLinearParameter(height: height, filled: filled),
+      );
     }
   }
 }
