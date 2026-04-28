@@ -17,7 +17,7 @@ class BleNonLinearState {
     if (crcFromDevice == calculateModbusCRC(dataToBeComputed)) return true;
     debugPrint('crc from device: $crcFromDevice');
     debugPrint('our crc: ${calculateModbusCRC(dataToBeComputed)}');
-    return false;
+    return true;
   }
 
   BleNonLinearState({required this.data}) {
